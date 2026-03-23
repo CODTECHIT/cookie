@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cart - Daksha Cookies &amp; Millets</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "tertiary": "#755b00",
+              "outline-variant": "#d4c3c0",
+              "on-primary-fixed": "#2d1512",
+              "secondary": "#685d46",
+              "background": "#fcf9f4",
+              "surface-container": "#f0ede8",
+              "on-secondary-fixed": "#221b08",
+              "outline": "#827472",
+              "tertiary-fixed-dim": "#ecc246",
+              "on-tertiary": "#ffffff",
+              "tertiary-container": "#cea62b",
+              "secondary-fixed": "#f0e1c3",
+              "inverse-surface": "#31302d",
+              "on-tertiary-fixed": "#241a00",
+              "primary-fixed-dim": "#e8bcb7",
+              "primary-container": "#4b2e2b",
+              "surface-tint": "#785652",
+              "surface-dim": "#dcdad5",
+              "inverse-primary": "#e8bcb7",
+              "secondary-container": "#f0e1c3",
+              "on-tertiary-fixed-variant": "#584400",
+              "on-surface": "#1c1c19",
+              "surface-container-lowest": "#ffffff",
+              "primary-fixed": "#ffdad6",
+              "secondary-fixed-dim": "#d3c5a8",
+              "surface-variant": "#e5e2dd",
+              "surface": "#fcf9f4",
+              "on-tertiary-container": "#4f3d00",
+              "on-background": "#1c1c19",
+              "on-surface-variant": "#504443",
+              "on-secondary-fixed-variant": "#4f4630",
+              "on-error": "#ffffff",
+              "primary": "#331917",
+              "surface-container-high": "#ebe8e3",
+              "surface-bright": "#fcf9f4",
+              "error": "#ba1a1a",
+              "on-primary-fixed-variant": "#5e3f3b",
+              "on-secondary-container": "#6e634c",
+              "on-primary-container": "#be9590",
+              "on-primary": "#ffffff",
+              "inverse-on-surface": "#f3f0eb",
+              "tertiary-fixed": "#ffe08e",
+              "on-error-container": "#93000a",
+              "surface-container-low": "#f6f3ee",
+              "surface-container-highest": "#e5e2dd",
+              "on-secondary": "#ffffff",
+              "error-container": "#ffdad6"
+            },
+            fontFamily: {
+              "headline": ["Noto Serif"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #fcf9f4; color: #1c1c19; }
+      .font-serif { font-family: 'Noto Serif', serif; }
+      .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-surface selection:bg-secondary-fixed selection:text-primary">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full z-50 bg-[#fcf9f4]/80 backdrop-blur-md shadow-sm flex justify-between items-center px-6 py-4 max-w-full">
+<div class="text-2xl font-serif font-bold text-primary">Daksha Cookies &amp; Millets</div>
+<div class="hidden md:flex space-x-8 items-center">
+<a class="text-stone-600 hover:text-primary transition-colors font-body" href="index.html">Home</a>
+<a class="text-stone-600 hover:text-primary transition-colors font-body" href="products.html">Cookies</a>
+<a class="text-stone-600 hover:text-primary transition-colors font-body" href="products.html">Millets</a>
+<a class="text-stone-600 hover:text-primary transition-colors font-body" href="#">Bundles</a>
+<a class="text-stone-600 hover:text-primary transition-colors font-body" href="#">Offers</a>
+<a class="text-stone-600 hover:text-primary transition-colors font-body" href="#">About Us</a>
+</div>
+<div class="flex items-center space-x-5">
+<button class="p-2 hover:bg-stone-100/50 rounded-full transition-colors">
+<span class="material-symbols-outlined text-primary">favorite</span>
+</button>
+<button class="p-2 hover:bg-stone-100/50 rounded-full transition-colors relative">
+<span class="material-symbols-outlined text-primary">shopping_cart</span>
+<span class="absolute top-1 right-1 bg-tertiary text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">3</span>
+</button>
+<button class="hidden md:block px-6 py-2 bg-primary text-on-primary font-medium rounded-lg hover:opacity-90 transition-all">
+                Login
+            </button>
+</div>
+</nav>
+<!-- Main Content Grid -->
+<main class="pt-28 pb-20 px-6 max-w-7xl mx-auto">
+<div class="flex flex-col lg:flex-row gap-8">
+<!-- Left Column: Cart Items (70%) -->
+<div class="lg:w-[70%]">
+<header class="mb-8">
+<h1 class="font-serif text-4xl font-bold text-primary mb-2">Shopping Bag</h1>
+<p class="text-on-surface-variant font-body">You have 3 items in your cart.</p>
+</header>
+<div class="space-y-6">
+<!-- Cart Item 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-4 flex gap-6 transition-transform hover:translate-y-[-2px] shadow-[0_4px_12px_rgba(51,25,23,0.04)]">
+<div class="w-28 h-28 bg-surface-container rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Close up of artisan cashew butter cookies" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPdbZUlTB6wmNtrSPurHGyNwF2jkn9XnfHs_BLTISeDqQWTTSCH3mmiAUq_xSPBvhyKeQ7h9oEE1WUk_mC_m1LD-ss8tWlnKCxPIYLIg8zE2rs91BhMe63dyIYow60y8NuFihlVu2WIap4-2_CC1GFLQUEv6LAg7LiXoYqBFX7JzCmIfPYcZLlmAnR8-tuiW4y6wcra67a6dEIxR7agJriiVDTKypogRQwiXFxcRhbB9t_GsbO8r8uTdp56lAxPZTSw2l5jonKQPY"/>
+</div>
+<div class="flex-grow flex flex-col justify-between py-1">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-body font-bold text-lg text-primary">Cashew Butter Cookies</h3>
+<p class="text-sm text-on-surface-variant">250g • Traditional Hearth Baked</p>
+</div>
+<p class="font-serif font-bold text-lg text-primary">₹199</p>
+</div>
+<div class="flex justify-between items-center mt-4">
+<div class="flex items-center bg-surface-container rounded-full px-2 py-1">
+<button class="w-8 h-8 flex items-center justify-center hover:bg-outline-variant/20 rounded-full text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">remove</span>
+</button>
+<span class="px-4 font-bold text-primary">1</span>
+<button class="w-8 h-8 flex items-center justify-center hover:bg-outline-variant/20 rounded-full text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+<button class="flex items-center text-error hover:bg-error-container/20 px-3 py-1 rounded-lg transition-colors text-sm font-medium">
+<span class="material-symbols-outlined text-sm mr-1">delete</span> Remove
+                                </button>
+</div>
+</div>
+</div>
+<!-- Cart Item 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-4 flex gap-6 transition-transform hover:translate-y-[-2px] shadow-[0_4px_12px_rgba(51,25,23,0.04)]">
+<div class="w-28 h-28 bg-surface-container rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Golden millet flakes in a ceramic bowl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqaTyoHCDyWZIeGkC_a_Gq-4zmaNubJTZW5n-LKjSWh4I0nmkZxEWmdxLKhlaZGayZK4YAMu559nT29mxngRZvte-UiLq12GpAnf93pAmIeiAIh-nf9-6vW9ZG0JdS-_QbNBSV8K6kity99VIKBnXoVbmBTFSohuHKLJ44r2QlFlqgsJuew7IxcNxqdxjE3NH5CIrpn93osqMuitzDIRlYEJ38n0bXnKTa5rocEDQ-R-oGXn917bbGIWZqfOA8-3c8hcai5o4nDnQ"/>
+</div>
+<div class="flex-grow flex flex-col justify-between py-1">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-body font-bold text-lg text-primary">Organic Pearl Millet</h3>
+<p class="text-sm text-on-surface-variant">1kg • Nutrient Rich &amp; Gluten-Free</p>
+</div>
+<p class="font-serif font-bold text-lg text-primary">₹145</p>
+</div>
+<div class="flex justify-between items-center mt-4">
+<div class="flex items-center bg-surface-container rounded-full px-2 py-1">
+<button class="w-8 h-8 flex items-center justify-center hover:bg-outline-variant/20 rounded-full text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">remove</span>
+</button>
+<span class="px-4 font-bold text-primary">2</span>
+<button class="w-8 h-8 flex items-center justify-center hover:bg-outline-variant/20 rounded-full text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+<button class="flex items-center text-error hover:bg-error-container/20 px-3 py-1 rounded-lg transition-colors text-sm font-medium">
+<span class="material-symbols-outlined text-sm mr-1">delete</span> Remove
+                                </button>
+</div>
+</div>
+</div>
+<!-- Cart Item 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-4 flex gap-6 transition-transform hover:translate-y-[-2px] shadow-[0_4px_12px_rgba(51,25,23,0.04)]">
+<div class="w-28 h-28 bg-surface-container rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Artisan multi-grain healthy snack bars" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJkVBfwVW3Q4gpaL9YhaEkW1scwp_R5nVaMY8Br3th_LuilP7kIBEshx3Njn_y27kYoXBMwZUi1fW-j5B1722mpGtwcPoWPDeZRLfU7EMalo-qHRekdW6vkacyuONA3tfyOd4yB-OX6DtrnwO47_8wE28yNEAa_Vk6FuLlSKoeJGq97TvLMhVQpTdgU1JMG7TzqvGh73o4pXMGw5FhTOpw8XqNx0M5e0autUX5_mIcrQTT0KgYe1QpywJgWIqpPW-5ur9vI5K5TI4"/>
+</div>
+<div class="flex-grow flex flex-col justify-between py-1">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-body font-bold text-lg text-primary">Millet &amp; Honey Granola</h3>
+<p class="text-sm text-on-surface-variant">400g • Cold Pressed &amp; Natural</p>
+</div>
+<p class="font-serif font-bold text-lg text-primary">₹320</p>
+</div>
+<div class="flex justify-between items-center mt-4">
+<div class="flex items-center bg-surface-container rounded-full px-2 py-1">
+<button class="w-8 h-8 flex items-center justify-center hover:bg-outline-variant/20 rounded-full text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">remove</span>
+</button>
+<span class="px-4 font-bold text-primary">1</span>
+<button class="w-8 h-8 flex items-center justify-center hover:bg-outline-variant/20 rounded-full text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+<button class="flex items-center text-error hover:bg-error-container/20 px-3 py-1 rounded-lg transition-colors text-sm font-medium">
+<span class="material-symbols-outlined text-sm mr-1">delete</span> Remove
+                                </button>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-12 flex items-center">
+<a class="flex items-center text-tertiary-container font-bold hover:gap-2 transition-all" href="products.html">
+<span class="material-symbols-outlined mr-2">arrow_back</span>
+                        Continue Shopping
+                    </a>
+</div>
+</div>
+<!-- Right Column: Order Summary (30%) -->
+<div class="lg:w-[30%]">
+<div class="sticky top-28 space-y-6">
+<!-- Summary Card -->
+<div class="bg-surface-container-low rounded-2xl p-6 border-outline-variant/10 border">
+<h2 class="font-serif text-2xl font-bold text-primary mb-6">Price Details</h2>
+<div class="space-y-4 font-body border-b border-outline-variant/20 pb-6">
+<div class="flex justify-between text-on-surface-variant">
+<span>Subtotal (3 items)</span>
+<span>₹809</span>
+</div>
+<div class="flex justify-between text-on-surface-variant">
+<span>Shipping Charges</span>
+<span class="text-highlight font-medium">FREE</span>
+</div>
+<div class="flex justify-between text-tertiary font-medium">
+<span>Total Savings</span>
+<span>-₹65</span>
+</div>
+</div>
+<div class="py-6 flex justify-between items-center">
+<span class="font-serif text-xl font-bold text-primary">Grand Total</span>
+<span class="font-serif text-2xl font-bold text-primary">₹744</span>
+</div>
+<button class="w-full bg-primary text-on-primary py-4 rounded-xl font-bold text-lg shadow-lg hover:translate-y-[-2px] active:scale-[0.98] transition-all">
+                            Proceed to Checkout
+                        </button>
+<!-- Trust Badges -->
+<div class="mt-8 grid grid-cols-2 gap-4">
+<div class="flex flex-col items-center text-center p-3 rounded-lg bg-surface/50">
+<span class="material-symbols-outlined text-tertiary text-3xl mb-1">verified_user</span>
+<span class="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">Secure Payment</span>
+</div>
+<div class="flex flex-col items-center text-center p-3 rounded-lg bg-surface/50">
+<span class="material-symbols-outlined text-tertiary text-3xl mb-1">published_with_changes</span>
+<span class="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">Easy Returns</span>
+</div>
+</div>
+</div>
+<!-- Promo Section -->
+<div class="bg-secondary-container/30 rounded-2xl p-5 flex items-center justify-between">
+<div class="flex items-center">
+<span class="material-symbols-outlined text-tertiary mr-3">sell</span>
+<span class="font-body font-medium text-primary">Apply Coupon</span>
+</div>
+<span class="material-symbols-outlined text-primary">chevron_right</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Section -->
+<footer class="bg-primary text-secondary-fixed w-full pt-16 pb-8">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 px-8 max-w-7xl mx-auto font-body">
+<div>
+<h3 class="font-serif text-2xl text-secondary-fixed mb-4">Daksha Cookies &amp; Millets</h3>
+<p class="text-surface-container/60 leading-relaxed mb-6">Curating the finest heritage grains and artisan bakes for a mindful lifestyle. From our hearth to your home.</p>
+<div class="flex space-x-4">
+<span class="material-symbols-outlined cursor-pointer hover:text-white transition-colors">share</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-white transition-colors">favorite</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-white transition-colors">public</span>
+</div>
+</div>
+<div>
+<h4 class="font-bold text-white mb-6 uppercase tracking-widest text-xs">Shop</h4>
+<ul class="space-y-3 text-secondary-fixed/60">
+<li><a class="hover:text-secondary-fixed transition-colors" href="#">Best Sellers</a></li>
+<li><a class="hover:text-secondary-fixed transition-colors" href="#">Gift Boxes</a></li>
+<li><a class="hover:text-secondary-fixed transition-colors" href="#">Subscription</a></li>
+<li><a class="hover:text-secondary-fixed transition-colors" href="#">Store Locator</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-white mb-6 uppercase tracking-widest text-xs">Policies</h4>
+<ul class="space-y-3 text-secondary-fixed/60">
+<li><a class="hover:text-secondary-fixed transition-colors" href="#">Privacy Policy</a></li>
+<li><a class="hover:text-secondary-fixed transition-colors" href="#">Shipping Policy</a></li>
+<li><a class="hover:text-secondary-fixed transition-colors" href="#">Terms of Service</a></li>
+<li><a class="hover:text-secondary-fixed transition-colors" href="#">Refund Policy</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-white mb-6 uppercase tracking-widest text-xs">Connect</h4>
+<p class="text-secondary-fixed/60 mb-4">Join our community for weekly wellness tips and recipes.</p>
+<div class="flex">
+<input class="bg-primary-container border-none text-white px-4 py-2 rounded-l-lg focus:ring-0 w-full placeholder:text-stone-500" placeholder="Email" type="email"/>
+<button class="bg-secondary-container text-primary font-bold px-4 py-2 rounded-r-lg">Join</button>
+</div>
+</div>
+</div>
+<div class="mt-16 pt-8 border-t border-secondary-fixed/10 text-center text-sm text-secondary-fixed/40">
+            © 2023 Daksha Cookies &amp; Millets. Curating Heritage.
+        </div>
+</footer>
+<!-- Mobile Bottom Navigation (Hidden on MD+) -->
+<div class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center py-3 px-2 bg-background border-t border-outline-variant/15 z-50 shadow-[0_-4px_20px_rgba(51,25,23,0.08)]">
+<a class="flex flex-col items-center justify-center text-stone-400 opacity-70" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-sans font-medium uppercase tracking-wider mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-400 opacity-70" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="text-[10px] font-sans font-medium uppercase tracking-wider mt-1">Categories</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary scale-110" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">shopping_basket</span>
+<span class="text-[10px] font-sans font-medium uppercase tracking-wider mt-1">Cart</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-400 opacity-70" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<span class="text-[10px] font-sans font-medium uppercase tracking-wider mt-1">Wishlist</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-400 opacity-70" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-sans font-medium uppercase tracking-wider mt-1">Profile</span>
+</a>
+</div>
+</body></html>

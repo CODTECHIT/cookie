@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cookies - Daksha Cookies &amp; Millets</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "tertiary": "#755b00",
+                        "outline-variant": "#d4c3c0",
+                        "on-primary-fixed": "#2d1512",
+                        "secondary": "#685d46",
+                        "background": "#fcf9f4",
+                        "surface-container": "#f0ede8",
+                        "on-secondary-fixed": "#221b08",
+                        "outline": "#827472",
+                        "tertiary-fixed-dim": "#ecc246",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#cea62b",
+                        "secondary-fixed": "#f0e1c3",
+                        "inverse-surface": "#31302d",
+                        "on-tertiary-fixed": "#241a00",
+                        "primary-fixed-dim": "#e8bcb7",
+                        "primary-container": "#4b2e2b",
+                        "surface-tint": "#785652",
+                        "surface-dim": "#dcdad5",
+                        "inverse-primary": "#e8bcb7",
+                        "secondary-container": "#f0e1c3",
+                        "on-tertiary-fixed-variant": "#584400",
+                        "on-surface": "#1c1c19",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#ffdad6",
+                        "secondary-fixed-dim": "#d3c5a8",
+                        "surface-variant": "#e5e2dd",
+                        "surface": "#fcf9f4",
+                        "on-tertiary-container": "#4f3d00",
+                        "on-background": "#1c1c19",
+                        "on-surface-variant": "#504443",
+                        "on-secondary-fixed-variant": "#4f4630",
+                        "on-error": "#ffffff",
+                        "primary": "#331917",
+                        "surface-container-high": "#ebe8e3",
+                        "surface-bright": "#fcf9f4",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed-variant": "#5e3f3b",
+                        "on-secondary-container": "#6e634c",
+                        "on-primary-container": "#be9590",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#f3f0eb",
+                        "tertiary-fixed": "#ffe08e",
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#f6f3ee",
+                        "surface-container-highest": "#e5e2dd",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6"
+                    },
+                    fontFamily: {
+                        "headline": ["Noto Serif"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #fcf9f4; color: #1c1c19; }
+        h1, h2, h3, .font-serif { font-family: 'Noto Serif', serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-background text-on-background">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#fcf9f4]/80 dark:bg-stone-900/80 backdrop-blur-md shadow-sm dark:shadow-none">
+<div class="flex justify-between items-center px-6 py-4 max-w-full">
+<div class="text-2xl font-serif font-bold text-[#331917] dark:text-[#f0e1c3]">Daksha Cookies &amp; Millets</div>
+<div class="hidden md:flex items-center space-x-8">
+<a class="text-stone-600 dark:text-stone-400 hover:text-[#331917] transition-colors" href="index.html">Home</a>
+<a class="text-[#331917] dark:text-[#f0e1c3] font-bold border-b-2 border-[#331917] dark:border-[#f0e1c3] pb-1" href="products.html">Cookies</a>
+<a class="text-stone-600 dark:text-stone-400 hover:text-[#331917] transition-colors" href="products.html">Millets</a>
+<a class="text-stone-600 dark:text-stone-400 hover:text-[#331917] transition-colors" href="#">Bundles</a>
+<a class="text-stone-600 dark:text-stone-400 hover:text-[#331917] transition-colors" href="#">Offers</a>
+<a class="text-stone-600 dark:text-stone-400 hover:text-[#331917] transition-colors" href="#">About Us</a>
+</div>
+<div class="flex items-center space-x-6">
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-high border-none rounded-full text-sm focus:ring-2 focus:ring-primary w-64" placeholder="Search heritage flavors..." type="text"/>
+</div>
+<div class="flex space-x-4 text-primary">
+<button class="hover:bg-stone-100/50 p-2 rounded-full transition-colors"><span class="material-symbols-outlined" data-icon="favorite">favorite</span></button>
+<button class="hover:bg-stone-100/50 p-2 rounded-full transition-colors relative" onclick="window.location.href='cart.html'">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+<span class="absolute top-0 right-0 bg-tertiary text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">2</span>
+</button>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity">Login</button>
+</div>
+</div>
+</nav>
+<main class="pt-24 pb-20 px-4 md:px-8 max-w-[1600px] mx-auto">
+<!-- Breadcrumb -->
+<nav aria-label="Breadcrumb" class="flex items-center space-x-2 text-sm text-on-surface-variant mb-8 px-2">
+<a class="hover:text-primary" href="index.html">Home</a>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="font-semibold text-primary">Cookies</span>
+</nav>
+<div class="flex flex-col md:flex-row gap-8">
+<!-- Left Sidebar Filters -->
+<aside class="w-full md:w-72 flex-shrink-0">
+<div class="bg-surface-container-low rounded-xl p-6 space-y-8 sticky top-28">
+<div class="flex items-center justify-between border-b border-outline-variant/20 pb-4">
+<h2 class="font-bold text-lg text-primary">Filters</h2>
+<button class="text-xs text-tertiary font-semibold uppercase tracking-wider">Clear All</button>
+</div>
+<!-- Category -->
+<div>
+<h3 class="font-semibold text-sm mb-4 uppercase tracking-widest text-on-surface-variant">Category</h3>
+<div class="space-y-3">
+<label class="flex items-center space-x-3 cursor-pointer group">
+<input class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-on-surface group-hover:text-primary transition-colors">Cashew</span>
+</label>
+<label class="flex items-center space-x-3 cursor-pointer group">
+<input checked="" class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-on-surface group-hover:text-primary transition-colors">Millet</span>
+</label>
+<label class="flex items-center space-x-3 cursor-pointer group">
+<input class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-on-surface group-hover:text-primary transition-colors">Chocolate</span>
+</label>
+<label class="flex items-center space-x-3 cursor-pointer group">
+<input class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-on-surface group-hover:text-primary transition-colors">Almond</span>
+</label>
+</div>
+</div>
+<!-- Price Range -->
+<div>
+<h3 class="font-semibold text-sm mb-4 uppercase tracking-widest text-on-surface-variant">Price Range</h3>
+<input class="w-full h-1 bg-outline-variant rounded-lg appearance-none cursor-pointer accent-primary" max="1000" min="0" type="range" value="600"/>
+<div class="flex justify-between mt-2 text-xs font-bold text-on-surface-variant">
+<span>₹0</span>
+<span>₹1000</span>
+</div>
+</div>
+<!-- Weight -->
+<div>
+<h3 class="font-semibold text-sm mb-4 uppercase tracking-widest text-on-surface-variant">Weight</h3>
+<div class="grid grid-cols-2 gap-2">
+<button class="px-3 py-2 text-xs border border-outline-variant rounded-lg hover:border-primary hover:text-primary transition-all">100g</button>
+<button class="px-3 py-2 text-xs border-2 border-primary bg-primary-container/10 text-primary font-bold rounded-lg">250g</button>
+<button class="px-3 py-2 text-xs border border-outline-variant rounded-lg hover:border-primary hover:text-primary transition-all">500g</button>
+<button class="px-3 py-2 text-xs border border-outline-variant rounded-lg hover:border-primary hover:text-primary transition-all">1kg</button>
+</div>
+</div>
+<!-- Rating -->
+<div>
+<h3 class="font-semibold text-sm mb-4 uppercase tracking-widest text-on-surface-variant">Rating</h3>
+<label class="flex items-center space-x-3 cursor-pointer">
+<input class="w-5 h-5 rounded border-outline-variant text-primary" type="checkbox"/>
+<span class="flex items-center text-sm">4 <span class="material-symbols-outlined text-sm text-tertiary-container ml-1" style="font-variation-settings: 'FILL' 1;">star</span> &amp; above</span>
+</label>
+</div>
+<!-- Availability -->
+<div class="flex items-center justify-between pt-4 border-t border-outline-variant/20">
+<span class="text-sm font-semibold">In Stock Only</span>
+<button class="w-10 h-5 bg-tertiary rounded-full relative">
+<span class="absolute right-1 top-1 w-3 h-3 bg-white rounded-full"></span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<section class="flex-grow">
+<!-- Top Bar -->
+<div class="bg-surface-container-low rounded-xl px-6 py-4 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div class="text-on-surface-variant font-medium">
+                        Showing <span class="text-primary font-bold">48 products</span> found for Cookies
+                    </div>
+<div class="flex items-center space-x-4">
+<span class="text-sm font-semibold text-on-surface-variant uppercase tracking-wider">Sort By:</span>
+<select class="bg-transparent border-none text-primary font-bold focus:ring-0 cursor-pointer">
+<option>Relevance</option>
+<option>Price Low-High</option>
+<option>Price High-Low</option>
+<option>Newest</option>
+<option>Best Rated</option>
+</select>
+</div>
+</div>
+<!-- Product Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+<!-- Product Card 1 -->
+<div class="bg-surface-container-lowest group rounded-xl overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1 relative">
+<div class="absolute top-3 left-3 z-10 flex flex-col gap-2">
+<span class="bg-tertiary-container text-on-tertiary-container text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-tighter">Best Seller</span>
+</div>
+<button class="absolute top-3 right-3 z-10 w-8 h-8 bg-white/80 backdrop-blur rounded-full flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all shadow-sm">
+<span class="material-symbols-outlined text-lg" data-icon="favorite">favorite</span>
+</button>
+<div class="aspect-square bg-surface-variant overflow-hidden">
+<img alt="Millet Cookies" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Close up of artisan chocolate millet cookies" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5PyuKCZ1zpq0x6kvtQIGd1-63g5Go6eVRWVVQcHMfmS_qkK8H2cH8rmxIJR1e-mjsK10CnszUxo8UFDj3ZRC-GL7FIWPjlCXxFeFzn4s_vKpaUcN1-a1FLHYBnBlgmHH5n5E34tWd7Kx07Z7V1yl2i1EQKTFNhNyfMuILoKaruSGe95Jjc5QL4tMzZkqzl_lKnfmWJ_cbKFlm5_esysHGvRiYgxpcK3uwiHPJX3iMXPXlxUNAApu3Y-SXBJspIjnggX4hcHbsvEY"/>
+</div>
+<div class="p-4">
+<div class="flex items-center text-[10px] text-tertiary font-bold uppercase tracking-widest mb-1">
+<span class="material-symbols-outlined text-xs mr-1" style="font-variation-settings: 'FILL' 1;">star</span> 4.9 (124 reviews)
+                            </div>
+<a href="product-detail.html"><h3 class="font-bold text-primary group-hover:text-tertiary transition-colors line-clamp-1">Classic Ragi &amp; Dark Choco</h3></a>
+<p class="text-xs text-on-surface-variant mb-3">250g • Handcrafted</p>
+<div class="flex items-end space-x-2 mb-4">
+<span class="text-lg font-bold font-serif text-primary">₹249</span>
+<span class="text-sm text-outline line-through mb-0.5">₹350</span>
+<span class="text-xs font-bold text-tertiary mb-0.5">30% OFF</span>
+</div>
+<button class="w-full bg-primary text-on-primary py-2.5 rounded-lg flex items-center justify-center space-x-2 hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined text-sm">shopping_cart</span>
+<span class="text-sm font-bold uppercase tracking-tight">Add to Cart</span>
+</button>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="bg-surface-container-lowest group rounded-xl overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1 relative">
+<div class="absolute top-3 left-3 z-10 flex flex-col gap-2">
+<span class="bg-[#6B8E23]/20 text-[#6B8E23] text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-tighter">Healthy</span>
+</div>
+<button class="absolute top-3 right-3 z-10 w-8 h-8 bg-white/80 backdrop-blur rounded-full flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all shadow-sm">
+<span class="material-symbols-outlined text-lg" data-icon="favorite">favorite</span>
+</button>
+<div class="aspect-square bg-surface-variant overflow-hidden">
+<img alt="Almond Cookies" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Almond butter cookies on a rustic background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkCJPc9dzOyrp7UuUPRK97ADMP6uuicj4cwY-UGXXckckl2ij6DP8GS-orw3WQr_72YwbKUiJJ60kSEuQhumsvPBgTf5iRqCdnQTTL9MgzELRh2xXzfWbLSNlg7BLB7QAuTEr-9lYnscJsWyO9WYH3qdeSNuDAeKyRsexTps_HAwpUAqoJmTZaqI6eP-NYgj4GYZsWgjWgcZCKyVygxHmEo3zJKFBo5HnI3qX6bi6Q36sUdQ6R1hdC23gMGNheCiJJnQsTCtTQudk"/>
+</div>
+<div class="p-4">
+<div class="flex items-center text-[10px] text-tertiary font-bold uppercase tracking-widest mb-1">
+<span class="material-symbols-outlined text-xs mr-1" style="font-variation-settings: 'FILL' 1;">star</span> 4.7 (89 reviews)
+                            </div>
+<h3 class="font-bold text-primary group-hover:text-tertiary transition-colors line-clamp-1">Roasted Almond Millet Crunch</h3>
+<p class="text-xs text-on-surface-variant mb-3">250g • Sugar Free</p>
+<div class="flex items-end space-x-2 mb-4">
+<span class="text-lg font-bold font-serif text-primary">₹299</span>
+<span class="text-sm text-outline line-through mb-0.5">₹399</span>
+<span class="text-xs font-bold text-tertiary mb-0.5">25% OFF</span>
+</div>
+<button class="w-full bg-primary text-on-primary py-2.5 rounded-lg flex items-center justify-center space-x-2 hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined text-sm">shopping_cart</span>
+<span class="text-sm font-bold uppercase tracking-tight">Add to Cart</span>
+</button>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="bg-surface-container-lowest group rounded-xl overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1 relative">
+<div class="absolute top-3 left-3 z-10 flex flex-col gap-2">
+<span class="bg-primary-fixed text-on-primary-fixed-variant text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-tighter">New</span>
+</div>
+<button class="absolute top-3 right-3 z-10 w-8 h-8 bg-white/80 backdrop-blur rounded-full flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all shadow-sm">
+<span class="material-symbols-outlined text-lg" data-icon="favorite">favorite</span>
+</button>
+<div class="aspect-square bg-surface-variant overflow-hidden">
+<img alt="Cashew Cookies" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Buttery cashew cookies stacked on a linen napkin" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAeErwmp5Bep7xZeydKrmgc5VAYJ8IiuYhDnTZF88LKHorCtNeIUgyX-h6GU3AUCFZTck2hJ6sTYJTGrzZQ90uh6TpUN9vg1BGaKi_a43MwFHhcFWUj2KxG8LP8Ig_PWqGJt6QPuOtzSujfTnvPDQpK481x4G8oMj7G30SeVDbzOv_VELFnzsE4gq47WekdsDXefHuxYGEzF2JqeAGUZ8cTSqz9o_wTA5CLIr4TbQPQqcFtEo45fbGJeYDeTBVh1erjc2bPyOX2vD4"/>
+</div>
+<div class="p-4">
+<div class="flex items-center text-[10px] text-tertiary font-bold uppercase tracking-widest mb-1">
+<span class="material-symbols-outlined text-xs mr-1" style="font-variation-settings: 'FILL' 1;">star</span> 5.0 (12 reviews)
+                            </div>
+<h3 class="font-bold text-primary group-hover:text-tertiary transition-colors line-clamp-1">Golden Cashew Shortbread</h3>
+<p class="text-xs text-on-surface-variant mb-3">500g • Jaggery Based</p>
+<div class="flex items-end space-x-2 mb-4">
+<span class="text-lg font-bold font-serif text-primary">₹549</span>
+<span class="text-sm text-outline line-through mb-0.5">₹650</span>
+<span class="text-xs font-bold text-tertiary mb-0.5">15% OFF</span>
+</div>
+<button class="w-full bg-primary text-on-primary py-2.5 rounded-lg flex items-center justify-center space-x-2 hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined text-sm">shopping_cart</span>
+<span class="text-sm font-bold uppercase tracking-tight">Add to Cart</span>
+</button>
+</div>
+</div>
+<!-- Repeat Card 4 for Grid Completeness -->
+<div class="bg-surface-container-lowest group rounded-xl overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1 relative">
+<button class="absolute top-3 right-3 z-10 w-8 h-8 bg-white/80 backdrop-blur rounded-full flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all shadow-sm">
+<span class="material-symbols-outlined text-lg" data-icon="favorite">favorite</span>
+</button>
+<div class="aspect-square bg-surface-variant overflow-hidden">
+<img alt="Oat Cookies" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Hearty oat and millet cookies with honey" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWX7k5LDOVc3636glY8v6OUS5YzZ4MXHqqYQEZunckFSerQEWfMx5-JgXAOMqCDSmY4aBfR3YE1Ji7ZVwe2ozFX8NZsd7SkJXvdW27a1px7dBNw6k3FQ_I4GeHHV-CAbQuBcdZlb48va9dDy6u_RCuTQ3-I62OWvYNAlgpnlQWzUZClBXHGZ4UEhVb4KHBLuMKIRYh_Byr6Gu-AjBsbDy9VnR8eI_lRRQW-ig4dZzsyIubXFn6xhhIF3z_UESxeog4NI_n9MS78XU"/>
+</div>
+<div class="p-4">
+<div class="flex items-center text-[10px] text-tertiary font-bold uppercase tracking-widest mb-1">
+<span class="material-symbols-outlined text-xs mr-1" style="font-variation-settings: 'FILL' 1;">star</span> 4.8 (215 reviews)
+                            </div>
+<h3 class="font-bold text-primary group-hover:text-tertiary transition-colors line-clamp-1">Multi-Millet Super Oats</h3>
+<p class="text-xs text-on-surface-variant mb-3">250g • Fiber Rich</p>
+<div class="flex items-end space-x-2 mb-4">
+<span class="text-lg font-bold font-serif text-primary">₹199</span>
+<span class="text-sm text-outline line-through mb-0.5">₹299</span>
+<span class="text-xs font-bold text-tertiary mb-0.5">33% OFF</span>
+</div>
+<button class="w-full bg-primary text-on-primary py-2.5 rounded-lg flex items-center justify-center space-x-2 hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined text-sm">shopping_cart</span>
+<span class="text-sm font-bold uppercase tracking-tight">Add to Cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<div class="mt-16 flex items-center justify-center space-x-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface hover:border-primary hover:text-primary transition-all">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-on-primary font-bold">1</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface hover:border-primary hover:text-primary transition-all">2</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface hover:border-primary hover:text-primary transition-all">3</button>
+<span class="px-2">...</span>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface hover:border-primary hover:text-primary transition-all">8</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface hover:border-primary hover:text-primary transition-all">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-[#331917] dark:bg-black w-full pt-16 pb-8">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 px-8 max-w-7xl mx-auto">
+<div class="col-span-1 md:col-span-1">
+<div class="font-serif text-2xl text-[#f0e1c3] mb-4">Daksha</div>
+<p class="text-[#fcf9f4]/80 text-sm leading-relaxed mb-6">Traditional recipes met with modern wellness. Our millets and cookies are crafted with love and heritage in every bite.</p>
+<div class="flex space-x-4">
+<a class="text-[#f0e1c3] hover:opacity-100 transition-opacity" href="#"><span class="material-symbols-outlined">public</span></a>
+<a class="text-[#f0e1c3] hover:opacity-100 transition-opacity" href="#"><span class="material-symbols-outlined">mail</span></a>
+</div>
+</div>
+<div>
+<h4 class="text-[#f0e1c3] font-bold mb-6 uppercase tracking-widest text-sm">Quick Links</h4>
+<ul class="space-y-4 text-sm">
+<li><a class="text-[#f0e1c3]/60 hover:text-[#f0e1c3]" href="#">Privacy Policy</a></li>
+<li><a class="text-[#f0e1c3]/60 hover:text-[#f0e1c3]" href="#">Shipping Policy</a></li>
+<li><a class="text-[#f0e1c3]/60 hover:text-[#f0e1c3]" href="#">Terms of Service</a></li>
+<li><a class="text-[#f0e1c3]/60 hover:text-[#f0e1c3]" href="#">Refund Policy</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-[#f0e1c3] font-bold mb-6 uppercase tracking-widest text-sm">Product Range</h4>
+<ul class="space-y-4 text-sm">
+<li><a class="text-[#f0e1c3]/60 hover:text-[#f0e1c3]" href="#">Millet Cookies</a></li>
+<li><a class="text-[#f0e1c3]/60 hover:text-[#f0e1c3]" href="#">Artisan Staples</a></li>
+<li><a class="text-[#f0e1c3]/60 hover:text-[#f0e1c3]" href="#">Gift Bundles</a></li>
+<li><a class="text-[#f0e1c3]/60 hover:text-[#f0e1c3]" href="#">New Arrivals</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-[#f0e1c3] font-bold mb-6 uppercase tracking-widest text-sm">Newsletter</h4>
+<p class="text-[#fcf9f4]/60 text-xs mb-4">Join our community for exclusive heritage recipes and early access to sales.</p>
+<div class="flex">
+<input class="bg-white/10 border-none rounded-l-lg text-white px-4 py-2 w-full text-sm focus:ring-1 focus:ring-tertiary" placeholder="Your email" type="email"/>
+<button class="bg-tertiary text-white px-4 py-2 rounded-r-lg hover:bg-tertiary-container transition-colors"><span class="material-symbols-outlined">send</span></button>
+</div>
+</div>
+</div>
+<div class="mt-16 pt-8 border-t border-[#fcf9f4]/10 text-center text-[#fcf9f4]/40 text-xs">
+            © 2023 Daksha Cookies &amp; Millets. Curating Heritage.
+        </div>
+</footer>
+<!-- BottomNavBar (Mobile only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center py-3 px-2 bg-[#fcf9f4] dark:bg-stone-900 border-t border-[#d4c3c0]/15 shadow-[0_-4px_20px_rgba(51,25,23,0.08)] z-50">
+<a class="flex flex-col items-center justify-center text-stone-400 opacity-70" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-sans font-medium uppercase tracking-wider">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#331917] dark:text-[#f0e1c3] scale-110" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+<span class="text-[10px] font-sans font-medium uppercase tracking-wider">Categories</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-400 opacity-70" href="#">
+<span class="material-symbols-outlined">shopping_basket</span>
+<span class="text-[10px] font-sans font-medium uppercase tracking-wider">Cart</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-400 opacity-70" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<span class="text-[10px] font-sans font-medium uppercase tracking-wider">Wishlist</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-400 opacity-70" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-sans font-medium uppercase tracking-wider">Profile</span>
+</a>
+</nav>
+</body></html>
