@@ -1,8 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import cookieHero from '../assets/cookie_hero.png';
 
+import { useSite } from '../context/SiteContext';
+
 const Home = () => {
+  const { categories } = useSite();
+  const [bestSellers, setBestSellers] = useState([]);
+
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const prodRes = await axios.get(`${API_URL}/reports/best-sellers?limit=8`);
+        if (prodRes.data.success) setBestSellers(prodRes.data.data);
+      } catch (err) {
+        console.error('Error fetching best sellers:', err);
+      }
+    };
+    fetchData();
+  }, [API_URL]);
+
+
   return (
     <div className="bg-background min-h-screen">
       
@@ -10,26 +31,27 @@ const Home = () => {
       <section className="lg:hidden pt-28 pb-32 space-y-4">
         {/* ... (Keep mobile categories as is) */}
         <div className="flex gap-4 px-4 overflow-x-auto hide-scrollbar py-4 bg-white/50 backdrop-blur-md">
-           <MobileCategory label="Cookies" to="/products" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmk59cSQSIjdJI7BeSql6AmUYJd1iVfWqZSUrOTaImbfcAnGEron1HuTYNwnExiZVl1HD1s74_LbEaH6kH0l7GYdrxZxB5sP1pPru-8SphVc7AXNlDK0zqwCjALC-dvpf0qto6-pfIb4ecFeim3OYQY58paOMhIp8PrODioTCgat9GJ_KEjvhF2ADRUdIB_1E8nCixW5iM_r3uhxvluBjWzz25Oshxk-PIZmxlfERDjT5qK0mZ4NLMhIiFf98_kyXYMLotwj_APso" />
-           <MobileCategory label="Millets" to="/millets" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbo9u6lGD9EKS6uiqeL3v87SUCRG_wvUJSJ-XEYlotCypKCVJSh-2cQOGgw7HhMrKk-vRuQhojkkKJ2mupji7EnqvUwBWf394_qs4gdYyBFxQX9IWY_vkZQerbzTFImxNnMACBqZhUKtnSuFp3RX7nH7u_ENwdIJeBLyXCf0yO0oOhDbRK7EPe49IpvzHTaYoVTuXYAGMDZLaCL2cGTh6sE_TDqC2Av05HdaqlHOuQ4VqvkptMeUL7ohu_4kVlNXhFD9vrA1Slz3o" />
-           <MobileCategory label="Bundles" to="/products" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrV-I8OoJAkKbYr7Xugm2b-cD8tTpqF0VEWlts8wK6g7ExH35JXGzVbbRTqo3Srcxlk3Bk-T-5fPg71H225Hw5w-q4e7qKEBpR82rvmA8qYTgd_s8hupfI7dGJbWpv96KJZ1jOIqATBtXXlcY-dp_iwYDT5dQa1UT4fnZUtn_6v-wMenr4gWb4rDToTSk6CJgceHT2ZFpQBnHJD1wV1mBgMt5f_OncU8YrbzKmDjw0PO70aNiNmsknpzL5PhtpVHmzICZKqfzIE0g" />
-           <MobileCategory label="Bulk" to="/products" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVKsTPdAmkmAsC9AjbmLzuRa_bqnFJR1AFol6a1OwaFqg0TWcVX-m_izv8LoOALZKUfvCFjhps0uL2kVsy0IX11ml9OsI06Z3DMp_VjX_cYfNlF920ul7imXFapGqExxn556knJmDdsH3LhlntNBVEN9BnyhyCn0J5rTx_fn-iBXR7EVwl6cr08CI9KlMlCMZQm6FC0pS3mpkb3bAB-bsual5nQFWMVLiWHjEdS_MoiwmLPoTrRnRCBFEPMYXOlAfDOt8QsE4cpYU" />
-           <Link to="/products" className="flex flex-col items-center gap-1 shrink-0 px-2 min-w-[72px]">
-              <div className="w-16 h-16 rounded-full bg-secondary-container flex items-center justify-center shadow-lg border-2 border-primary/10">
-                 <span className="material-symbols-outlined text-tertiary text-2xl font-black">percent</span>
-              </div>
-              <span className="text-[10px] font-black uppercase text-primary tracking-widest mt-1">Offers</span>
-           </Link>
+           {categories.map(cat => (
+             <MobileCategory key={cat._id} label={cat.name} to={`/products?category=${cat._id}`} src={cat.image} />
+           ))}
+           {categories.length === 0 && (
+             <>
+                <MobileCategory label="Cookies" to="/products" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmk59cSQSIjdJI7BeSql6AmUYJd1iVfWqZSUrOTaImbfcAnGEron1HuTYNwnExiZVl1HD1s74_LbEaH6kH0l7GYdrxZxB5sP1pPru-8SphVc7AXNlDK0zqwCjALC-dvpf0qto6-pfIb4ecFeim3OYQY58paOMhIp8PrODioTCgat9GJ_KEjvhF2ADRUdIB_1E8nCixW5iM_r3uhxvluBjWzz25Oshxk-PIZmxlfERDjT5qK0mZ4NLMhIiFf98_kyXYMLotwj_APso" />
+                <MobileCategory label="Millets" to="/millets" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbo9u6lGD9EKS6uiqeL3v87SUCRG_wvUJSJ-XEYlotCypKCVJSh-2cQOGgw7HhMrKk-vRuQhojkkKJ2mupji7EnqvUwBWf394_qs4gdYyBFxQX9IWY_vkZQerbzTFImxNnMACBqZhUKtnSuFp3RX7nH7u_ENwdIJeBLyXCf0yO0oOhDbRK7EPe49IpvzHTaYoVTuXYAGMDZLaCL2cGTh6sE_TDqC2Av05HdaqlHOuQ4VqvkptMeUL7ohu_4kVlNXhFD9vrA1Slz3o" />
+             </>
+           )}
         </div>
 
         {/* Mobile Banner (16:9) */}
         <div className="px-4">
-           <div className="aspect-[16/9] w-full bg-primary rounded-2xl overflow-hidden relative shadow-2xl">
+           <div className="aspect-[16/9] w-full bg-primary rounded-3xl overflow-hidden relative shadow-2xl">
               <img className="w-full h-full object-cover opacity-60" src={cookieHero} alt="Hero" />
               <div className="absolute inset-0 p-6 flex flex-col justify-center">
                  <p className="text-secondary-fixed text-[10px] uppercase font-black tracking-[0.2em] mb-2 leading-none">Freshly Baked Every Day</p>
-                 <h2 className="text-white text-3xl font-serif font-black italic leading-tight mb-4 tracking-tight">Pure. Natural.<br/><span className="text-secondary">Delicious.</span></h2>
-                 <Link to="/products" className="bg-secondary text-[#331917] w-fit px-6 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest shadow-xl shadow-secondary/20">Explore All</Link>
+                 <h2 className="text-white text-3xl font-serif font-black italic leading-tight mb-4 tracking-tight">
+                    Pure. Natural.<br/><span className="text-secondary">Delicious.</span>
+                 </h2>
+                 <Link to="/products" className="bg-secondary text-[#331917] w-fit px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-secondary/20 active:scale-95 transition-all">Explore All</Link>
               </div>
            </div>
         </div>
@@ -65,7 +87,7 @@ const Home = () => {
 
           <div className="max-w-[1700px] mx-auto px-6 xl:px-10 w-full relative z-10">
             <div className="max-w-3xl">
-              <span className="text-secondary font-black uppercase tracking-[0.5em] text-[10px] mb-6 block animate-slide-right">Established 2026 • Artisanal Excellence</span>
+              <span className="text-secondary font-black uppercase tracking-[0.5em] text-[10px] mb-6 block animate-slide-right">DAKSHA • Artisanal Excellence</span>
               <h1 className="text-5xl xl:text-[6.5rem] font-serif font-black text-primary mb-6 leading-[0.9] xl:leading-[0.85] italic animate-slide-up opacity-0 fill-mode-forwards">
                 Pure. Natural. <br/><span className="text-tertiary">Delicious.</span>
               </h1>
@@ -87,19 +109,17 @@ const Home = () => {
         {/* Category Strip */}
         <section className="py-12 xl:py-24 bg-surface relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/10 to-transparent"></div>
-          <div className="max-w-[1700px] mx-auto px-6 xl:px-10 flex justify-between items-center overflow-x-auto gap-6 xl:gap-12 hide-scrollbar animate-fade-in delay-500 opacity-0 fill-mode-forwards">
-            <DesktopCategory label="Cookies" to="/products" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmk59cSQSIjdJI7BeSql6AmUYJd1iVfWqZSUrOTaImbfcAnGEron1HuTYNwnExiZVl1HD1s74_LbEaH6kH0l7GYdrxZxB5sP1pPru-8SphVc7AXNlDK0zqwCjALC-dvpf0qto6-pfIb4ecFeim3OYQY58paOMhIp8PrODioTCgat9GJ_KEjvhF2ADRUdIB_1E8nCixW5iM_r3uhxvluBjWzz25Oshxk-PIZmxlfERDjT5qK0mZ4NLMhIiFf98_kyXYMLotwj_APso" />
-            <DesktopCategory label="Millet Powders" to="/millets" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbo9u6lGD9EKS6uiqeL3v87SUCRG_wvUJSJ-XEYlotCypKCVJSh-2cQOGgw7HhMrKk-vRuQhojkkKJ2mupji7EnqvUwBWf394_qs4gdYyBFxQX9IWY_vkZQerbzTFImxNnMACBqZhUKtnSuFp3RX7nH7u_ENwdIJeBLyXCf0yO0oOhDbRK7EPe49IpvzHTaYoVTuXYAGMDZLaCL2cGTh6sE_TDqC2Av05HdaqlHOuQ4VqvkptMeUL7ohu_4kVlNXhFD9vrA1Slz3o" />
-            <DesktopCategory label="Gift Packs" to="/products" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrV-I8OoJAkKbYr7Xugm2b-cD8tTpqF0VEWlts8wK6g7ExH35JXGzVbbRTqo3Srcxlk3Bk-T-5fPg71H225Hw5w-q4e7qKEBpR82rvmA8qYTgd_s8hupfI7dGJbWpv96KJZ1jOIqATBtXXlcY-dp_iwYDT5dQa1UT4fnZUtn_6v-wMenr4gWb4rDToTSk6CJgceHT2ZFpQBnHJD1wV1mBgMt5f_OncU8YrbzKmDjw0PO70aNiNmsknpzL5PhtpVHmzICZKqfzIE0g" />
-            <DesktopCategory label="Bulk Orders" to="/products" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVKsTPdAmkmAsC9AjbmLzuRa_bqnFJR1AFol6a1OwaFqg0TWcVX-m_izv8LoOALZKUfvCFjhps0uL2kVsy0IX11ml9OsI06Z3DMp_VjX_cYfNlF920ul7imXFapGqExxn556knJmDdsH3LhlntNBVEN9BnyhyCn0J5rTx_fn-iBXR7EVwl6cr08CI9KlMlCMZQm6FC0pS3mpkb3bAB-bsual5nQFWMVLiWHjEdS_MoiwmLPoTrRnRCBFEPMYXOlAfDOt8QsE4cpYU" />
-            <DesktopCategory label="New Arrivals" to="/products" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6lgqiq9QPC9lAFNrU3drgKveMkF5yJvqcWPmMYl2EaTLkDIrcQiWrm97oCybQAbp85G8OhysJMURNX1pHZAdYccV4vn4Yz8j9GzZ0dIJM8Rb9XvypGSnrUA5VDDQCnnVB76pe4vtH1_9okkDz6i3TmUF-EaeBogOUZ4zP6ajAY6-8_gnVXE9n99ssNwVYMiLywXAnfVLmMEpXOOX8PpZAhe4ct2XVUaxa94IuHiSbnzqLSGOd9Ax7RWbHUPIf5swg5_die9FGd24" />
-            <Link to="/products" className="flex flex-col items-center gap-4 group cursor-pointer transition-all hover:translate-y-[-8px]">
-              <div className="w-40 h-40 rounded-full bg-secondary-container flex items-center justify-center border-4 border-primary/5 shadow-xl group-hover:bg-primary group-hover:text-white transition-all duration-500">
-                <span className="material-symbols-outlined text-6xl">percent</span>
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Limited Offers</span>
-            </Link>
-          </div>
+           <div className="max-w-[1700px] mx-auto px-6 xl:px-10 flex justify-between items-center overflow-x-auto gap-6 xl:gap-12 hide-scrollbar animate-fade-in delay-500 opacity-0 fill-mode-forwards">
+             {categories.map(cat => (
+               <DesktopCategory key={cat._id} label={cat.name} to={`/products?category=${cat._id}`} src={cat.image} />
+             ))}
+             {categories.length === 0 && (
+               <>
+                 <DesktopCategory label="Cookies" to="/products" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmk59cSQSIjdJI7BeSql6AmUYJd1iVfWqZSUrOTaImbfcAnGEron1HuTYNwnExiZVl1HD1s74_LbEaH6kH0l7GYdrxZxB5sP1pPru-8SphVc7AXNlDK0zqwCjALC-dvpf0qto6-pfIb4ecFeim3OYQY58paOMhIp8PrODioTCgat9GJ_KEjvhF2ADRUdIB_1E8nCixW5iM_r3uhxvluBjWzz25Oshxk-PIZmxlfERDjT5qK0mZ4NLMhIiFf98_kyXYMLotwj_APso" />
+                 <DesktopCategory label="Millet Powders" to="/millets" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbo9u6lGD9EKS6uiqeL3v87SUCRG_wvUJSJ-XEYlotCypKCVJSh-2cQOGgw7HhMrKk-vRuQhojkkKJ2mupji7EnqvUwBWf394_qs4gdYyBFxQX9IWY_vkZQerbzTFImxNnMACBqZhUKtnSuFp3RX7nH7u_ENwdIJeBLyXCf0yO0oOhDbRK7EPe49IpvzHTaYoVTuXYAGMDZLaCL2cGTh6sE_TDqC2Av05HdaqlHOuQ4VqvkptMeUL7ohu_4kVlNXhFD9vrA1Slz3o" />
+               </>
+             )}
+           </div>
         </section>
 
         {/* Best Sellers */}
@@ -114,14 +134,23 @@ const Home = () => {
                 View Collection <span className="material-symbols-outlined">arrow_forward</span>
               </Link>
             </div>
-            <div className="grid grid-cols-2 xl:grid-cols-4 gap-8 xl:gap-12">
-               <DesktopProductCard title="Premium Cashew Cookies" price="199" oldPrice="249" img="https://lh3.googleusercontent.com/aida-public/AB6AXuAPdbZUlTB6wmNtrSPurHGyNwF2jkn9XnfHs_BLTISeDqQWTTSCH3mmiAUq_xSPBvhyKeQ7h9oEE1WUk_mC_m1LD-ss8tWlnKCxPIYLIg8zE2rs91BhMe63dyIYow60y8NuFihlVu2WIap4-2_CC1GFLQUEv6LAg7LiXoYqBFX7JzCmIfPYcZLlmAnR8-tuiW4y6wcra67a6dEIxR7agJriiVDTKypogRQwiXFxcRhbB9t_GsbO8r8uTdp56lAxPZTSw2l5jonKQPY" desc="Handcrafted butter cookies with premium W180 cashews." />
-               <DesktopProductCard title="Organic Pearl Millet" price="145" oldPrice="180" img="https://lh3.googleusercontent.com/aida-public/AB6AXuDqaTyoHCDyWZIeGkC_a_Gq-4zmaNubJTZW5n-LKjSWh4I0nmkZxEWmdxLKhlaZGayZK4YAMu559nT29mxngRZvte-UiLq12GpAnf93pAmIeiAIh-nf9-6vW9ZG0JdS-_QbNBSV8K6kity99VIKBnXoVbmBTFSohuHKLJ44r2QlFlqgsJuew7IxcNxqdxjE3NH5CIrpn93osqMuitzDIRlYEJ38n0bXnKTa5rocEDQ-R-oGXn917bbGIWZqfOA8-3c8hcai5o4nDnQ" desc="Traditional hearth-baked millet snacks." />
-               <DesktopProductCard title="Millet & Honey Granola" price="320" oldPrice="400" img="https://lh3.googleusercontent.com/aida-public/AB6AXuDJkVBfwVW3Q4gpaL9YhaEkW1scwp_R5nVaMY8Br3th_LuilP7kIBEshx3Njn_y27kYoXBMwZUi1fW-j5B1722mpGtwcPoWPDeZRLfU7EMalo-qHRekdW6vkacyuONA3tfyOd4yB-OX6DtrnwO47_8wE28yNEAa_Vk6FuLlSKoeJGq97TvLMhVQpTdgU1JMG7TzqvGh73o4pXMGw5FhTOpw8XqNx0M5e0autUX5_mIcrQTT0KgYe1QpywJgWIqpPW-5ur9vI5K5TI4" desc="Cold-pressed granola with raw forest honey." />
-               <DesktopProductCard title="Signature Gift Bundle" price="999" oldPrice="1249" img="https://lh3.googleusercontent.com/aida-public/AB6AXuAVKsTPdAmkmAsC9AjbmLzuRa_bqnFJR1AFol6a1OwaFqg0TWcVX-m_izv8LoOALZKUfvCFjhps0uL2kVsy0IX11ml9OsI06Z3DMp_VjX_cYfNlF920ul7imXFapGqExxn556knJmDdsH3LhlntNBVEN9BnyhyCn0J5rTx_fn-iBXR7EVwl6cr08CI9KlMlCMZQm6FC0pS3mpkb3bAB-bsual5nQFWMVLiWHjEdS_MoiwmLPoTrRnRCBFEPMYXOlAfDOt8QsE4cpYU" desc="Curated selection for mindful gifting." />
-            </div>
+             <div className="grid grid-cols-2 xl:grid-cols-4 gap-8 xl:gap-12">
+                {bestSellers.map(prod => (
+                  <DesktopProductCard 
+                    key={prod._id}
+                    id={prod._id}
+                    title={prod.name} 
+                    price={prod.variants?.[0]?.price} 
+                    oldPrice={prod.variants?.[0]?.originalPrice} 
+                    img={prod.images?.find(i => i.isMain)?.url || prod.images?.[0]?.url} 
+                    desc={prod.shortDescription || prod.description?.substring(0, 60)}
+                    category={prod.categoryId?.name}
+                  />
+                ))}
+             </div>
           </div>
         </section>
+
 
         {/* Dynamic Offer Banner */}
         <section className="px-4 xl:px-10 py-10 xl:py-16">

@@ -25,7 +25,7 @@ const ReviewsManagement = () => {
         params: { status: statusFilter, rating: ratingFilter },
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (data.success) setReviews(data.data.reviews);
+      if (data.success) setReviews(data.data);
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };
@@ -90,7 +90,7 @@ const ReviewsManagement = () => {
               <div className="space-y-4 relative z-10">
                  <div className="flex items-center justify-between">
                     <span className="text-white/40 text-[10px] font-black uppercase tracking-widest">Pending</span>
-                    <span className="text-amber-400 font-black text-xl">{reviews.filter(r => r.status === 'Pending').length}</span>
+                    <span className="text-amber-400 font-black text-xl">{(reviews || []).filter(r => r.status === 'Pending').length}</span>
                  </div>
                  <div className="border-t border-white/5 pt-4">
                     <p className="text-[10px] font-bold text-white/40 leading-relaxed uppercase tracking-widest">"Positive reviews correlate with 18% higher AOV."</p>

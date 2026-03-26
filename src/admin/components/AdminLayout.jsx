@@ -21,7 +21,6 @@ const AdminLayout = () => {
     { title: 'Reports', path: '/admin/reports', icon: BarChart3 },
     { title: 'Coupons', path: '/admin/coupons', icon: Ticket },
     { title: 'Categories', path: '/admin/categories', icon: Grid },
-    { title: 'Content CMS', path: '/admin/content', icon: Image },
     { title: 'Reviews', path: '/admin/reviews', icon: Star },
     { title: 'Settings', path: '/admin/settings', icon: Settings },
   ];

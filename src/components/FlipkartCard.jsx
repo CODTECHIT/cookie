@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const FlipkartCard = ({ p, category }) => {
+const FlipkartCard = ({ p }) => {
   const discount = p.oldPrice && p.price ? Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100) : 0;
   
   // Stable rating and review count based on ID
@@ -11,7 +11,7 @@ const FlipkartCard = ({ p, category }) => {
   return (
     <div className="group flex flex-col animate-zoom-in">
       <Link 
-        to={`/product/${category || p.category?.toLowerCase() || 'cookies'}/${p.id}`} 
+        to={`/product/${p.id}`} 
         className="relative aspect-square overflow-hidden rounded-xl md:rounded-2xl bg-stone-100 mb-3 md:mb-6"
       >
         <img 
@@ -47,7 +47,7 @@ const FlipkartCard = ({ p, category }) => {
         </div>
 
         {/* Title & Info */}
-        <Link to={`/product/${category || p.category?.toLowerCase() || 'cookies'}/${p.id}`}>
+        <Link to={`/product/${p.id}`}>
           <h3 className="text-sm md:text-lg font-bold text-primary leading-tight mb-1 group-hover:text-secondary transition-colors line-clamp-2 h-10 md:h-auto">
             {p.title}
           </h3>

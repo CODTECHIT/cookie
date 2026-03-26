@@ -3,8 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
-import Cookies from './pages/Cookies';
-import Millets from './pages/Millets';
+import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import About from './pages/About';
@@ -12,6 +11,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import BottomNav from './components/BottomNav';
 
 // Admin Imports
+import { SiteProvider } from './context/SiteContext';
 import { AdminProvider, useAdmin } from './admin/context/AdminContext';
 import AdminLayout from './admin/components/AdminLayout';
 import AdminLogin from './admin/pages/Login';
@@ -48,14 +48,15 @@ const CustomerLayout = ({ children }) => (
 
 function App() {
   return (
-    <AdminProvider>
+    <SiteProvider>
+      <AdminProvider>
       <Router>
         <Routes>
           {/* CUSTOMER ROUTES */}
           <Route path="/" element={<CustomerLayout><Home /></CustomerLayout>} />
-          <Route path="/products" element={<CustomerLayout><Cookies /></CustomerLayout>} />
-          <Route path="/millets" element={<CustomerLayout><Millets /></CustomerLayout>} />
-          <Route path="/product/:category/:id" element={<CustomerLayout><ProductDetail /></CustomerLayout>} />
+          <Route path="/products" element={<CustomerLayout><Products /></CustomerLayout>} />
+          <Route path="/millets" element={<CustomerLayout><Products /></CustomerLayout>} />
+          <Route path="/product/:id" element={<CustomerLayout><ProductDetail /></CustomerLayout>} />
           <Route path="/cart" element={<CustomerLayout><Cart /></CustomerLayout>} />
           <Route path="/about" element={<CustomerLayout><About /></CustomerLayout>} />
           <Route path="/privacy-policy" element={<CustomerLayout><PrivacyPolicy /></CustomerLayout>} />
@@ -73,7 +74,6 @@ function App() {
             <Route path="reports" element={<ReportsManagement />} />
             <Route path="coupons" element={<CouponsManagement />} />
             <Route path="categories" element={<CategoriesManagement />} />
-            <Route path="content" element={<ContentCMS />} />
             <Route path="reviews" element={<ReviewsManagement />} />
             <Route path="settings" element={<SettingsManagement />} />
           </Route>
@@ -82,7 +82,8 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
-    </AdminProvider>
+      </AdminProvider>
+    </SiteProvider>
   );
 }
 

@@ -50,12 +50,11 @@ const productSchema = new mongoose.Schema(
 );
 
 // Auto-compute totalStock and isLowStock before save
-productSchema.pre('save', function (next) {
+productSchema.pre('save', async function () {
   if (this.variants && this.variants.length > 0) {
     this.totalStock = this.variants.reduce((sum, v) => sum + (v.stockQty || 0), 0);
     this.isLowStock = this.totalStock <= this.lowStockThreshold;
   }
-  next();
 });
 
 productSchema.index({ categoryId: 1 });

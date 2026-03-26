@@ -12,7 +12,7 @@ router.put('/banners/:id', protect, adminOnly, uploadBannerImage.single('image')
 router.delete('/banners/:id', protect, adminOnly, deleteBanner);
 
 // Site Settings
-router.get('/settings', protect, adminOnly, getSettings);
+router.get('/settings', getSettings);
 router.put('/settings', protect, adminOnly, uploadLogo.single('logo'), updateSettings);
 
 export default router;

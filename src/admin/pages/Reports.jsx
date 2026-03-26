@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAdmin } from '../context/AdminContext';
 import { 
@@ -14,18 +14,25 @@ const ReportsManagement = () => {
   const [loading, setLoading] = useState(true);
   const [reportType, setReportType] = useState('monthly');
   
-  useEffect(() => {
-    fetchReports();
-  }, [API_URL, token, reportType]);
-
-  const fetchReports = async () => {
+  const fetchReports = useCallback(async () => {
     setLoading(true);
     try {
       const { data } = await axios.get(`${API_URL}/reports/sales`, {
         params: { type: reportType },
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (data.success) setSalesReport(data.data);
+      if (data.success && data.data.length > 0) {
+        const report = data.data[0];
+        setSalesReport({
+          totalSales: report.totalRevenue || 0,
+          totalOrders: report.totalOrders || 0,
+          onlineRevenue: report.onlineRevenue || 0,
+          codRevenue: report.codRevenue || 0,
+          newCustomers: 0 // Backend doesn't provide this yet
+        });
+      } else {
+        setSalesReport({ totalSales: 0, totalOrders: 0, onlineRevenue: 0, codRevenue: 0, newCustomers: 0 });
+      }
 
       const bsData = await axios.get(`${API_URL}/reports/best-sellers`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -33,7 +40,11 @@ const ReportsManagement = () => {
       if (bsData.data.success) setBestSellers(bsData.data.data);
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
-  };
+  }, [API_URL, token, reportType]);
+
+  useEffect(() => {
+    fetchReports();
+  }, [fetchReports]);
 
   const calculateProfit = () => {
      if (!salesReport) return 0;

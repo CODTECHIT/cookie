@@ -7,9 +7,16 @@ export const getProducts = async (req, res) => {
   try {
     const { category, featured, lowStock, page = 1, limit = 20, search } = req.query;
     const filter = {};
-    if (category) filter.categoryId = category;
+    if (category) {
+      const categoryIds = category.split(',').filter(id => id.length === 24); // Ensure valid hex ObjectId format
+      if (categoryIds.length > 1) {
+        filter.categoryId = { $in: categoryIds };
+      } else if (categoryIds.length === 1) {
+        filter.categoryId = categoryIds[0];
+      }
+    }
     if (featured === 'true') filter.isFeatured = true;
-    if (lowStock === 'true') filter.isLowStock = true;
+    if (lowStock === 'true') filter.totalStock = { $lte: 10 }; // Assuming low stock is total sum or similar
     if (search) filter.name = { $regex: search, $options: 'i' };
 
     const skip = (page - 1) * limit;
@@ -37,7 +44,10 @@ export const getProductById = async (req, res) => {
 // POST /api/products  (admin)
 export const createProduct = async (req, res) => {
   try {
-    const { name, slug, categoryId, description, shortDescription, variants, tags, isFeatured, metaTitle, metaDescription } = req.body;
+    const { 
+      name, slug, categoryId, description, shortDescription, 
+      variants, tags, isFeatured, metaTitle, metaDescription 
+    } = req.body;
 
     // Build images array from uploaded files
     const images = (req.files || []).map((file, idx) => ({
@@ -46,30 +56,87 @@ export const createProduct = async (req, res) => {
       isMain: idx === 0,
     }));
 
-    const parsedVariants = typeof variants === 'string' ? JSON.parse(variants) : variants;
+    let parsedVariants = [];
+    try {
+      if (variants) {
+        parsedVariants = typeof variants === 'string' ? JSON.parse(variants) : variants;
+      }
+    } catch {
+      return errorResponse(res, 'Invalid variants data format', 400);
+    }
+
+    let parsedTags = [];
+    try {
+      if (tags) {
+        parsedTags = typeof tags === 'string' ? JSON.parse(tags) : tags;
+      }
+    } catch {
+      parsedTags = [];
+    }
+
+    // Auto-generate slug if missing
+    const finalSlug = slug || name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
 
     const product = await Product.create({
-      name, slug, categoryId, description, shortDescription,
-      images, variants: parsedVariants,
-      tags: typeof tags === 'string' ? JSON.parse(tags) : tags,
-      isFeatured, metaTitle, metaDescription,
+      name, 
+      slug: finalSlug, 
+      categoryId, 
+      description, 
+      shortDescription,
+      images, 
+      variants: parsedVariants,
+      tags: parsedTags,
+      isFeatured: isFeatured === 'true' || isFeatured === true,
+      metaTitle, 
+      metaDescription,
     });
-    successResponse(res, product, 'Product created', 201);
+
+    successResponse(res, product, 'Product created successfully', 201);
   } catch (err) {
-    errorResponse(res, err.message);
+    console.error('❌ Create Product Error:', err);
+    
+    // Handle Mongoose specific errors
+    if (err.name === 'ValidationError') {
+      const messages = Object.values(err.errors).map(e => e.message);
+      return errorResponse(res, messages.join(', '), 400);
+    }
+    if (err.code === 11000) {
+      return errorResponse(res, 'Slug or duplicate key already exists', 400);
+    }
+    
+    errorResponse(res, err.message || 'Error occurred while creating product');
   }
 };
 
 // PUT /api/products/:id  (admin)
 export const updateProduct = async (req, res) => {
   try {
+    const { variants, tags, isFeatured } = req.body;
     const update = { ...req.body };
-    if (req.body.variants && typeof req.body.variants === 'string')
-      update.variants = JSON.parse(req.body.variants);
+
+    if (variants) {
+      try {
+        update.variants = typeof variants === 'string' ? JSON.parse(variants) : variants;
+      } catch {
+        return errorResponse(res, 'Invalid variants data format', 400);
+      }
+    }
+
+    if (tags) {
+      try {
+        update.tags = typeof tags === 'string' ? JSON.parse(tags) : tags;
+      } catch {
+        // Ignore tag parsing errors
+      }
+    }
+
+    if (isFeatured !== undefined) {
+      update.isFeatured = isFeatured === 'true' || isFeatured === true;
+    }
 
     // Append new uploaded images
     if (req.files && req.files.length > 0) {
-      const newImages = req.files.map((file, idx) => ({
+      const newImages = req.files.map((file) => ({
         url: file.path,
         publicId: file.filename,
         isMain: false,
@@ -79,9 +146,14 @@ export const updateProduct = async (req, res) => {
 
     const product = await Product.findByIdAndUpdate(req.params.id, update, { new: true, runValidators: true });
     if (!product) return errorResponse(res, 'Product not found', 404);
-    successResponse(res, product, 'Product updated');
+    successResponse(res, product, 'Product updated successfully');
   } catch (err) {
-    errorResponse(res, err.message);
+    console.error('❌ Update Product Error:', err);
+    if (err.name === 'ValidationError') {
+      const messages = Object.values(err.errors).map(e => e.message);
+      return errorResponse(res, messages.join(', '), 400);
+    }
+    errorResponse(res, err.message || 'Error occurred while updating product');
   }
 };
 

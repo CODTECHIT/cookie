@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const siteSettingSchema = new mongoose.Schema(
   {
-    businessName: { type: String, default: 'Daksha Food Artisan' },
+    brandName: { type: String, default: 'Daksha Food Artisan' },
     tagline: String,
     logoUrl: String,
     faviconUrl: String,
@@ -11,6 +11,9 @@ const siteSettingSchema = new mongoose.Schema(
     phone: String,
     whatsapp: String,
     address: String,
+
+    seoTitle: String,
+    seoDescription: String,
 
     social: {
       instagram: String,

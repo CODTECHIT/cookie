@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useAdmin } from '../context/AdminContext';
 import { 
   TrendingUp, TrendingDown, ShoppingCart, DollarSign, 
-  Package, AlertTriangle, ArrowRight, Loader2
+  Package, AlertTriangle, ArrowRight, Loader2, Ticket, Grid, Star, Image
 } from 'lucide-react';
 
 const StatCard = ({ title, value, icon: Icon, trend, color }) => (

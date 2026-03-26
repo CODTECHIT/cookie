@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useSite } from '../context/SiteContext';
 
 const Header = () => {
+  const { categories } = useSite();
   const [scrolled, setScrolled] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -22,10 +24,7 @@ const Header = () => {
 
   const navLinks = [
     { name: 'Home', path: '/' },
-    { name: 'Cookies', path: '/products' },
-    { name: 'Millets', path: '/millets' },
-    { name: 'Bundles', path: '/bundles' },
-    { name: 'Offers', path: '/offers' },
+    ...categories.map(c => ({ name: c.name, path: `/products?category=${c._id}` })),
     { name: 'About Us', path: '/about' },
   ];
 
@@ -44,7 +43,7 @@ const Header = () => {
             </span>
           </div>
           <div className="flex items-center gap-1.5 uppercase tracking-widest opacity-80 hover:opacity-100 cursor-default">
-            <span className="material-symbols-outlined text-[16px]">location_on</span> Eluru, Andhra Pradesh (521202)
+            <span className="material-symbols-outlined text-[16px]">location_on</span> Eluru, Andhra Pradesh
           </div>
         </div>
 
@@ -53,12 +52,12 @@ const Header = () => {
           <div className="max-w-[1700px] mx-auto px-10 py-5 flex justify-between items-center transition-all duration-500">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-secondary-fixed group-hover:rotate-12 transition-transform duration-500">
-                <span className="material-symbols-outlined text-2xl font-black">cookie</span>
+              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-secondary-fixed group-hover:rotate-12 transition-transform duration-500 overflow-hidden shadow-inner">
+                 <span className="material-symbols-outlined text-2xl font-black">cookie</span>
               </div>
               <div className="flex flex-col leading-none">
-                <span className="text-xl font-serif font-black text-primary tracking-tight">DAKSHA</span>
-                <span className="text-[9px] font-black uppercase tracking-[0.3em] text-stone-500">Artisanal Treats</span>
+                <span className="text-xl font-serif font-black text-primary tracking-tight uppercase">DAKSHA</span>
+                <span className="text-[9px] font-black uppercase tracking-[0.3em] text-stone-500 opacity-60 italic">Artisanal Treats</span>
               </div>
             </Link>
 

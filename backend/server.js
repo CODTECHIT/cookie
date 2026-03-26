@@ -1,6 +1,6 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import morgan from 'morgan';
 import helmet from 'helmet';
 
@@ -19,18 +19,22 @@ import reviewRoutes from './routes/review.routes.js';
 import shippingRoutes from './routes/shipping.routes.js';
 import contentRoutes from './routes/content.routes.js';
 import reportRoutes from './routes/report.routes.js';
+import seedAdmin from './utils/seedAdmin.js';
 
-dotenv.config();
 
-// Connect to MongoDB
-connectDB();
+// Connect to MongoDB & Seed Admin
+await connectDB();
+await seedAdmin();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // ─── Global Middleware ────────────────────────────────────────────────────────
 app.use(helmet());
-app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173', credentials: true }));
+app.use(cors({ 
+  origin: [process.env.CLIENT_URL || 'http://localhost:5173', 'http://localhost:5173', 'http://localhost:5174'], 
+  credentials: true 
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 if (process.env.NODE_ENV !== 'production') app.use(morgan('dev'));
