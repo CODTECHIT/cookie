@@ -72,7 +72,11 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Backend Server running on http://localhost:${PORT}`);
-  console.log(`📦 Environment: ${process.env.NODE_ENV || 'development'}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`🚀 Backend Server running on http://localhost:${PORT}`);
+    console.log(`📦 Environment: ${process.env.NODE_ENV || 'development'}`);
+  });
+}
+
+export default app;
