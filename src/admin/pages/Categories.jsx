@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAdmin } from '../context/AdminContext';
+import { useSite } from '../../context/SiteContext';
 import { 
   Grid, Plus, Edit2, Trash2, Search, 
   Settings, Loader2, X, Check, Image as ImageIcon,
@@ -9,6 +10,7 @@ import {
 
 const CategoriesManagement = () => {
   const { API_URL, token } = useAdmin();
+  const { refreshSiteData } = useSite();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -26,6 +28,7 @@ const CategoriesManagement = () => {
 
   useEffect(() => {
     fetchCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [API_URL, token]);
 
   const fetchCategories = async () => {
@@ -71,6 +74,7 @@ const CategoriesManagement = () => {
       setShowModal(false);
       resetForm();
       fetchCategories();
+      refreshSiteData?.();
     } catch (err) {
       alert(err.response?.data?.message || 'Operation failed');
     } finally {
@@ -91,7 +95,8 @@ const CategoriesManagement = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         fetchCategories();
-      } catch (err) { alert('Delete failed'); }
+        refreshSiteData?.();
+      } catch { alert('Delete failed'); }
     }
   };
 
@@ -124,6 +129,18 @@ const CategoriesManagement = () => {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
+        {/* Search Bar - Fixed missing UI usage */}
+        <div className="w-full relative lg:hidden mb-4">
+           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+           <input 
+             type="text" 
+             placeholder="Search collections..." 
+             className="w-full pl-12 pr-4 py-4 bg-white border border-gray-100 rounded-2xl focus:ring-4 focus:ring-primary/5 outline-none text-sm transition-all"
+             value={searchTerm}
+             onChange={(e) => setSearchTerm(e.target.value)}
+           />
+        </div>
+
         {/* Analytics Summary */}
         <div className="w-full lg:w-[320px] space-y-4 shrink-0">
            <div className="bg-white p-7 rounded-[32px] shadow-sm border border-gray-100 flex items-center justify-between group hover:shadow-xl transition-all border-b-4 border-b-primary">

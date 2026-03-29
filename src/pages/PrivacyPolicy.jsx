@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 const PrivacyPolicy = () => {
   return (
     <main className="pt-24 xl:pt-40 pb-20 xl:pb-40 px-6 xl:px-10 max-w-[1700px] mx-auto min-h-screen">
-      
+
       {/* 📜 Breadcrumb */}
       <nav className="flex items-center space-x-2 text-[10px] font-black uppercase tracking-[0.3em] text-on-surface-variant mb-10 xl:mb-20 opacity-40 animate-fade-in">
         <Link className="hover:text-primary transition-colors" to="/">Home</Link>
@@ -13,7 +13,7 @@ const PrivacyPolicy = () => {
       </nav>
 
       {/* 🏛️ Header Section */}
-      <section className="text-center mb-16 xl:mb-32 reveal px-4">
+      <section className="text-center mb-10 xl:mb-16 reveal px-4">
         <span className="text-secondary font-black uppercase tracking-[0.5em] text-[10px] mb-4 xl:mb-6 block">Legal</span>
         <h1 className="text-4xl xl:text-8xl font-serif font-black text-primary mb-6 xl:mb-12 italic leading-none">
           Privacy Policy
@@ -24,10 +24,10 @@ const PrivacyPolicy = () => {
       </section>
 
       {/* 📋 Policy Content */}
-      <section className="max-w-4xl mx-auto space-y-12">
-        
+      <section className="max-w-4xl mx-auto space-y-8">
+
         {/* Company Info */}
-        <div className="bg-surface-container-low rounded-[2rem] xl:rounded-[3rem] p-8 xl:p-16">
+        <div className="bg-surface-container-low rounded-[2rem] xl:rounded-[3rem] p-6 xl:p-10">
           <h2 className="text-2xl xl:text-4xl font-serif font-black text-primary mb-6 italic">Daksha Cookies & Millets</h2>
           <p className="text-base xl:text-xl text-stone-600 leading-relaxed font-medium italic">
             At Daksha Cookies & Millets Private Limited, we are committed to protecting your privacy and ensuring that your personal information is handled in a safe and responsible manner. This privacy policy outlines how we collect, use, and safeguard your information when you visit our website or make a purchase from our online store.
@@ -35,7 +35,7 @@ const PrivacyPolicy = () => {
         </div>
 
         {/* Section 1: Information We Collect */}
-        <div className="bg-white rounded-[3rem] p-12 md:p-16 shadow-xl border border-outline-variant/10">
+        <div className="bg-white rounded-[2rem] xl:rounded-[3rem] p-8 xl:p-12 shadow-xl border border-outline-variant/10">
           <h2 className="text-3xl font-serif font-black text-primary mb-8 italic">1. Information We Collect</h2>
           <div className="text-lg text-stone-600 leading-relaxed font-medium italic space-y-6">
             <p>We may collect the following types of information:</p>
@@ -54,7 +54,7 @@ const PrivacyPolicy = () => {
         </div>
 
         {/* Section 2: How We Use Your Information */}
-        <div className="bg-white rounded-[3rem] p-12 md:p-16 shadow-xl border border-outline-variant/10">
+        <div className="bg-white rounded-[2rem] xl:rounded-[3rem] p-8 xl:p-12 shadow-xl border border-outline-variant/10">
           <h2 className="text-3xl font-serif font-black text-primary mb-8 italic">2. How We Use Your Information</h2>
           <p className="text-lg text-stone-600 leading-relaxed font-medium italic mb-6">
             We use your information to:
@@ -68,7 +68,7 @@ const PrivacyPolicy = () => {
         </div>
 
         {/* Section 3: Data Security */}
-        <div className="bg-white rounded-[3rem] p-12 md:p-16 shadow-xl border border-outline-variant/10">
+        <div className="bg-white rounded-[2rem] xl:rounded-[3rem] p-8 xl:p-12 shadow-xl border border-outline-variant/10">
           <h2 className="text-3xl font-serif font-black text-primary mb-8 italic">3. Data Security</h2>
           <p className="text-lg text-stone-600 leading-relaxed font-medium italic">
             We employ industry-standard security measures to protect your personal information. However, no method of data transmission over the internet or electronic storage is 100% secure. While we strive to protect your personal information, we cannot guarantee its absolute security.
@@ -76,7 +76,7 @@ const PrivacyPolicy = () => {
         </div>
 
         {/* Section 4: Sharing Your Information */}
-        <div className="bg-white rounded-[3rem] p-12 md:p-16 shadow-xl border border-outline-variant/10">
+        <div className="bg-white rounded-[2rem] xl:rounded-[3rem] p-8 xl:p-12 shadow-xl border border-outline-variant/10">
           <h2 className="text-3xl font-serif font-black text-primary mb-8 italic">4. Sharing Your Information</h2>
           <p className="text-lg text-stone-600 leading-relaxed font-medium italic">
             We do not sell or rent your personal information to third parties. However, we may share your information with trusted service providers (e.g., payment processors, shipping carriers) to help us fulfill your order and improve our services.
@@ -84,7 +84,7 @@ const PrivacyPolicy = () => {
         </div>
 
         {/* Section 5: Cookies */}
-        <div className="bg-white rounded-[3rem] p-12 md:p-16 shadow-xl border border-outline-variant/10">
+        <div className="bg-white rounded-[2rem] xl:rounded-[3rem] p-8 xl:p-12 shadow-xl border border-outline-variant/10">
           <h2 className="text-3xl font-serif font-black text-primary mb-8 italic">5. Cookies</h2>
           <p className="text-lg text-stone-600 leading-relaxed font-medium italic">
             We use cookies to enhance your experience on our website. Cookies are small files stored on your device that help us remember your preferences and track website activity.
@@ -92,7 +92,7 @@ const PrivacyPolicy = () => {
         </div>
 
         {/* Section 6: Your Rights */}
-        <div className="bg-white rounded-[3rem] p-12 md:p-16 shadow-xl border border-outline-variant/10">
+        <div className="bg-white rounded-[2rem] xl:rounded-[3rem] p-8 xl:p-12 shadow-xl border border-outline-variant/10">
           <h2 className="text-3xl font-serif font-black text-primary mb-8 italic">6. Your Rights</h2>
           <p className="text-lg text-stone-600 leading-relaxed font-medium italic mb-6">
             You have the right to:
@@ -105,7 +105,7 @@ const PrivacyPolicy = () => {
         </div>
 
         {/* Section 7: Contact Us */}
-        <div className="bg-primary text-secondary-fixed rounded-[2rem] xl:rounded-[3rem] p-8 xl:p-16 shadow-2xl relative overflow-hidden mb-10 xl:mb-20">
+        <div className="bg-primary text-secondary-fixed rounded-[2rem] xl:rounded-[3rem] p-6 xl:p-10 shadow-2xl relative overflow-hidden mb-6 xl:mb-10">
           <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-tertiary opacity-10 rounded-full blur-[100px] -z-0"></div>
           <h2 className="text-2xl xl:text-4xl font-serif font-black text-white mb-6 xl:mb-10 italic relative z-10">7. Contact Us</h2>
           <div className="text-base xl:text-xl opacity-80 leading-relaxed font-medium italic relative z-10 space-y-4 xl:space-y-6">

@@ -1,5 +1,4 @@
 import Order from '../models/Order.js';
-import Payment from '../models/Payment.js';
 import User from '../models/User.js';
 import { generateOrderNumber } from '../utils/generateOrderNumber.js';
 import { successResponse, errorResponse } from '../utils/apiResponse.js';
@@ -59,6 +58,11 @@ export const createOrder = async (req, res) => {
       await customer.save();
     }
 
+    if (couponId) {
+      const Coupon = (await import('../models/Coupon.js')).default;
+      await Coupon.findByIdAndUpdate(couponId, { $inc: { usedCount: 1 } });
+    }
+
     successResponse(res, order, 'Order created', 201);
   } catch (err) {
     errorResponse(res, err.message);
@@ -86,13 +90,23 @@ export const updateOrderStatus = async (req, res) => {
 // PATCH /api/orders/:id/tracking  (admin — add tracking info)
 export const updateTracking = async (req, res) => {
   try {
-    const { shippingCarrier, trackingNumber, estimatedDelivery } = req.body;
+    const { shippingCarrier, trackingNumber, trackingUrl, estimatedDelivery } = req.body;
     const order = await Order.findByIdAndUpdate(
       req.params.id,
-      { shippingCarrier, trackingNumber, estimatedDelivery },
+      { shippingCarrier, trackingNumber, trackingUrl, estimatedDelivery },
       { new: true }
     );
     successResponse(res, order, 'Tracking updated');
+  } catch (err) {
+    errorResponse(res, err.message);
+  }
+};
+
+// GET /api/orders/my-orders  (customer orders)
+export const getMyOrders = async (req, res) => {
+  try {
+    const orders = await Order.find({ customerId: req.user._id }).sort({ createdAt: -1 });
+    successResponse(res, orders);
   } catch (err) {
     errorResponse(res, err.message);
   }

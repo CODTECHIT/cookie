@@ -20,11 +20,13 @@ import shippingRoutes from './routes/shipping.routes.js';
 import contentRoutes from './routes/content.routes.js';
 import reportRoutes from './routes/report.routes.js';
 import seedAdmin from './utils/seedAdmin.js';
+import seedCategories from './utils/seedCategories.js';
 
 
 // Connect to MongoDB & Seed Admin
 await connectDB();
 await seedAdmin();
+await seedCategories();
 
 const app = express();
 const PORT = process.env.PORT || 5000;

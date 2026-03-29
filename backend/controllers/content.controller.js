@@ -125,19 +125,19 @@ export const getSettings = async (req, res) => {
 
 export const updateSettings = async (req, res) => {
   try {
-    const { brandName, email, phone, whatsapp, address, seoTitle, seoDescription } = req.body;
-    const update = { 
-        brandName, 
-        email, 
-        phone, 
-        whatsapp, 
-        address, 
-        seoTitle, 
-        seoDescription 
-    };
+    const update = { ...req.body };
 
     if (req.file) {
         update.logoUrl = req.file.path;
+    }
+
+    // Handle nested shippingBanner if sent as object
+    if (req.body.shippingBanner && typeof req.body.shippingBanner === 'string') {
+        try {
+            update.shippingBanner = JSON.parse(req.body.shippingBanner);
+        } catch {
+            console.error('Invalid JSON for shippingBanner');
+        }
     }
 
     // Use findOneAndUpdate with upsert: true to create if not exists

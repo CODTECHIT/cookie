@@ -1,4 +1,5 @@
 import Product from '../models/Product.js';
+import Review from '../models/Review.js';
 import { cloudinary } from '../middleware/upload.js';
 import { successResponse, errorResponse } from '../utils/apiResponse.js';
 
@@ -8,16 +9,32 @@ export const getProducts = async (req, res) => {
     const { category, featured, lowStock, page = 1, limit = 20, search } = req.query;
     const filter = {};
     if (category) {
-      const categoryIds = category.split(',').filter(id => id.length === 24); // Ensure valid hex ObjectId format
-      if (categoryIds.length > 1) {
-        filter.categoryId = { $in: categoryIds };
-      } else if (categoryIds.length === 1) {
-        filter.categoryId = categoryIds[0];
+      const Category = (await import('../models/Category.js')).default;
+      const parts = category.split(',');
+      const ids = parts.filter(p => p.length === 24 && /^[0-9a-fA-F]{24}$/.test(p));
+      const slugs = parts.filter(p => p.length !== 24 || !/^[0-9a-fA-F]{24}$/.test(p));
+
+      let finalIds = [...ids];
+      if (slugs.length > 0) {
+        const categoriesFromSlugs = await Category.find({ slug: { $in: slugs } }).select('_id');
+        finalIds = [...finalIds, ...categoriesFromSlugs.map(c => c._id)];
+      }
+
+      if (finalIds.length > 1) {
+        filter.categoryId = { $in: finalIds };
+      } else if (finalIds.length === 1) {
+        filter.categoryId = finalIds[0];
       }
     }
     if (featured === 'true') filter.isFeatured = true;
     if (lowStock === 'true') filter.totalStock = { $lte: 10 }; // Assuming low stock is total sum or similar
-    if (search) filter.name = { $regex: search, $options: 'i' };
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+        { shortDescription: { $regex: search, $options: 'i' } }
+      ];
+    }
 
     const skip = (page - 1) * limit;
     const [products, total] = await Promise.all([
@@ -30,12 +47,35 @@ export const getProducts = async (req, res) => {
   }
 };
 
-// GET /api/products/:id
+// GET /api/products/:idOrSlug
 export const getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id).populate('categoryId', 'name slug');
+    const { id: idOrSlug } = req.params;
+    let product;
+
+    // Check if it's a valid MongoDB ObjectId
+    if (idOrSlug.length === 24 && /^[0-9a-fA-F]{24}$/.test(idOrSlug)) {
+      product = await Product.findById(idOrSlug).populate('categoryId', 'name slug');
+    } else {
+      product = await Product.findOne({ slug: idOrSlug }).populate('categoryId', 'name slug');
+    }
+
     if (!product) return errorResponse(res, 'Product not found', 404);
-    successResponse(res, product);
+
+    const reviews = await Review.find({ productId: product._id })
+      .populate('customerId', 'name')
+      .sort({ createdAt: -1 });
+
+    const formattedReviews = reviews.map(r => ({
+      _id: r._id,
+      userId: r.customerId,
+      rating: r.rating,
+      comment: r.comment,
+      isApproved: r.status === 'Approved',
+      createdAt: r.createdAt,
+    }));
+
+    successResponse(res, { ...product.toObject(), reviews: formattedReviews });
   } catch (err) {
     errorResponse(res, err.message);
   }
@@ -112,11 +152,23 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { variants, tags, isFeatured } = req.body;
-    const update = { ...req.body };
+
+    const product = await Product.findById(req.params.id);
+    if (!product) return errorResponse(res, 'Product not found', 404);
+
+    // Update fields from req.body
+    const allowedFields = [
+      'name', 'slug', 'description', 'shortDescription', 'categoryId',
+      'isActive', 'lowStockThreshold', 'discount', 'totalSold', 'avgRating', 'reviewCount'
+    ];
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) product[field] = req.body[field];
+    }
 
     if (variants) {
       try {
-        update.variants = typeof variants === 'string' ? JSON.parse(variants) : variants;
+        const parsed = typeof variants === 'string' ? JSON.parse(variants) : variants;
+        product.variants = parsed;
       } catch {
         return errorResponse(res, 'Invalid variants data format', 400);
       }
@@ -124,14 +176,14 @@ export const updateProduct = async (req, res) => {
 
     if (tags) {
       try {
-        update.tags = typeof tags === 'string' ? JSON.parse(tags) : tags;
+        product.tags = typeof tags === 'string' ? JSON.parse(tags) : tags;
       } catch {
         // Ignore tag parsing errors
       }
     }
 
     if (isFeatured !== undefined) {
-      update.isFeatured = isFeatured === 'true' || isFeatured === true;
+      product.isFeatured = isFeatured === 'true' || isFeatured === true;
     }
 
     // Append new uploaded images
@@ -141,11 +193,10 @@ export const updateProduct = async (req, res) => {
         publicId: file.filename,
         isMain: false,
       }));
-      update.$push = { images: { $each: newImages } };
+      product.images.push(...newImages);
     }
 
-    const product = await Product.findByIdAndUpdate(req.params.id, update, { new: true, runValidators: true });
-    if (!product) return errorResponse(res, 'Product not found', 404);
+    await product.save();
     successResponse(res, product, 'Product updated successfully');
   } catch (err) {
     console.error('❌ Update Product Error:', err);
@@ -184,6 +235,61 @@ export const updateStock = async (req, res) => {
     await product.save();
     successResponse(res, product, 'Stock updated');
   } catch (err) {
+    errorResponse(res, err.message);
+  }
+};
+
+// GET /api/products/:id/reviews  (public — approved reviews for a product)
+export const getProductReviews = async (req, res) => {
+  try {
+    const { id: idOrSlug } = req.params;
+    const product = idOrSlug.length === 24 && /^[0-9a-fA-F]{24}$/.test(idOrSlug)
+      ? await Product.findById(idOrSlug)
+      : await Product.findOne({ slug: idOrSlug });
+    if (!product) return errorResponse(res, 'Product not found', 404);
+
+    const reviews = await Review.find({ productId: product._id })
+      .populate('customerId', 'name')
+      .sort({ createdAt: -1 });
+
+    const formatted = reviews.map(r => ({
+      _id: r._id,
+      userId: r.customerId,
+      rating: r.rating,
+      comment: r.comment,
+      isApproved: r.status === 'Approved',
+      createdAt: r.createdAt,
+    }));
+
+    successResponse(res, formatted);
+  } catch (err) {
+    errorResponse(res, err.message);
+  }
+};
+
+// POST /api/products/:id/reviews  (customer submits review)
+export const createProductReview = async (req, res) => {
+  try {
+    const { id: idOrSlug } = req.params;
+    const { rating, comment } = req.body;
+    const product = idOrSlug.length === 24 && /^[0-9a-fA-F]{24}$/.test(idOrSlug)
+      ? await Product.findById(idOrSlug)
+      : await Product.findOne({ slug: idOrSlug });
+    if (!product) return errorResponse(res, 'Product not found', 404);
+
+    const review = await Review.create({
+      productId: product._id,
+      customerId: req.user._id,
+      rating,
+      comment,
+    });
+
+    successResponse(res, review, 'Review submitted', 201);
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      const messages = Object.values(err.errors).map(e => e.message);
+      return errorResponse(res, messages.join(', '), 400);
+    }
     errorResponse(res, err.message);
   }
 };

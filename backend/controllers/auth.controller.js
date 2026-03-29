@@ -34,6 +34,50 @@ export const getMe = async (req, res) => {
   successResponse(res, req.user, 'Current user');
 };
 
+// POST /api/auth/register — Customer registration
+export const register = async (req, res) => {
+  try {
+    const { name, email, phone, password } = req.body;
+    
+    // Check if user exists
+    const userExists = await User.findOne({ $or: [{ email }, { phone }] });
+    if (userExists) return errorResponse(res, 'User with this email or phone already exists', 400);
+
+    const user = await User.create({ name, email, phone, passwordHash: password, role: 'customer' });
+    const token = signToken(user._id);
+    
+    successResponse(res, { token, user: { id: user._id, name: user.name, email: user.email, role: user.role } }, 'Account created', 201);
+  } catch (err) {
+    errorResponse(res, err.message);
+  }
+};
+
+// POST /api/auth/customer-login — Customer login
+export const customerLogin = async (req, res) => {
+  try {
+    const { email, phone, password } = req.body;
+    if (!(email || phone) || !password)
+      return errorResponse(res, 'Credentials and password are required', 400);
+
+    const query = email ? { email } : { phone };
+    const user = await User.findOne({ ...query, role: 'customer' }).select('+passwordHash');
+    
+    if (!user || !(await user.comparePassword(password)))
+      return errorResponse(res, 'Invalid credentials', 401);
+
+    if (!user.isActive)
+      return errorResponse(res, 'Account is deactivated', 403);
+
+    user.lastLoginAt = Date.now();
+    await user.save({ validateBeforeSave: false });
+
+    const token = signToken(user._id);
+    successResponse(res, { token, user: { id: user._id, name: user.name, email: user.email, phone: user.phone, role: user.role } }, 'Login successful');
+  } catch (err) {
+    errorResponse(res, err.message);
+  }
+};
+
 // POST /api/auth/register-admin — Create first admin (one-time setup)
 export const registerAdmin = async (req, res) => {
   try {

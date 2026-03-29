@@ -1,3 +1,4 @@
+/* stylelint-disable at-rule-no-unknown */
 @import "tailwindcss";
 
 @theme {
@@ -44,10 +45,6 @@
 }
 
 @layer base {
-  html {
-    scroll-behavior: smooth;
-  }
-  
   body {
     @apply bg-background text-on-surface font-sans antialiased;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3column%3Efilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
@@ -85,34 +82,59 @@
     font-variation-settings: 'FILL' 1 !important;
   }
 
-  /* Animations */
-  @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
   }
 
-  @keyframes slide-up {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee var(--marquee-duration, 30s) linear infinite;
+    animation-play-state: running;
   }
 
-  @keyframes slide-right {
-    from { opacity: 0; transform: translateX(-30px); }
-    to { opacity: 1; transform: translateX(0); }
+  .marquee-track:hover {
+    animation-play-state: paused;
   }
 
-  @keyframes zoom-in {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+  .marquee-track.dragging {
+    animation-play-state: paused !important;
+    cursor: grabbing;
   }
 
-  .animate-fade-in { animation: fade-in 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
-  .animate-slide-up { animation: slide-up 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
-  .animate-slide-right { animation: slide-right 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
-  .animate-zoom-in { animation: zoom-in 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+  .marquee-container {
+    overflow: hidden;
+    position: relative;
+  }
 
-  .delay-100 { animation-delay: 100ms; }
-  .delay-200 { animation-delay: 200ms; }
-  .delay-300 { animation-delay: 300ms; }
-  .delay-500 { animation-delay: 500ms; }
+  .marquee-container::before,
+  .marquee-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 60px;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .marquee-container::before {
+    left: 0;
+    background: linear-gradient(to right, var(--marquee-from, #fff8f7), transparent);
+  }
+
+  .marquee-container::after {
+    right: 0;
+    background: linear-gradient(to left, var(--marquee-from, #fff8f7), transparent);
+  }
+
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .animate-spin-slow {
+    animation: spin-slow 8s linear infinite;
+  }
 }

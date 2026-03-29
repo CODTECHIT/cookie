@@ -51,8 +51,24 @@ export const validateCoupon = async (req, res) => {
     if (!coupon) return errorResponse(res, 'Invalid coupon code', 400);
     if (new Date() > coupon.validUntil) return errorResponse(res, 'Coupon has expired', 400);
     if (new Date() < coupon.validFrom) return errorResponse(res, 'Coupon not yet active', 400);
+    
+    // Usage Limit (Total)
     if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit)
       return errorResponse(res, 'Coupon usage limit reached', 400);
+
+    // Per User Limit
+    if (userId && coupon.perUserLimit) {
+        const Order = (await import('../models/Order.js')).default;
+        const userUsageCount = await Order.countDocuments({ 
+            customerId: userId, 
+            couponId: coupon._id,
+            paymentStatus: { $ne: 'Failed' }
+        });
+        if (userUsageCount >= coupon.perUserLimit) {
+            return errorResponse(res, `You've already used this coupon ${userUsageCount} times`, 400);
+        }
+    }
+
     if (cartTotal < coupon.minOrderAmount)
       return errorResponse(res, `Minimum order of ₹${coupon.minOrderAmount} required`, 400);
 

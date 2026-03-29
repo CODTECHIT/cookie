@@ -72,6 +72,7 @@ const orderSchema = new mongoose.Schema(
     // Shipping
     shippingCarrier: String,
     trackingNumber: String,
+    trackingUrl: String,
     estimatedDelivery: Date,
     deliveredAt: Date,
 

@@ -3,81 +3,142 @@ import { Link } from 'react-router-dom';
 import { useSite } from '../context/SiteContext';
 
 const Footer = () => {
-  const { categories } = useSite();
+  const { categories, settings } = useSite();
+
   return (
-    <footer className="bg-primary text-secondary-fixed pt-16 xl:pt-24 pb-8 xl:pb-12 w-full z-10 transition-all duration-700 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-tertiary opacity-5 rounded-full blur-[150px] -z-10 translate-x-1/2 -translate-y-1/2 hover:opacity-10 transition-opacity"></div>
-      
-      <div className="max-w-[1700px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 px-10 relative">
-        {/* Brand Info */}
-        <div className="z-10 text-center md:text-left">
-          <h3 className="font-serif text-4xl xl:text-5xl font-black text-secondary-fixed mb-6 xl:mb-8 leading-none italic">Daksha</h3>
-          <p className="text-base xl:text-xl text-secondary-fixed/50 font-sans font-medium italic leading-relaxed mb-8 xl:mb-10 max-w-sm mx-auto md:mx-0">
-            Preserving India's culinary heritage through handmade cookies and nutritious millet-based foods.
-          </p>
-          <div className="flex gap-4 xl:gap-6 items-center justify-center md:justify-start">
-            <SocialBtn icon="share" />
-            <SocialBtn icon="favorite" />
-            <SocialBtn icon="public" />
+    <footer className="bg-primary text-secondary-fixed pt-20 pb-10 w-full relative overflow-hidden font-sans border-t border-white/5">
+      {/* Glow / Ambient Lighting Effects */}
+      <div className="absolute -top-24 -right-24 w-96 h-96 bg-secondary/10 rounded-full blur-[100px] pointer-events-none"></div>
+      <div className="absolute top-1/2 left-0 w-64 h-64 bg-tertiary/10 rounded-full blur-[80px] pointer-events-none translate-y-[-50%]"></div>
+
+      <div className="max-w-[1700px] mx-auto px-6 md:px-12 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-8">
+          
+          {/* Brand Identity Section */}
+          <div className="lg:col-span-5 space-y-8">
+            <Link to="/" className="inline-block group">
+              <div className="flex flex-col leading-none">
+                <span className="text-5xl md:text-6xl font-serif font-black text-secondary-fixed tracking-tight uppercase italic group-hover:scale-105 transition-transform duration-500">DAKSHA</span>
+                <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.4em] text-secondary-fixed/50 mt-2 italic">Artisanal Hearth & Heritage</span>
+              </div>
+            </Link>
+            
+            <p className="text-lg md:text-xl text-secondary-fixed/60 font-medium italic leading-relaxed max-w-md">
+              Meticulously crafting India's finest handmade cookies and nourishing millet-based delicacies that honor our ancient culinary wisdom.
+            </p>
+
+            <div className="flex flex-wrap gap-4 pt-4">
+              <SocialBtn icon="share" label="Instagram" />
+              <SocialBtn icon="public" label="Facebook" />
+              <SocialBtn icon="favorite" label="Pinterest" />
+              <SocialBtn icon="mail" label="Twitter" />
+            </div>
+          </div>
+
+          {/* Navigation Grid */}
+          <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-8 sm:gap-12 lg:pl-12">
+            
+            {/* Shop Categories */}
+            <div className="space-y-8">
+              <h4 className="text-xs font-black uppercase tracking-[0.4em] text-white/90 pb-2 border-b border-white/10 decoration-secondary decoration-2 underline-offset-8">Explore</h4>
+              <ul className="space-y-4">
+                {categories.slice(0, 5).map(c => (
+                  <li key={c._id}>
+                    <Link className="text-sm font-black uppercase tracking-[0.2em] italic text-secondary-fixed/40 hover:text-white hover:translate-x-2 transition-all inline-block" to={`/products?category=${c._id}`}>
+                      {c.name}
+                    </Link>
+                  </li>
+                ))}
+                {categories.length === 0 && (
+                  <li>
+                    <Link className="text-sm font-black uppercase tracking-[0.2em] italic text-secondary-fixed/40 hover:text-white hover:translate-x-2 transition-all inline-block" to="/products">
+                      The Entire Range
+                    </Link>
+                  </li>
+                )}
+              </ul>
+            </div>
+
+            {/* Quick Links */}
+            <div className="space-y-8">
+              <h4 className="text-xs font-black uppercase tracking-[0.4em] text-white/90 pb-2 border-b border-white/10">The Company</h4>
+              <ul className="space-y-4">
+                <li>
+                  <Link className="text-sm font-black uppercase tracking-[0.2em] italic text-secondary-fixed/40 hover:text-white hover:translate-x-2 transition-all inline-block" to="/about">
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link className="text-sm font-black uppercase tracking-[0.2em] italic text-secondary-fixed/40 hover:text-white hover:translate-x-2 transition-all inline-block" to="/services">
+                    Our Services
+                  </Link>
+                </li>
+                <li>
+                  <Link className="text-sm font-black uppercase tracking-[0.2em] italic text-secondary-fixed/40 hover:text-white hover:translate-x-2 transition-all inline-block" to="/privacy-policy">
+                    Privacy Policy
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Contact Details */}
+            <div className="space-y-8 col-span-2 sm:col-span-1">
+              <h4 className="text-xs font-black uppercase tracking-[0.4em] text-white/90 pb-2 border-b border-white/10">Presence</h4>
+              <div className="space-y-6">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-secondary-fixed/30 mb-1">Estate</p>
+                  <p className="text-sm font-black uppercase italic text-secondary-fixed leading-tight">
+                    {settings?.address || "Nuzvidu, Eluru, Andhra Pradesh, India"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-secondary-fixed/30 mb-1">Direct Line</p>
+                  <a href={`tel:${settings?.phone || "+919704254959"}`} className="text-sm font-black italic text-secondary-fixed hover:text-white transition-colors block">
+                    {settings?.phone || "+91 9704254959"}
+                  </a>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-secondary-fixed/30 mb-1">Inquiries</p>
+                  <a href={`mailto:${settings?.email || "dakshacookiesmillets@gmail.com"}`} className="text-xs font-black italic text-secondary-fixed hover:text-white transition-colors block break-all">
+                    {settings?.email || "dakshacookiesmillets@gmail.com"}
+                  </a>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
 
-        {/* Categories */}
-        <div className="lg:pl-12">
-          <h4 className="font-bold text-white mb-10 uppercase tracking-[0.4em] text-xs">The Collection</h4>
-          <ul className="space-y-6 text-sm font-black uppercase tracking-[0.2em] italic">
-            {categories.slice(0, 4).map(c => (
-              <li key={c._id}><Link className="text-secondary-fixed/40 hover:text-secondary-fixed transition-all hover:translate-x-2 block" to={`/products?category=${c._id}`}>{c.name}</Link></li>
-            ))}
-            {categories.length === 0 && (
-              <li><Link className="text-secondary-fixed/40 hover:text-secondary-fixed transition-all hover:translate-x-2 block" to="/products">Shop All</Link></li>
-            )}
-          </ul>
-        </div>
-
-        {/* Information */}
-        <div className="lg:pl-12">
-          <h4 className="font-bold text-white mb-10 uppercase tracking-[0.4em] text-xs">The Company</h4>
-          <ul className="space-y-6 text-sm font-black uppercase tracking-[0.2em] italic text-secondary-fixed/40">
-            <li><Link className="hover:text-secondary-fixed transition-all" to="/about">Our Story</Link></li>
-            <li><Link className="hover:text-secondary-fixed transition-all" to="/privacy-policy">Privacy Policy</Link></li>
-            <li><a href="mailto:dakshacookiesmillets@gmail.com" className="hover:text-secondary-fixed transition-all block truncate">dakshacookiesmillets@gmail.com</a></li>
-            <li><span className="block opacity-60">07:00 AM – 07:00 PM</span></li>
-          </ul>
-        </div>
-
-        {/* Contact Info */}
-        <div className="lg:pl-12">
-           <h4 className="font-bold text-white mb-10 uppercase tracking-[0.4em] text-xs">Reach Us</h4>
-           <div className="text-secondary-fixed opacity-40 font-black text-sm uppercase italic tracking-widest space-y-4">
-              <p className="leading-relaxed">
-                 Nuzvidu, Eluru, Andhra Pradesh
-              </p>
-              <a href="tel:+919704254959" className="flex items-center gap-3 hover:text-white transition-colors mt-6 not-italic">
-                 <span className="material-symbols-outlined">call</span> +91 9704254959
-              </a>
-           </div>
+        {/* Bottom Bar */}
+        <div className="mt-24 pt-10 border-t border-white/5 flex flex-col lg:flex-row justify-between items-center gap-8">
+          <div className="text-[9px] font-black uppercase tracking-[0.5em] text-secondary-fixed/20 italic text-center lg:text-left">
+            © 2026 DAKSHA COOKIES & MILLETS • HANDCRAFTED WITH SOUL • EST. 2024
+          </div>
+          
+          <div className="flex flex-wrap justify-center gap-8 text-[9px] font-black uppercase tracking-[0.3em] text-secondary-fixed/30 italic">
+            <span className="hover:text-secondary-fixed cursor-default transition-colors">Artisan Hearth</span>
+            <span className="hover:text-secondary-fixed cursor-default transition-colors">Sustainable</span>
+            <span className="hover:text-secondary-fixed cursor-default transition-colors">Ethically Sourced</span>
+          </div>
         </div>
       </div>
 
-      <div className="max-w-[1700px] mx-auto mt-20 xl:mt-32 pt-8 xl:pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 xl:gap-8 text-[8px] xl:text-[10px] font-black uppercase tracking-[0.4em] opacity-30 italic text-center md:text-left">
-        <p>© 2026 Daksha Cookies & Millets. Curating Heritage.</p>
-        <div className="flex flex-wrap justify-center items-center gap-6 xl:gap-12">
-          <span className="hover:text-white cursor-help">India's Finest Artisan Hearth</span>
-          <span className="hover:text-white cursor-help">Sustainable • Ethical • Tribal</span>
-        </div>
-      </div>
-      
-      {/* Mobile Spacer for Bottom Nav */}
-      <div className="h-24 md:hidden"></div>
+      {/* Mobile Interaction Safeguard */}
+      <div className="h-20 lg:hidden"></div>
     </footer>
   );
 };
 
-const SocialBtn = ({ icon }) => (
-  <button className="w-14 h-14 rounded-full border-2 border-white/5 flex items-center justify-center text-secondary-fixed/50 hover:bg-secondary-fixed hover:text-primary hover:border-secondary-fixed hover:scale-110 active:scale-95 transition-all duration-500">
-    <span className="material-symbols-outlined">{icon}</span>
+const SocialBtn = ({ icon, label }) => (
+  <button className="group relative flex items-center justify-center">
+    <div className="w-12 h-12 rounded-2xl border border-secondary-fixed/10 flex items-center justify-center text-secondary-fixed/40 group-hover:bg-secondary-fixed group-hover:text-primary group-hover:border-secondary-fixed group-hover:scale-110 active:scale-95 transition-all duration-500">
+      <span className="material-symbols-outlined text-xl">{icon}</span>
+    </div>
+    <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-secondary-fixed text-primary text-[10px] font-black uppercase px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none tracking-widest">
+      {label}
+    </span>
   </button>
 );
 
 export default Footer;
+

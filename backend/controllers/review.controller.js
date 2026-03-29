@@ -25,7 +25,7 @@ export const createReview = async (req, res) => {
   try {
     const { productId, customerId, orderId, rating, title, comment } = req.body;
     const review = await Review.create({ productId, customerId, orderId, rating, title, comment, isVerifiedPurchase: !!orderId });
-    successResponse(res, review, 'Review submitted, pending approval', 201);
+    successResponse(res, review, 'Review submitted', 201);
   } catch (err) {
     errorResponse(res, err.message);
   }
@@ -56,6 +56,31 @@ export const moderateReview = async (req, res) => {
       }
     }
     successResponse(res, review, `Review ${status}`);
+  } catch (err) {
+    errorResponse(res, err.message);
+  }
+};
+
+// DELETE /api/reviews/:id  (admin — delete a review)
+export const deleteReview = async (req, res) => {
+  try {
+    const review = await Review.findById(req.params.id);
+    if (!review) return errorResponse(res, 'Review not found', 404);
+
+    const productId = review.productId;
+    await review.deleteOne();
+
+    // Recalculate product rating
+    const agg = await Review.aggregate([
+      { $match: { productId, status: 'Approved' } },
+      { $group: { _id: null, avg: { $avg: '$rating' }, count: { $sum: 1 } } },
+    ]);
+    await Product.findByIdAndUpdate(productId, {
+      avgRating: agg[0] ? Math.round(agg[0].avg * 10) / 10 : 0,
+      reviewCount: agg[0] ? agg[0].count : 0,
+    });
+
+    successResponse(res, null, 'Review deleted');
   } catch (err) {
     errorResponse(res, err.message);
   }

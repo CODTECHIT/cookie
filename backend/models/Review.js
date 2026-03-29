@@ -12,7 +12,7 @@ const reviewSchema = new mongoose.Schema(
     images: [String],
 
     // Admin moderation
-    status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending' },
+    status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Approved' },
     moderatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     moderatedAt: Date,
 

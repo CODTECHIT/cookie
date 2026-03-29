@@ -17,11 +17,11 @@ const AdminLayout = () => {
     { title: 'Orders', path: '/admin/orders', icon: ShoppingCart },
     { title: 'Customers', path: '/admin/customers', icon: Users },
     { title: 'Payments', path: '/admin/payments', icon: CreditCard },
-    { title: 'Shipping', path: '/admin/shipping', icon: Truck },
     { title: 'Reports', path: '/admin/reports', icon: BarChart3 },
     { title: 'Coupons', path: '/admin/coupons', icon: Ticket },
     { title: 'Categories', path: '/admin/categories', icon: Grid },
     { title: 'Reviews', path: '/admin/reviews', icon: Star },
+    { title: 'Content', path: '/admin/content', icon: Image },
     { title: 'Settings', path: '/admin/settings', icon: Settings },
   ];
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAdmin } from '../context/AdminContext';
 import { useSite } from '../../context/SiteContext';
@@ -30,14 +30,14 @@ const ContentCMS = () => {
   const [bannerFile, setBannerFile] = useState(null);
 
   // Settings State
-  const [settingsForm, setSettingsForm] = useState({ brandName: '', email: '', phone: '', address: '', seoTitle: '', seoDescription: '' });
+  const [settingsForm, setSettingsForm] = useState({ 
+    brandName: '', email: '', phone: '', address: '', 
+    seoTitle: '', seoDescription: '',
+    shippingTitle: '', shippingSubtitle: '', shippingThreshold: 999, shippingEnabled: true
+  });
   const [logoFile, setLogoFile] = useState(null);
 
-  useEffect(() => {
-    fetchContent();
-  }, [API_URL, token]);
-
-  const fetchContent = async () => {
+  const fetchContent = useCallback(async () => {
     setLoading(true);
     try {
       const bannerRes = await axios.get(`${API_URL}/content/banners`, { headers: { Authorization: `Bearer ${token}` } });
@@ -52,7 +52,11 @@ const ContentCMS = () => {
           phone: settingsRes.data.data.phone || '',
           address: settingsRes.data.data.address || '',
           seoTitle: settingsRes.data.data.seoTitle || '',
-          seoDescription: settingsRes.data.data.seoDescription || ''
+          seoDescription: settingsRes.data.data.seoDescription || '',
+          shippingTitle: settingsRes.data.data.shippingBanner?.title || '',
+          shippingSubtitle: settingsRes.data.data.shippingBanner?.subtitle || '',
+          shippingThreshold: settingsRes.data.data.shippingBanner?.threshold || 999,
+          shippingEnabled: settingsRes.data.data.shippingBanner?.enabled ?? true
         });
       }
     } catch { 
@@ -60,7 +64,12 @@ const ContentCMS = () => {
     } finally { 
        setLoading(false); 
     }
-  };
+  }, [API_URL, token]);
+
+  useEffect(() => {
+    fetchContent();
+  }, [fetchContent]);
+
 
   const handleBannerSubmit = async (e) => {
     e.preventDefault();
@@ -103,7 +112,17 @@ const ContentCMS = () => {
   const handleSettingsSubmit = async (e) => {
     e.preventDefault();
     const data = new FormData();
-    Object.keys(settingsForm).forEach(key => data.append(key, settingsForm[key]));
+    const { shippingTitle, shippingSubtitle, shippingThreshold, shippingEnabled, ...otherSettings } = settingsForm;
+    Object.keys(otherSettings).forEach(key => data.append(key, otherSettings[key]));
+    
+    // Add shippingBanner as JSON string (backend will parse it)
+    data.append('shippingBanner', JSON.stringify({
+      title: shippingTitle,
+      subtitle: shippingSubtitle,
+      threshold: Number(shippingThreshold),
+      enabled: shippingEnabled
+    }));
+
     if (logoFile) data.append('logo', logoFile);
 
     try {
@@ -165,37 +184,37 @@ const ContentCMS = () => {
                 </div>
              </div>
            ) : (
-             <form onSubmit={handleSettingsSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                <div className="lg:col-span-1 space-y-6">
-                   <div className="bg-white p-8 rounded-[48px] shadow-sm border border-gray-100 flex flex-col items-center text-center">
-                      <div className="w-24 h-24 bg-gray-50 rounded-[32px] overflow-hidden mb-6 border border-gray-100 shadow-inner group relative">
-                         <img src={settings?.logo || '/logo-placeholder.png'} className="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform" alt="" />
-                         <label className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity">
-                            <UploadCloud className="w-8 h-8 text-white" />
-                            <input type="file" className="hidden" onChange={(e) => setLogoFile(e.target.files[0])} />
-                         </label>
+              <form onSubmit={handleSettingsSubmit} className="space-y-8">
+                <div className="bg-white p-10 rounded-[48px] shadow-sm border border-gray-100 space-y-10 max-w-5xl mx-auto">
+                   <div className="pt-8 transition-all">
+                      <div className="flex items-center space-x-3 text-indigo-500 mb-8">
+                         <div className="p-3 bg-indigo-50 rounded-2xl shadow-sm"><Gift className="w-6 h-6" /></div>
+                         <h2 className="text-sm font-black text-gray-900 uppercase tracking-widest">Dynamic Shipping Incentive</h2>
                       </div>
-                      <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight">Store Identity</h2>
-                      <input value={settingsForm.brandName} onChange={(e) => setSettingsForm({...settingsForm, brandName: e.target.value})} className="w-full mt-6 px-5 py-4 bg-gray-50 rounded-2xl font-black outline-none focus:ring-2 focus:ring-primary/20 text-sm uppercase text-center" />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                         <div className="space-y-2 md:col-span-2">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Banner Headline</label>
+                            <input value={settingsForm.shippingTitle} onChange={(e) => setSettingsForm({...settingsForm, shippingTitle: e.target.value})} className="w-full px-5 py-4 bg-gray-50 rounded-2xl font-black outline-none text-sm uppercase" placeholder="🚚 Free Global Shipping." />
+                         </div>
+                         <div className="space-y-2 md:col-span-2">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Sub-headline Description</label>
+                            <input value={settingsForm.shippingSubtitle} onChange={(e) => setSettingsForm({...settingsForm, shippingSubtitle: e.target.value})} className="w-full px-5 py-4 bg-gray-50 rounded-2xl font-bold outline-none text-sm" placeholder="Orders above ₹999 enjoy complimentary delivery" />
+                         </div>
+                         <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Minimum Threshold (₹)</label>
+                            <input type="number" value={settingsForm.shippingThreshold} onChange={(e) => setSettingsForm({...settingsForm, shippingThreshold: e.target.value})} className="w-full px-5 py-4 bg-gray-50 rounded-2xl font-black outline-none text-sm" />
+                         </div>
+                         <div className="space-y-2 flex items-center pt-8">
+                            <label className="flex items-center space-x-3 cursor-pointer">
+                              <input type="checkbox" checked={settingsForm.shippingEnabled} onChange={(e) => setSettingsForm({...settingsForm, shippingEnabled: e.target.checked})} className="sr-only peer" />
+                              <div className="w-12 h-7 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-[19px] after:w-[19px] after:transition-all peer-checked:bg-primary"></div>
+                              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Enable Banner</span>
+                            </label>
+                         </div>
+                      </div>
                    </div>
-                </div>
 
-                <div className="lg:col-span-2 bg-white p-10 rounded-[48px] shadow-sm border border-gray-100 space-y-10">
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div className="space-y-2">
-                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Support Email</label>
-                         <input value={settingsForm.email} onChange={(e) => setSettingsForm({...settingsForm, email: e.target.value})} className="w-full px-5 py-4 bg-gray-50 rounded-2xl font-bold outline-none text-sm" />
-                      </div>
-                      <div className="space-y-2">
-                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Phone</label>
-                         <input value={settingsForm.phone} onChange={(e) => setSettingsForm({...settingsForm, phone: e.target.value})} className="w-full px-5 py-4 bg-gray-50 rounded-2xl font-bold outline-none text-sm" />
-                      </div>
-                      <div className="space-y-2 md:col-span-2">
-                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Address</label>
-                         <textarea value={settingsForm.address} onChange={(e) => setSettingsForm({...settingsForm, address: e.target.value})} rows="2" className="w-full px-5 py-4 bg-gray-50 rounded-2xl font-bold outline-none text-sm" />
-                      </div>
-                   </div>
-                   <div className="flex justify-end pt-8 border-t border-gray-50">
+                   <div className="flex justify-end pt-8 border-t border-gray-100">
                       <button type="submit" className="bg-primary text-white px-12 py-5 rounded-3xl font-black text-xs uppercase tracking-widest shadow-2xl active:scale-95 flex items-center">
                          <Save className="w-5 h-5 mr-3" /> Save Settings
                       </button>
@@ -250,7 +269,6 @@ const ContentCMS = () => {
                             className="w-full px-6 py-4 bg-gray-50 rounded-2xl font-black outline-none focus:ring-4 focus:ring-primary/5 uppercase text-xs"
                           >
                             <option value="hero">Hero Slider</option>
-                            <option value="middle">Middle Banner</option>
                             <option value="bottom">Bottom Ad</option>
                           </select>
                        </div>

@@ -4,7 +4,7 @@ import { useAdmin } from '../context/AdminContext';
 import { 
   Truck, Plus, Edit2, Trash2, Search, MapPin, 
   Settings, Loader2, X, Check, Package, 
-  ShieldCheck, AlertCircle, RefreshCw, Smartphone
+  ShieldCheck, AlertCircle, RefreshCw, Smartphone, ChevronRight
 } from 'lucide-react';
 
 const ShippingManagement = () => {
@@ -23,20 +23,22 @@ const ShippingManagement = () => {
     freeDeliveryAbove: 500, estimatedDays: '2-3 days', isActive: true
   });
 
-  useEffect(() => {
-    fetchZones();
-  }, [API_URL, token]);
-
-  const fetchZones = async () => {
+  const fetchZones = React.useCallback(async () => {
     setLoading(true);
     try {
       const { data } = await axios.get(`${API_URL}/shipping`, {
+        params: { search: '' },
         headers: { Authorization: `Bearer ${token}` }
       });
       if (data.success) setZones(data.data);
-    } catch (err) { console.error(err); }
-    finally { setLoading(false); }
-  };
+    } catch { 
+      // Silently fail or log if needed
+    } finally { setLoading(false); }
+  }, [API_URL, token]);
+
+  useEffect(() => {
+    fetchZones();
+  }, [fetchZones]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -79,7 +81,7 @@ const ShippingManagement = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         fetchZones();
-      } catch (err) { alert('Delete failed'); }
+      } catch { alert('Delete failed'); }
     }
   };
 

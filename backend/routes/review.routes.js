@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAllReviews, createReview, moderateReview } from '../controllers/review.controller.js';
+import { getAllReviews, createReview, moderateReview, deleteReview } from '../controllers/review.controller.js';
 import { protect, adminOnly } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -7,5 +7,6 @@ const router = express.Router();
 router.get('/', protect, adminOnly, getAllReviews);
 router.post('/', protect, createReview);
 router.patch('/:id/moderate', protect, adminOnly, moderateReview);
+router.delete('/:id', protect, adminOnly, deleteReview);
 
 export default router;

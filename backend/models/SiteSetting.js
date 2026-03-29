@@ -44,6 +44,13 @@ const siteSettingSchema = new mongoose.Schema(
     aboutUs: String,
     returnPolicy: String,
     privacyPolicy: String,
+
+    shippingBanner: {
+      title: { type: String, default: '🚚 Free Global Shipping.' },
+      subtitle: { type: String, default: 'Orders above ₹999 enjoy complimentary delivery' },
+      threshold: { type: Number, default: 999 },
+      enabled: { type: Boolean, default: true }
+    }
   },
   { timestamps: true }
 );

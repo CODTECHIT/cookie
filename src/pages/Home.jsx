@@ -1,244 +1,247 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import cookieHero from '../assets/cookie_hero.png';
 
 import { useSite } from '../context/SiteContext';
+import { useCart } from '../context/CartContext';
+import SEO from '../components/SEO';
+
 
 const Home = () => {
-  const { categories } = useSite();
+  const { categories, settings } = useSite();
+  const { addToCart } = useCart();
+  const navigate = useNavigate();
   const [bestSellers, setBestSellers] = useState([]);
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [banners, setBanners] = useState([]);
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+  const heroBanners = banners.filter(b => b.position === 'hero');
+  const middleBanners = banners.filter(b => b.position === 'middle');
+  const bottomBanners = banners.filter(b => b.position === 'bottom');
+
+  const defaultSlides = [
+    { imageUrl: '/assets/home-hero-cinematic.png', title: 'Artisanal Handcrafted Cookies', subtitle: 'DAKSHA • Freshly Baked Every Day' },
+    { imageUrl: '/assets/modern-display.png', title: 'Modern Display Collection', subtitle: 'Curated Artisan Excellence' },
+    { imageUrl: '/assets/heritage-kitchen.png', title: 'Heritage Kitchen Recipes', subtitle: 'Traditional Flavors Since Generations' },
+    { imageUrl: '/assets/millet-powder.png', title: 'Premium Millet Powders', subtitle: 'Natural & Nutrient Rich Goodness' },
+    { imageUrl: '/assets/premium-packaging.png', title: 'Premium Gift Packaging', subtitle: 'Deliver Love in Every Box' }
+  ];
+
+  const activeSlides = heroBanners.length > 0 ? heroBanners : defaultSlides;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const prodRes = await axios.get(`${API_URL}/reports/best-sellers?limit=8`);
+        const prodRes = await axios.get(`${API_URL}/reports/best-sellers?limit=12`);
         if (prodRes.data.success) setBestSellers(prodRes.data.data);
+
+        const prodAllRes = await axios.get(`${API_URL}/products`);
+        if (prodAllRes.data.success) {
+          const allProds = prodAllRes.data.data?.products || prodAllRes.data.products || prodAllRes.data.data || [];
+          const featured = Array.isArray(allProds) ? allProds.filter(p => p.isFeatured === true) : [];
+          setFeaturedProducts(featured.slice(0, 10));
+        }
+
+        const bannerRes = await axios.get(`${API_URL}/content/banners`);
+        if (bannerRes.data.success) {
+          const activeBanners = bannerRes.data.data.filter(b => b.isActive).sort((a, b) => a.sortOrder - b.sortOrder);
+          setBanners(activeBanners);
+        }
       } catch (err) {
-        console.error('Error fetching best sellers:', err);
+        console.error('Error fetching data:', err);
       }
     };
     fetchData();
   }, [API_URL]);
 
+  useEffect(() => {
+    if (activeSlides.length === 0) return;
+    const timer = setInterval(() => {
+      setCurrentSlide(prev => (prev + 1) % activeSlides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [activeSlides.length]);
+
+  const prevSlide = () => setCurrentSlide(prev => (prev - 1 + activeSlides.length) % activeSlides.length);
+  const nextSlide = () => setCurrentSlide(prev => (prev + 1) % activeSlides.length);
+
+  const handleBuyNow = (prod, variant) => {
+    addToCart(prod, variant, 1);
+    navigate('/cart');
+  };
+
 
   return (
-    <div className="bg-background min-h-screen">
-      
-      {/* 📱 Mobile Experience (Flipkart Style) */}
-      <section className="lg:hidden pt-28 pb-32 space-y-4">
-        {/* ... (Keep mobile categories as is) */}
-        <div className="flex gap-4 px-4 overflow-x-auto hide-scrollbar py-4 bg-white/50 backdrop-blur-md">
-           {categories.map(cat => (
-             <MobileCategory key={cat._id} label={cat.name} to={`/products?category=${cat._id}`} src={cat.image} />
-           ))}
-           {categories.length === 0 && (
-             <>
-                <MobileCategory label="Cookies" to="/products" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmk59cSQSIjdJI7BeSql6AmUYJd1iVfWqZSUrOTaImbfcAnGEron1HuTYNwnExiZVl1HD1s74_LbEaH6kH0l7GYdrxZxB5sP1pPru-8SphVc7AXNlDK0zqwCjALC-dvpf0qto6-pfIb4ecFeim3OYQY58paOMhIp8PrODioTCgat9GJ_KEjvhF2ADRUdIB_1E8nCixW5iM_r3uhxvluBjWzz25Oshxk-PIZmxlfERDjT5qK0mZ4NLMhIiFf98_kyXYMLotwj_APso" />
-                <MobileCategory label="Millets" to="/millets" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbo9u6lGD9EKS6uiqeL3v87SUCRG_wvUJSJ-XEYlotCypKCVJSh-2cQOGgw7HhMrKk-vRuQhojkkKJ2mupji7EnqvUwBWf394_qs4gdYyBFxQX9IWY_vkZQerbzTFImxNnMACBqZhUKtnSuFp3RX7nH7u_ENwdIJeBLyXCf0yO0oOhDbRK7EPe49IpvzHTaYoVTuXYAGMDZLaCL2cGTh6sE_TDqC2Av05HdaqlHOuQ4VqvkptMeUL7ohu_4kVlNXhFD9vrA1Slz3o" />
-             </>
-           )}
-        </div>
+    <div className="bg-background min-h-screen pb-20 lg:pb-0">
+      <SEO 
+        title="Artisanal Cookies & Healthy Millet Powders"
+        description="Discover the authentic taste of Daksha Food Artisan. Handcrafted cashew cookies, nutrient-rich millets, and traditional snacks."
+      />
 
-        {/* Mobile Banner (16:9) */}
+      <section className="lg:hidden pt-36 pb-10 space-y-6">
+        <div className="flex gap-4 px-4 overflow-x-auto hide-scrollbar py-2">
+          {categories.map(cat => <MobileCategory key={cat._id} label={cat.name} to={`/category/${cat.slug || cat._id}`} src={cat.image} />)}
+        </div>
         <div className="px-4">
-           <div className="aspect-[16/9] w-full bg-primary rounded-3xl overflow-hidden relative shadow-2xl">
-              <img className="w-full h-full object-cover opacity-60" src={cookieHero} alt="Hero" />
-              <div className="absolute inset-0 p-6 flex flex-col justify-center">
-                 <p className="text-secondary-fixed text-[10px] uppercase font-black tracking-[0.2em] mb-2 leading-none">Freshly Baked Every Day</p>
-                 <h2 className="text-white text-3xl font-serif font-black italic leading-tight mb-4 tracking-tight">
-                    Pure. Natural.<br/><span className="text-secondary">Delicious.</span>
-                 </h2>
-                 <Link to="/products" className="bg-secondary text-[#331917] w-fit px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-secondary/20 active:scale-95 transition-all">Explore All</Link>
+          <div className="aspect-[16/9] w-full bg-primary rounded-3xl overflow-hidden relative shadow-2xl">
+            {activeSlides.map((slide, i) => <img key={i} className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === currentSlide ? 'opacity-60' : 'opacity-0'}`} src={slide.imageUrl || slide.src} alt="" />)}
+            <div className="absolute inset-0 p-5 flex flex-col justify-center z-10 text-white">
+              <div className="bg-black/30 backdrop-blur-xl rounded-2xl p-5 border border-white/10 shadow-2xl max-w-[85%]">
+                <p className="text-yellow-300 text-[10px] uppercase font-black tracking-widest mb-2">{activeSlides[currentSlide]?.subtitle || "Freshly Baked"}</p>
+                <h2 className="text-2xl font-serif font-black italic leading-tight mb-4">{activeSlides[currentSlide]?.title || "Pure. Natural."}</h2>
+                <Link to="/products" className="bg-yellow-300 text-primary w-fit px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest inline-block shadow-lg">Explore All</Link>
               </div>
-           </div>
+            </div>
+          </div>
         </div>
-
-        {/* ... (Keep mobile bset sellers as is) */}
+        {featuredProducts.length > 0 && (
+          <section className="py-4 bg-white relative overflow-hidden">
+            <div className="flex flex-col items-center text-center mb-6 px-4">
+              <span className="text-secondary font-black uppercase tracking-[0.3em] text-[8px] mb-1 block">Special Selection</span>
+              <h2 className="text-xl font-serif font-black text-primary italic leading-tight">Featured Treasures</h2>
+            </div>
+            <MarqueeCarousel duration={25} gap="gap-6 px-6"><div className="flex gap-6">{[...featuredProducts, ...featuredProducts].map((prod, i) => <div key={`${prod._id}-${i}`} className="min-w-[140px]"><RoundProductCard p={prod} onBuy={() => handleBuyNow(prod, prod.variants?.[0])} /></div>)}</div></MarqueeCarousel>
+          </section>
+        )}
         <section className="px-4 space-y-4">
-           <div className="flex items-center justify-between">
-              <h3 className="text-primary font-black uppercase text-xs tracking-widest bg-primary-container/20 px-3 py-1 rounded-full border border-primary/10">Best Sellers</h3>
-              <Link to="/products" className="text-tertiary font-black uppercase text-[10px] tracking-widest flex items-center">View All <span className="material-symbols-outlined text-sm ml-1">chevron_right</span></Link>
-           </div>
-           <div className="grid grid-cols-2 gap-4">
-              <MobileProductCard title="Cashew Cookies" price="199" oldPrice="249" img="https://lh3.googleusercontent.com/aida-public/AB6AXuAPdbZUlTB6wmNtrSPurHGyNwF2jkn9XnfHs_BLTISeDqQWTTSCH3mmiAUq_xSPBvhyKeQ7h9oEE1WUk_mC_m1LD-ss8tWlnKCxPIYLIg8zE2rs91BhMe63dyIYow60y8NuFihlVu2WIap4-2_CC1GFLQUEv6LAg7LiXoYqBFX7JzCmIfPYcZLlmAnR8-tuiW4y6wcra67a6dEIxR7agJriiVDTKypogRQwiXFxcRhbB9t_GsbO8r8uTdp56lAxPZTSw2l5jonKQPY" />
-              <MobileProductCard title="Pearl Millet" price="145" oldPrice="180" img="https://lh3.googleusercontent.com/aida-public/AB6AXuDqaTyoHCDyWZIeGkC_a_Gq-4zmaNubJTZW5n-LKjSWh4I0nmkZxEWmdxLKhlaZGayZK4YAMu559nT29mxngRZvte-UiLq12GpAnf93pAmIeiAIh-nf9-6vW9ZG0JdS-_QbNBSV8K6kity99VIKBnXoVbmBTFSohuHKLJ44r2QlFlqgsJuew7IxcNxqdxjE3NH5CIrpn93osqMuitzDIRlYEJ38n0bXnKTa5rocEDQ-R-oGXn917bbGIWZqfOA8-3c8hcai5o4nDnQ" />
-              <MobileProductCard title="Granola Mix" price="320" oldPrice="400" img="https://lh3.googleusercontent.com/aida-public/AB6AXuDJkVBfwVW3Q4gpaL9YhaEkW1scwp_R5nVaMY8Br3th_LuilP7kIBEshx3Njn_y27kYoXBMwZUi1fW-j5B1722mpGtwcPoWPDeZRLfU7EMalo-qHRekdW6vkacyuONA3tfyOd4yB-OX6DtrnwO47_8wE28yNEAa_Vk6FuLlSKoeJGq97TvLMhVQpTdgU1JMG7TzqvGh73o4pXMGw5FhTOpw8XqNx0M5e0autUX5_mIcrQTT0KgYe1QpywJgWIqpPW-5ur9vI5K5TI4" />
-              <MobileProductCard title="Gift Bundle" price="999" oldPrice="1249" img="https://lh3.googleusercontent.com/aida-public/AB6AXuAVKsTPdAmkmAsC9AjbmLzuRa_bqnFJR1AFol6a1OwaFqg0TWcVX-m_izv8LoOALZKUfvCFjhps0uL2kVsy0IX11ml9OsI06Z3DMp_VjX_cYfNlF920ul7imXFapGqExxn556knJmDdsH3LhlntNBVEN9BnyhyCn0J5rTx_fn-iBXR7EVwl6cr08CI9KlMlCMZQm6FC0pS3mpkb3bAB-bsual5nQFWMVLiWHjEdS_MoiwmLPoTrRnRCBFEPMYXOlAfDOt8QsE4cpYU" />
-           </div>
+          <h3 className="text-primary font-black uppercase text-xs tracking-widest">Best Sellers</h3>
+          <div className="grid grid-cols-2 gap-4">
+            {bestSellers.map(prod => <MobileProductCard key={prod._id} p={prod} onAdd={() => addToCart(prod, prod.variants?.[0])} onBuy={() => handleBuyNow(prod, prod.variants?.[0])} />)}
+          </div>
         </section>
       </section>
 
-      {/* 🖥️ Desktop Experience (As per design.md) */}
       <main className="hidden lg:block">
-        {/* Hero Section */}
-        <section className="relative overflow-hidden min-h-[80vh] xl:h-[90vh] flex items-center group">
+        <section className="relative overflow-hidden h-[65vh] xl:h-[75vh] flex items-center group pt-20">
           <div className="absolute inset-0 z-0">
-             <img 
-               src={cookieHero} 
-               alt="Background" 
-               className="w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-[4s] ease-out"
-             />
-             <div className="absolute inset-0 bg-gradient-to-r from-background via-background/60 to-transparent"></div>
-             <div className="absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent"></div>
+            {activeSlides.map((slide, i) => <img key={i} src={slide.imageUrl || slide.src} className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === currentSlide ? 'opacity-100' : 'opacity-0'}`} alt="" />)}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/10 to-transparent"></div>
           </div>
-
-          <div className="max-w-[1700px] mx-auto px-6 xl:px-10 w-full relative z-10">
-            <div className="max-w-3xl">
-              <span className="text-secondary font-black uppercase tracking-[0.5em] text-[10px] mb-6 block animate-slide-right">DAKSHA • Artisanal Excellence</span>
-              <h1 className="text-5xl xl:text-[6.5rem] font-serif font-black text-primary mb-6 leading-[0.9] xl:leading-[0.85] italic animate-slide-up opacity-0 fill-mode-forwards">
-                Pure. Natural. <br/><span className="text-tertiary">Delicious.</span>
-              </h1>
-              <p className="text-base xl:text-xl text-stone-600 mb-10 max-w-xl leading-relaxed font-sans font-medium italic animate-slide-up delay-200 opacity-0 fill-mode-forwards">
-                Premium Cashew Cookies & Healthy Millet Powders — Crafted with tradition, delivered with love.
-              </p>
-              <div className="flex flex-wrap gap-4 animate-slide-up delay-300 opacity-0 fill-mode-forwards">
-                <Link to="/products" className="bg-primary text-on-primary px-8 py-4 rounded-xl font-black text-sm shadow-2xl shadow-primary/20 hover:translate-y-[-4px] active:scale-95 transition-all flex items-center justify-center gap-3 tracking-[0.2em] uppercase">
-                  Shop Cookies <span className="material-symbols-outlined text-sm">arrow_right_alt</span>
-                </Link>
-                <Link to="/millets" className="border-2 border-primary text-primary px-8 py-4 rounded-xl font-black text-sm hover:bg-primary hover:text-white transition-all flex items-center justify-center tracking-[0.2em] uppercase">
-                  Explore Millets
-                </Link>
-              </div>
+          <div className="max-w-[1700px] mx-auto px-10 w-full relative z-10 text-white">
+            <div className="max-w-xl bg-black/30 backdrop-blur-xl rounded-2xl p-10 border border-white/10 shadow-2xl">
+              <span className="text-yellow-300 font-black uppercase tracking-widest text-[9px] mb-3 block">{activeSlides[currentSlide]?.subtitle || "DAKSHA • Artisanal Excellence"}</span>
+              <h1 className="text-4xl xl:text-5xl font-serif font-black italic mb-4 leading-tight">{activeSlides[currentSlide]?.title || "Pure. Natural. Delicious."}</h1>
+              <Link to="/products" className="bg-yellow-300 text-primary px-8 py-3 rounded-xl font-black text-xs shadow-xl uppercase tracking-widest inline-flex items-center gap-2 hover:scale-105 transition-all">Shop Collection <span className="material-symbols-outlined text-sm">arrow_right_alt</span></Link>
             </div>
           </div>
+          <button onClick={prevSlide} className="absolute left-6 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-white/40"><span className="material-symbols-outlined">chevron_left</span></button>
+          <button onClick={nextSlide} className="absolute right-6 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-white/40"><span className="material-symbols-outlined">chevron_right</span></button>
         </section>
 
-        {/* Category Strip */}
-        <section className="py-12 xl:py-24 bg-surface relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/10 to-transparent"></div>
-           <div className="max-w-[1700px] mx-auto px-6 xl:px-10 flex justify-between items-center overflow-x-auto gap-6 xl:gap-12 hide-scrollbar animate-fade-in delay-500 opacity-0 fill-mode-forwards">
-             {categories.map(cat => (
-               <DesktopCategory key={cat._id} label={cat.name} to={`/products?category=${cat._id}`} src={cat.image} />
-             ))}
-             {categories.length === 0 && (
-               <>
-                 <DesktopCategory label="Cookies" to="/products" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmk59cSQSIjdJI7BeSql6AmUYJd1iVfWqZSUrOTaImbfcAnGEron1HuTYNwnExiZVl1HD1s74_LbEaH6kH0l7GYdrxZxB5sP1pPru-8SphVc7AXNlDK0zqwCjALC-dvpf0qto6-pfIb4ecFeim3OYQY58paOMhIp8PrODioTCgat9GJ_KEjvhF2ADRUdIB_1E8nCixW5iM_r3uhxvluBjWzz25Oshxk-PIZmxlfERDjT5qK0mZ4NLMhIiFf98_kyXYMLotwj_APso" />
-                 <DesktopCategory label="Millet Powders" to="/millets" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbo9u6lGD9EKS6uiqeL3v87SUCRG_wvUJSJ-XEYlotCypKCVJSh-2cQOGgw7HhMrKk-vRuQhojkkKJ2mupji7EnqvUwBWf394_qs4gdYyBFxQX9IWY_vkZQerbzTFImxNnMACBqZhUKtnSuFp3RX7nH7u_ENwdIJeBLyXCf0yO0oOhDbRK7EPe49IpvzHTaYoVTuXYAGMDZLaCL2cGTh6sE_TDqC2Av05HdaqlHOuQ4VqvkptMeUL7ohu_4kVlNXhFD9vrA1Slz3o" />
-               </>
-             )}
-           </div>
+        <section className="py-4 bg-white border-b border-primary/5">
+          <div className="max-w-[1700px] mx-auto px-10 flex items-center justify-center gap-8">
+            {categories.map(cat => <DesktopCategory key={cat._id} label={cat.name} to={`/category/${cat.slug || cat._id}`} src={cat.image} />)}
+          </div>
         </section>
 
-        {/* Best Sellers */}
-        <section className="py-16 xl:py-32 bg-surface-container-low/50">
-          <div className="max-w-[1700px] mx-auto px-6 xl:px-10">
-            <div className="flex flex-wrap justify-between items-end mb-10 xl:mb-20 px-4 gap-6">
+        {featuredProducts.length > 0 && (
+          <section className="py-12 bg-surface-container-lowest relative overflow-hidden">
+            <div className="max-w-[1700px] mx-auto px-10">
+              <div className="text-center mb-8">
+                <span className="text-secondary font-black uppercase tracking-[0.5rem] text-[9px] mb-3 block">Master's Selection</span>
+                <h2 className="text-3xl font-serif font-black text-primary italic mb-2 tracking-tight">Featured Treasures</h2>
+                <div className="w-12 h-0.5 bg-tertiary/20 mx-auto"></div>
+              </div>
+              <MarqueeCarousel duration={50} gap="gap-8 px-4">
+                <div className="flex gap-8 px-4">
+                  {[...featuredProducts, ...featuredProducts].map((prod, i) => (
+                    <div key={`${prod._id}-${i}`} className="min-w-[180px]">
+                      <RoundProductCard p={prod} onBuy={() => handleBuyNow(prod, prod.variants?.[0])} />
+                    </div>
+                  ))}
+                </div>
+              </MarqueeCarousel>
+            </div>
+          </section>
+        )}
+
+        {middleBanners.length > 0 && (
+          <section className="py-6 px-10">
+            <div className="max-w-[1700px] mx-auto grid grid-cols-2 gap-6">
+              {middleBanners.map(b => (
+                <Link to={b.linkUrl || "/products"} key={b._id} className="relative aspect-[25/9] rounded-3xl overflow-hidden shadow-xl group">
+                  <img src={b.imageUrl} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2000ms]" alt="" />
+                  <div className="absolute inset-0 bg-black/30 flex flex-col justify-end p-8 text-white">
+                    <h3 className="text-2xl font-serif font-black italic mb-1">{b.title}</h3>
+                    <p className="text-[9px] uppercase font-bold tracking-[0.3em]">{b.subtitle}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <section className="py-12 bg-stone-50 border-t border-primary/5">
+          <div className="max-w-[1700px] mx-auto px-10">
+            <div className="flex justify-between items-end mb-10">
               <div>
-                <span className="text-secondary font-black uppercase tracking-[0.5em] text-[10px] mb-4 block">Our Curated Favorites</span>
-                <h2 className="text-3xl xl:text-5xl font-serif font-black text-primary italic leading-none">The Best Sellers</h2>
+                <span className="text-secondary font-black uppercase tracking-widest text-[11px] mb-3 block">Shop Our Artisan Picks</span>
+                <h2 className="text-3xl font-serif font-black text-primary italic">The Best Sellers</h2>
               </div>
-              <Link to="/products" className="text-tertiary font-black uppercase tracking-[0.2em] text-xs flex items-center gap-3 border-b-2 border-tertiary pb-1 hover:gap-6 transition-all">
-                View Collection <span className="material-symbols-outlined">arrow_forward</span>
-              </Link>
+              <Link to="/products" className="text-tertiary font-black uppercase text-xs border-b border-tertiary/20 pb-0.5 hover:text-primary hover:border-primary transition-all flex items-center gap-1.5">View All <span className="material-symbols-outlined text-sm">arrow_forward</span></Link>
             </div>
-             <div className="grid grid-cols-2 xl:grid-cols-4 gap-8 xl:gap-12">
-                {bestSellers.map(prod => (
-                  <DesktopProductCard 
-                    key={prod._id}
-                    id={prod._id}
-                    title={prod.name} 
-                    price={prod.variants?.[0]?.price} 
-                    oldPrice={prod.variants?.[0]?.originalPrice} 
-                    img={prod.images?.find(i => i.isMain)?.url || prod.images?.[0]?.url} 
-                    desc={prod.shortDescription || prod.description?.substring(0, 60)}
-                    category={prod.categoryId?.name}
-                  />
+            <div className="grid grid-cols-5 gap-6">
+              {bestSellers.map(prod => (
+                <DesktopProductCard key={prod._id} p={prod} onAdd={() => addToCart(prod, prod.variants?.[0])} onBuy={() => handleBuyNow(prod, prod.variants?.[0])} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {(!settings || settings?.shippingBanner?.enabled !== false) && (
+          <section className="px-10 py-10">
+            <div className="max-w-[1700px] mx-auto bg-primary rounded-[2rem] p-10 flex items-center justify-between shadow-xl relative overflow-hidden text-white">
+              <div className="flex items-center gap-8 z-10">
+                <div className="w-14 h-14 bg-white/10 rounded-full flex items-center justify-center shrink-0">
+                  <span className="material-symbols-outlined text-3xl">local_shipping</span>
+                </div>
+                <div>
+                  <h2 className="text-2xl font-serif font-black italic mb-1">{settings?.shippingBanner?.title || "Free Global Shipping."}</h2>
+                  <p className="text-sm text-white/60 font-sans uppercase tracking-[0.2em]">{settings?.shippingBanner?.subtitle || "Orders above ₹999 enjoy complimentary delivery"}</p>
+                </div>
+              </div>
+              <Link to="/products" className="bg-white text-primary px-10 py-4 rounded-xl font-black text-sm uppercase tracking-widest shadow-lg hover:translate-y-[-2px] transition-all z-10">Shop Now</Link>
+              <div className="absolute right-[-10%] top-[-50%] w-[500px] h-[500px] bg-tertiary opacity-10 rounded-full blur-[100px]"></div>
+            </div>
+          </section>
+        )}
+
+        <section className="py-12 bg-surface-container-low overflow-hidden relative">
+          <div className="max-w-[1700px] mx-auto px-10">
+             <div className="text-center mb-10">
+                <span className="text-secondary font-black uppercase tracking-[0.4em] text-[10px] mb-4 block">Our Expertise</span>
+                <h2 className="text-3xl font-serif font-black text-primary italic mb-4">Services We Provide</h2>
+             </div>
+             <div className="grid grid-cols-3 gap-6 px-10 mb-12">
+                <ServiceCard icon="cookie" title="Artisan Cookies" desc="Crafted with premium ingredients for a rich, traditional taste." />
+                <ServiceCard icon="eco" title="Healthy Millets" desc="Finely processed, hygienic millet powders for natural living." />
+                <ServiceCard icon="inventory_2" title="Bulk Supply" desc="Reliable large-scale supply with customized packaging assurance." />
+             </div>
+
+             <div className="grid grid-cols-3 gap-6 px-10">
+                {bottomBanners.map(b => (
+                  <Link to={b.linkUrl || "/products"} key={b._id} className="relative aspect-square rounded-[2rem] overflow-hidden group shadow-xl border border-white/10">
+                    <img src={b.imageUrl} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2000ms]" alt="" />
+                    <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-8 text-white">
+                      <h3 className="text-xl font-serif font-black italic mb-1">{b.title}</h3>
+                      <p className="text-[9px] uppercase font-bold tracking-[0.2em]">{b.subtitle}</p>
+                    </div>
+                  </Link>
                 ))}
              </div>
           </div>
         </section>
 
-
-        {/* Dynamic Offer Banner */}
-        <section className="px-4 xl:px-10 py-10 xl:py-16">
-          <div className="max-w-[1700px] mx-auto bg-primary rounded-[2rem] xl:rounded-[3rem] p-8 xl:p-16 flex flex-col xl:flex-row items-center justify-between gap-8 xl:gap-12 overflow-hidden relative shadow-2xl">
-            <div className="flex flex-col xl:flex-row items-center gap-6 xl:gap-12 z-10 text-center xl:text-left">
-              <div className="w-16 h-16 xl:w-24 xl:h-24 bg-tertiary/20 rounded-full flex items-center justify-center text-secondary-fixed shrink-0">
-                <span className="material-symbols-outlined text-4xl xl:text-6xl">local_shipping</span>
-              </div>
-              <div>
-                <h2 className="text-2xl xl:text-5xl font-serif font-black text-secondary-fixed mb-3 italic leading-none">🚚 Free Global Shipping.</h2>
-                <p className="text-sm xl:text-xl text-on-primary-container font-sans font-medium uppercase tracking-[0.2em]">Orders above <span className="text-secondary-fixed text-lg xl:text-2xl px-2 italic">₹999</span> enjoy complimentary delivery</p>
-              </div>
-            </div>
-            <button className="bg-secondary-fixed text-primary px-10 xl:px-16 py-4 xl:py-6 rounded-2xl font-black text-sm xl:text-xl hover:translate-y-[-4px] hover:shadow-2xl transition-all shadow-xl active:scale-95 shrink-0 z-10 tracking-[0.3em] uppercase">
-              Shop Now
-            </button>
-            <div className="absolute right-[-2%] top-[-20%] w-[500px] h-[500px] bg-tertiary opacity-10 rounded-full blur-[120px]"></div>
-          </div>
-        </section>
-
-        {/* 🛠️ Services We Provide */}
-        <section className="py-16 xl:py-40 bg-surface-container-low overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-tertiary/5 rounded-full blur-[150px] -z-10 translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
-          <div className="max-w-[1700px] mx-auto px-6 xl:px-10">
-            <div className="text-center mb-12 xl:mb-24 reveal">
-              <span className="text-secondary font-black uppercase tracking-[0.5em] text-xs mb-6 block">Our Expertise</span>
-              <h2 className="text-4xl xl:text-7xl font-serif font-black text-primary mb-8 xl:mb-12 italic leading-none">Services We Provide</h2>
-              <p className="text-base xl:text-xl text-stone-600 max-w-4xl mx-auto leading-relaxed italic font-medium">
-                 At Daksha Cookies & Millets, we offer a range of services to ensure quality, convenience, and customer satisfaction.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 xl:gap-12">
-              <ServiceCard 
-                 icon="cookie" 
-                 title="Artisan Cookies Manufacturing" 
-                 desc="Crafted with premium ingredients like cashew powder for a rich taste and superior quality." 
-                 tags={["Fresh Production", "Premium Ingredients"]}
-              />
-              <ServiceCard 
-                 icon="eco" 
-                 title="Millet Powder Production" 
-                 desc="Finely processed, nutrient-rich millet powders for a healthy and natural lifestyle." 
-                 tags={["Hygienic Processing", "Natural Goodness"]}
-              />
-              <ServiceCard 
-                 icon="inventory_2" 
-                 title="Bulk & Wholesale Supply" 
-                 desc="Reliable large-scale supply with consistent quality and customized solutions." 
-                 tags={["Custom Packaging", "Hygiene Assurance"]}
-              />
-            </div>
-            
-            <div className="mt-12 xl:mt-24 grid grid-cols-2 lg:grid-cols-5 gap-6 xl:gap-8 text-center bg-white/50 backdrop-blur rounded-[2rem] xl:rounded-[3rem] p-8 xl:p-12 border border-outline-variant/10 shadow-sm">
-               {["Fresh Cookies Production", "Millet Powder Supply", "Bulk & Wholesale Orders", "Custom Packaging", "Quality & Hygiene Assurance"].map((s, i) => (
-                  <div key={i} className="flex flex-col items-center gap-4 group">
-                     <div className="w-12 h-12 rounded-2xl bg-primary/5 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all transform group-hover:scale-110">
-                        <span className="material-symbols-outlined text-xl">verified</span>
-                     </div>
-                     <span className="text-[10px] font-black uppercase tracking-widest text-primary opacity-60 group-hover:opacity-100 transition-opacity whitespace-nowrap">{s}</span>
-                  </div>
-               ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Testimonials */}
-        <section className="py-16 xl:py-32 bg-surface overflow-hidden relative">
-          <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-[0.03] select-none text-[20rem] font-serif font-black -translate-y-1/2 whitespace-nowrap">"Daksha Experience"</div>
-          <div className="max-w-[1700px] mx-auto px-6 xl:px-10">
-             <h2 className="text-center text-4xl xl:text-7xl font-serif font-black text-primary mb-12 xl:mb-24 italic">Patron Stories</h2>
-             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 xl:gap-12">
-                <TestimonialCard 
-                  name="Arjun Reddy" 
-                  loc="Hyderabad" 
-                  quote="The Cashew Cookies are divine. You can tell they use real butter and high-quality nuts. It takes me back to my childhood visits to the bakery."
-                />
-                <TestimonialCard 
-                  dark
-                  name="Lakshmi Prasanna" 
-                  loc="Vizag" 
-                  quote="Switching to Ragi Malt for my morning routine was the best decision. Daksha's quality is far superior to store-bought brands."
-                />
-                <TestimonialCard 
-                  name="Karthik S." 
-                  loc="Bangalore" 
-                  quote="The Gift Bundles are my go-to for Diwali. Excellent packaging and everyone loves the variety of millet snacks. Great artisan touch."
-                />
+        <section className="py-16 bg-surface relative overflow-hidden">
+          <div className="max-w-[1700px] mx-auto px-10">
+             <h2 className="text-center text-3xl font-serif font-black text-primary mb-12 italic">Patron Stories</h2>
+             <div className="grid grid-cols-3 gap-8">
+                <TestimonialCard name="Arjun Reddy" quote="The Cashew Cookies are divine. You can tell they use real butter." loc="Hyderabad" />
+                <TestimonialCard name="Lakshmi Prasanna" quote="Daksha's Ragi Malt was the best health decision. Exceptional taste." loc="Vizag" dark />
+                <TestimonialCard name="Karthik S." quote="The Gift Bundles are my go-to for Diwali. Premium packaging." loc="Bangalore" />
              </div>
           </div>
         </section>
@@ -247,101 +250,100 @@ const Home = () => {
   );
 };
 
-/* Components */
+/* Sub-Components */
 const MobileCategory = ({ label, src, to }) => (
-  <Link to={to} className="flex flex-col items-center gap-1 shrink-0 px-2 min-w-[72px]">
-     <div className="w-16 h-16 rounded-full p-0.5 bg-white shadow-lg border border-primary/5">
-        <img className="w-full h-full object-cover rounded-full" src={src} alt={label} />
-     </div>
-     <span className="text-[10px] font-black uppercase text-primary tracking-widest mt-1 opacity-80">{label}</span>
+  <Link to={to} className="flex flex-col items-center gap-1 shrink-0 min-w-[64px]">
+    <div className="w-14 h-14 rounded-full border border-primary/5 bg-white shadow-md p-0.5 overflow-hidden"><img src={src} className="w-full h-full object-cover rounded-full" alt={label} /></div>
+    <span className="text-[9px] font-black uppercase text-primary opacity-80">{label}</span>
   </Link>
 );
 
 const DesktopCategory = ({ label, src, to }) => (
-  <Link to={to} className="flex flex-col items-center gap-4 group cursor-pointer transition-all hover:translate-y-[-8px]">
-     <div className="w-40 h-40 rounded-full p-1 border-4 border-transparent group-hover:border-tertiary transition-all duration-500 shadow-2xl relative overflow-hidden">
-        <img className="w-full h-full object-cover rounded-full group-hover:scale-110 transition-transform duration-700" src={src} alt={label} />
-     </div>
-     <span className="text-sm font-black uppercase tracking-[0.3em] text-primary group-hover:text-tertiary transition-colors">{label}</span>
+  <Link to={to} className="flex flex-col items-center gap-2 group hover:translate-y-[-4px] transition-all">
+    <div className="w-20 h-20 rounded-full border border-primary/5 bg-white shadow-md p-1 group-hover:border-tertiary transition-colors">
+      <img src={src} className="w-full h-full object-cover rounded-full group-hover:scale-105 transition-transform" alt={label} />
+    </div>
+    <span className="text-[10px] font-black uppercase text-primary tracking-widest">{label}</span>
   </Link>
 );
 
-const MobileProductCard = ({ title, price, oldPrice, img, id, category }) => (
-  <Link to={`/product/${category || 'cookies'}/${id || 1}`} className="bg-white rounded-2xl p-3 shadow-md border border-primary/5 active:scale-95 transition-transform flex flex-col group">
-     <div className="aspect-[3/4] rounded-xl overflow-hidden mb-3 relative bg-surface-container-low">
-        <img className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" src={img} alt={title} />
-        <button className="absolute top-2 right-2 w-7 h-7 bg-white/70 backdrop-blur rounded-full flex items-center justify-center shadow-sm">
-           <span className="material-symbols-outlined text-sm">favorite</span>
-        </button>
-     </div>
-     <h4 className="font-serif font-black italic text-sm text-primary leading-tight line-clamp-1">{title}</h4>
-     <div className="flex items-center gap-2 mt-2 leading-none">
-        <span className="font-serif font-black text-lg text-primary italic">₹{price}</span>
-        <span className="text-[10px] line-through text-stone-300">₹{oldPrice}</span>
-     </div>
-     <button className="w-full mt-3 bg-primary-container/20 text-primary py-2 rounded-lg font-black text-[9px] uppercase tracking-widest border border-primary/5">Bag It</button>
-  </Link>
+const MobileProductCard = ({ p, onAdd, onBuy }) => (
+  <div className="bg-white rounded-xl p-2.5 shadow-md flex flex-col group h-full border border-primary/5">
+    <Link to={`/product/${p.slug || p._id}`} className="aspect-[3/4] rounded-xl overflow-hidden mb-3 bg-stone-50 block">
+      <img src={p.images?.[0]?.url} className="w-full h-full object-cover" alt={p.name} />
+    </Link>
+    <div className="flex-1 flex flex-col px-1">
+      <h4 className="font-serif font-black italic text-xs text-primary line-clamp-1 h-4">{p.name}</h4>
+      <p className="font-serif font-black text-base text-tertiary italic mt-1 leading-none">₹{p.variants?.[0]?.price}</p>
+    </div>
+    <div className="grid grid-cols-2 gap-2 mt-auto pt-4">
+      <button onClick={onAdd} className="bg-primary text-white py-2 rounded-lg font-black text-[7px] uppercase tracking-widest">Add</button>
+      <button onClick={onBuy} className="bg-tertiary text-white py-2 rounded-lg font-black text-[7px] uppercase tracking-widest">Buy</button>
+    </div>
+  </div>
 );
 
-const DesktopProductCard = ({ title, price, oldPrice, img, desc, id, category }) => (
-  <div className="group bg-surface-container-lowest rounded-[2.5rem] p-6 hover:shadow-[0_40px_80px_rgba(51,25,23,0.12)] transition-all duration-700 flex flex-col items-center text-center">
-     <Link to={`/product/${category || 'cookies'}/${id || 1}`} className="aspect-[4/5] w-full rounded-[2rem] overflow-hidden mb-8 relative shadow-sm group-hover:shadow-2xl transition-all duration-700 block">
-        <img className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[2000ms]" src={img} alt={title} />
-        <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
-           <button className="w-12 h-12 bg-white/90 backdrop-blur shadow-xl rounded-full flex items-center justify-center text-primary active:scale-90"><span className="material-symbols-outlined">favorite</span></button>
+const DesktopProductCard = ({ p, onAdd, onBuy }) => (
+  <div className="group bg-white rounded-3xl p-4 shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col items-center text-center h-full border border-primary/5">
+    <div className="aspect-[4/5] w-full rounded-2xl overflow-hidden mb-4 relative block bg-stone-50">
+      <Link to={`/product/${p.slug || p._id}`}>
+        <img src={p.images?.[0]?.url} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2000ms]" alt={p.name} />
+      </Link>
+      <div className="absolute bottom-3 left-3 right-3 flex gap-2 z-20">
+        <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAdd(); }} className="flex-1 bg-primary text-white py-2.5 rounded-xl font-black text-[9px] uppercase shadow-lg hover:bg-black transition-all">Add</button>
+        <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onBuy(); }} className="flex-1 bg-tertiary text-white py-2.5 rounded-xl font-black text-[9px] uppercase shadow-lg hover:opacity-90 transition-all">Buy Now</button>
+      </div>
+    </div>
+    <h3 className="font-serif text-lg font-black text-primary italic mb-1 line-clamp-1 h-6">{p.name}</h3>
+    <span className="font-serif text-xl font-black text-tertiary italic mt-auto">₹{p.variants?.[0]?.price}</span>
+  </div>
+);
+
+const RoundProductCard = ({ p, onBuy }) => (
+  <div className="flex flex-col items-center group transition-all text-center">
+    <div className="relative mb-4 block group-hover:scale-105 transition-transform duration-500">
+      <Link to={`/product/${p.slug || p._id}`}>
+        <div className="w-24 h-24 xl:w-28 xl:h-28 rounded-[2rem] overflow-hidden border border-stone-100 shadow-xl bg-white">
+          <img src={p.images?.[0]?.url} className="w-full h-full object-cover" alt={p.name} />
         </div>
-        <div className="absolute bottom-6 left-6 right-6 opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0">
-           <div className="w-full bg-primary text-secondary-fixed py-4 rounded-xl font-black text-xs uppercase tracking-[0.3em] shadow-2xl flex items-center justify-center gap-2">
-              <span className="material-symbols-outlined text-sm font-black">shopping_bag</span>
-              Add To Bag
-           </div>
-        </div>
-     </Link>
-     <h3 className="font-serif text-2xl font-black text-primary leading-none mb-3 group-hover:text-tertiary transition-colors italic">{title}</h3>
-     <p className="text-sm font-medium text-on-surface-variant opacity-60 line-clamp-2 italic mb-6">{desc}</p>
-     <div className="flex items-baseline gap-4 mt-auto">
-        <span className="font-serif text-3xl font-black text-tertiary italic">₹{price}</span>
-        <span className="text-lg line-through text-stone-300 italic">₹{oldPrice}</span>
-     </div>
+      </Link>
+      <button onClick={onBuy} className="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-[2rem] flex items-center justify-center backdrop-blur-[2px]">
+        <span className="text-white font-black text-[9px] uppercase tracking-widest bg-primary/80 px-4 py-2 rounded-full">Buy</span>
+      </button>
+    </div>
+    <h3 className="text-xs font-serif font-black text-primary italic leading-tight uppercase tracking-tight line-clamp-2 px-3 max-w-[150px] group-hover:text-tertiary transition-colors">{p.name}</h3>
   </div>
 );
 
-const WhyUsCard = ({ icon, title, desc }) => (
-  <div className="p-10 bg-white rounded-[3rem] border border-outline-variant/10 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col items-center text-center group">
-     <div className="w-20 h-20 bg-primary/5 text-primary rounded-[1.5rem] flex items-center justify-center mb-8 group-hover:bg-primary group-hover:text-white transition-all duration-500 scale-110">
-        <span className="material-symbols-outlined text-4xl">{icon}</span>
-     </div>
-     <h4 className="font-serif font-black text-2xl text-primary mb-4 italic leading-none">{title}</h4>
-     <p className="text-sm font-medium text-on-surface-variant opacity-60 leading-relaxed font-sans">{desc}</p>
+const ServiceCard = ({ icon, title, desc }) => (
+  <div className="p-6 bg-white rounded-[2rem] border border-primary/5 shadow-sm hover:shadow-xl transition-all h-full group text-left">
+    <div className="w-12 h-12 bg-primary/5 text-primary rounded-xl flex items-center justify-center mb-5 group-hover:bg-primary group-hover:text-white transition-all transform group-hover:scale-110">
+      <span className="material-symbols-outlined text-2xl">{icon}</span>
+    </div>
+    <h4 className="font-serif font-black text-xl text-primary mb-2 italic">{title}</h4>
+    <p className="text-stone-500 text-sm leading-relaxed font-sans italic">{desc}</p>
   </div>
 );
 
-const TestimonialCard = ({ name, loc, quote, dark }) => (
-  <div className={`p-12 rounded-[3.5rem] relative shadow-2xl transition-all duration-700 hover:translate-y-[-12px] ${dark ? 'bg-primary text-secondary-fixed' : 'bg-secondary-container/30 text-primary border border-outline-variant/10'}`}>
-     <span className="material-symbols-outlined text-8xl absolute top-8 right-8 opacity-10">format_quote</span>
-     <div className="flex gap-1 text-tertiary-fixed-dim mb-10">
-        {[...Array(5)].map((_, i) => <span key={i} className="material-symbols-outlined text-xl fill-1" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>)}
-     </div>
-     <p className="text-xl italic font-serif leading-relaxed mb-12 relative z-10 font-bold">"{quote}"</p>
-     <div>
-        <h4 className="font-black text-lg uppercase tracking-widest">{name}</h4>
-        <p className={`text-xs uppercase font-black tracking-widest opacity-60 mt-1 italic ${dark ? 'text-secondary-fixed-dim' : 'text-primary'}`}>Verified Patron • {loc}</p>
-     </div>
+const TestimonialCard = ({ name, quote, loc, dark }) => (
+  <div className={`p-6 rounded-[2rem] relative shadow-lg transition-all hover:translate-y-[-4px] ${dark ? 'bg-primary text-white' : 'bg-white text-primary border border-primary/5'}`}>
+    <span className="material-symbols-outlined text-5xl absolute top-4 right-4 opacity-10">format_quote</span>
+    <p className="text-lg italic font-serif leading-relaxed mb-5 font-bold relative z-10">"{quote}"</p>
+    <div>
+      <h4 className="font-black text-sm uppercase tracking-widest mb-1">{name}</h4>
+      <p className="text-[10px] uppercase font-black tracking-widest opacity-60 italic">{loc}</p>
+    </div>
   </div>
 );
 
-const ServiceCard = ({ icon, title, desc, tags }) => (
-  <div className="p-12 bg-white rounded-[3.5rem] border border-outline-variant/10 shadow-sm hover:shadow-2xl transition-all duration-700 flex flex-col group relative overflow-hidden">
-     <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -z-10 group-hover:bg-primary/20 transition-all"></div>
-     <div className="w-20 h-20 bg-primary text-secondary-fixed rounded-[1.5rem] flex items-center justify-center mb-10 group-hover:bg-tertiary transition-all duration-500 scale-110">
-        <span className="material-symbols-outlined text-4xl">{icon}</span>
-     </div>
-     <h4 className="font-serif font-black text-3xl text-primary mb-6 italic leading-none">{title}</h4>
-     <p className="text-lg font-medium text-on-surface-variant opacity-70 leading-relaxed font-sans italic mb-10">{desc}</p>
-     <div className="mt-auto flex flex-wrap gap-2">
-        {tags.map(t => <span key={t} className="px-4 py-1.5 bg-secondary-container/30 text-primary text-[9px] font-black uppercase tracking-widest rounded-full">{t}</span>)}
-     </div>
-  </div>
-);
+const MarqueeCarousel = ({ children, duration = 30, gap = 'gap-4 xl:gap-10', className = '' }) => {
+  return (
+    <div className={`marquee-container ${className}`}>
+      <div className={`marquee-track ${gap} animate-marquee`} style={{ '--marquee-duration': `${duration}s` }}>
+        {children}
+      </div>
+    </div>
+  );
+};
 
 export default Home;

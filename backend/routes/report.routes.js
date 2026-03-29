@@ -5,6 +5,6 @@ import { protect, adminOnly } from '../middleware/auth.js';
 const router = express.Router();
 
 router.get('/sales', protect, adminOnly, getSalesReport);
-router.get('/best-sellers', protect, adminOnly, getBestSellers);
+router.get('/best-sellers', getBestSellers);
 
 export default router;

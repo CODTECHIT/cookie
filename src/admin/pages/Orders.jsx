@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAdmin } from '../context/AdminContext';
 import { 
   ShoppingCart, Search, Filter, Eye, Truck, CheckCircle, 
   Clock, Package, XCircle, Loader2, Download, ExternalLink, 
-  MapPin, Phone, Mail, Calendar, CreditCard, ChevronRight
+  MapPin, Phone, Mail, Calendar, CreditCard, ChevronRight, Users
 } from 'lucide-react';
 
 const OrdersManagement = () => {
@@ -18,12 +18,28 @@ const OrdersManagement = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [statusLoading, setStatusLoading] = useState(false);
+  const [trackingLoading, setTrackingLoading] = useState(false);
+  
+  // Tracking Form State
+  const [trackingData, setTrackingData] = useState({
+    shippingCarrier: '',
+    trackingNumber: '',
+    trackingUrl: '',
+    estimatedDelivery: ''
+  });
 
   useEffect(() => {
-    fetchOrders();
-  }, [API_URL, token, statusFilter]);
+    if (selectedOrder) {
+      setTrackingData({
+        shippingCarrier: selectedOrder.shippingCarrier || '',
+        trackingNumber: selectedOrder.trackingNumber || '',
+        trackingUrl: selectedOrder.trackingUrl || '',
+        estimatedDelivery: selectedOrder.estimatedDelivery ? new Date(selectedOrder.estimatedDelivery).toISOString().split('T')[0] : ''
+      });
+    }
+  }, [selectedOrder]);
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     setLoading(true);
     try {
       const { data } = await axios.get(`${API_URL}/orders`, {
@@ -33,7 +49,11 @@ const OrdersManagement = () => {
       if (data.success) setOrders(data.data.orders);
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
-  };
+  }, [API_URL, token, statusFilter, searchTerm]);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   const updateStatus = async (id, newStatus) => {
     setStatusLoading(true);
@@ -45,8 +65,27 @@ const OrdersManagement = () => {
         fetchOrders();
         if (selectedOrder) setSelectedOrder(data.data);
       }
-    } catch (err) { alert('Status update failed'); }
+    } catch { alert('Status update failed'); }
     finally { setStatusLoading(false); }
+  };
+
+  const handleUpdateTracking = async (e) => {
+    e.preventDefault();
+    setTrackingLoading(true);
+    try {
+      const { data } = await axios.patch(`${API_URL}/orders/${selectedOrder._id}/tracking`, trackingData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (data.success) {
+        alert('Tracking information updated successfully');
+        fetchOrders();
+        setSelectedOrder(data.data);
+      }
+    } catch {
+      alert('Failed to update tracking');
+    } finally {
+      setTrackingLoading(false);
+    }
   };
 
   const getStatusColor = (status) => {
@@ -259,6 +298,61 @@ const OrdersManagement = () => {
                         <span className={`font-black uppercase tracking-tighter ${selectedOrder.paymentStatus === 'Paid' ? 'text-emerald-600' : 'text-amber-600'}`}>{selectedOrder.paymentStatus}</span>
                       </div>
                    </div>
+                </div>
+
+                <div className="pt-6 border-t border-gray-100">
+                   <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Tracking Information</h3>
+                   <form onSubmit={handleUpdateTracking} className="space-y-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase">Carrier</label>
+                          <input 
+                            type="text" 
+                            className="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-lg text-xs outline-none focus:ring-1 focus:ring-primary"
+                            placeholder="e.g. Delhivery"
+                            value={trackingData.shippingCarrier}
+                            onChange={(e) => setTrackingData({...trackingData, shippingCarrier: e.target.value})}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-gray-400 uppercase">Tracking ID</label>
+                          <input 
+                            type="text" 
+                            className="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-lg text-xs outline-none focus:ring-1 focus:ring-primary"
+                            placeholder="AWB Number"
+                            value={trackingData.trackingNumber}
+                            onChange={(e) => setTrackingData({...trackingData, trackingNumber: e.target.value})}
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase">Tracking URL</label>
+                        <input 
+                          type="url" 
+                          className="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-lg text-xs outline-none focus:ring-1 focus:ring-primary"
+                          placeholder="Link to tracking page"
+                          value={trackingData.trackingUrl}
+                          onChange={(e) => setTrackingData({...trackingData, trackingUrl: e.target.value})}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase">Estimated Delivery</label>
+                        <input 
+                          type="date" 
+                          className="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-lg text-xs outline-none focus:ring-1 focus:ring-primary"
+                          value={trackingData.estimatedDelivery}
+                          onChange={(e) => setTrackingData({...trackingData, estimatedDelivery: e.target.value})}
+                        />
+                      </div>
+                      <button 
+                        type="submit" 
+                        disabled={trackingLoading}
+                        className="w-full py-2 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center"
+                      >
+                        {trackingLoading ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Truck className="w-3 h-3 mr-2" />}
+                        Update Tracking
+                      </button>
+                   </form>
                 </div>
 
                 <div className="space-y-3">

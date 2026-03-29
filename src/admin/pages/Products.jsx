@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { useAdmin } from '../context/AdminContext';
 import { 
@@ -8,10 +9,12 @@ import {
 
 const ProductsManagement = () => {
   const { API_URL, token } = useAdmin();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
   
   // Modal State
   const [showModal, setShowModal] = useState(false);
@@ -26,27 +29,33 @@ const ProductsManagement = () => {
   });
   const [selectedFiles, setSelectedFiles] = useState([]);
 
-  useEffect(() => {
-    fetchProducts();
-    fetchCategories();
-  }, [API_URL, token]);
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       const { data } = await axios.get(`${API_URL}/products`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (data.success) setProducts(data.data.products);
-    } catch (err) { console.error(err); }
+    } catch { /* ignored */ }
     finally { setLoading(false); }
-  };
+  }, [API_URL, token]);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const { data } = await axios.get(`${API_URL}/categories`);
       if (data.success) setCategories(data.data);
-    } catch (err) { console.error(err); }
-  };
+    } catch { /* ignored */ }
+  }, [API_URL]);
+
+  useEffect(() => {
+    fetchProducts();
+    fetchCategories();
+  }, [fetchProducts, fetchCategories]);
+
+  useEffect(() => {
+    const cat = searchParams.get('category');
+    if (cat) setSelectedCategory(cat);
+  }, [searchParams]);
+
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -120,13 +129,20 @@ const ProductsManagement = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         fetchProducts();
-      } catch (err) { alert('Delete failed'); }
+      } catch { alert('Delete failed'); }
     }
   };
 
-  const resetForm = () => {
+  const resetForm = (prefillCategoryId = '') => {
+    // Find the actual _id if slug was used in the filter
+    let catId = prefillCategoryId;
+    if (prefillCategoryId && !prefillCategoryId.match(/^[0-9a-fA-F]{24}$/)) {
+      const cat = categories.find(c => c.slug === prefillCategoryId);
+      if (cat) catId = cat._id;
+    }
+
     setFormData({
-      name: '', slug: '', categoryId: '', description: '', shortDescription: '',
+      name: '', slug: '', categoryId: catId || '', description: '', shortDescription: '',
       variants: [{ weight: '250g', price: 0, originalPrice: 0, stockQty: 0 }],
       isFeatured: false, tags: ''
     });
@@ -145,7 +161,14 @@ const ProductsManagement = () => {
     setShowModal(true);
   };
 
-  const filteredProducts = products.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredProducts = products.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = !selectedCategory || 
+                             p.categoryId?._id === selectedCategory || 
+                             p.categoryId?.slug === selectedCategory ||
+                             p.categoryId?.name?.toLowerCase() === selectedCategory.toLowerCase();
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div className="space-y-6">
@@ -155,7 +178,7 @@ const ProductsManagement = () => {
           <p className="text-gray-500 font-medium">Add, update and manage your store inventory.</p>
         </div>
         <button 
-          onClick={() => { resetForm(); setShowModal(true); }}
+          onClick={() => { resetForm(selectedCategory); setShowModal(true); }}
           className="bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-xl font-bold flex items-center justify-center transition-all shadow-lg active:scale-95"
         >
           <Plus className="w-5 h-5 mr-2" /> Add New Product
@@ -174,9 +197,17 @@ const ProductsManagement = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <select className="bg-gray-50 border border-gray-200 px-4 py-2 rounded-xl text-sm outline-none focus:ring-1 focus:ring-primary min-w-[150px]">
+        <select 
+          className="bg-gray-50 border border-gray-200 px-4 py-2 rounded-xl text-sm outline-none focus:ring-1 focus:ring-primary min-w-[150px]"
+          value={selectedCategory}
+          onChange={(e) => {
+            setSelectedCategory(e.target.value);
+            if (e.target.value) setSearchParams({ category: e.target.value });
+            else setSearchParams({});
+          }}
+        >
           <option value="">All Categories</option>
-          {categories.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
+          {categories.map(c => <option key={c._id} value={c.slug}>{c.name}</option>)}
         </select>
       </div>
 

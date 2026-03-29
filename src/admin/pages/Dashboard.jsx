@@ -5,24 +5,31 @@ import {
   TrendingUp, TrendingDown, ShoppingCart, DollarSign, 
   Package, AlertTriangle, ArrowRight, Loader2, Ticket, Grid, Star, Image
 } from 'lucide-react';
+import { 
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
+} from 'recharts';
 
-const StatCard = ({ title, value, icon: Icon, trend, color }) => (
-  <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all group">
-    <div className="flex items-center justify-between mb-4">
-      <div className={`p-3 rounded-xl ${color} text-white group-hover:scale-110 transition-transform`}>
-        <Icon className="w-6 h-6" />
+const StatCard = (props) => {
+  const Icon = props.icon;
+  const { title, value, trend, color } = props;
+  return (
+    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all group">
+      <div className="flex items-center justify-between mb-4">
+        <div className={`p-3 rounded-xl ${color} text-white group-hover:scale-110 transition-transform`}>
+          <Icon className="w-6 h-6" />
+        </div>
+        {trend && (
+          <span className={`text-xs font-bold px-2 py-1 rounded-full ${trend > 0 ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'} flex items-center`}>
+            {trend > 0 ? <TrendingUp className="w-3 h-3 mr-1" /> : <TrendingDown className="w-3 h-3 mr-1" />}
+            {Math.abs(trend)}%
+          </span>
+        )}
       </div>
-      {trend && (
-        <span className={`text-xs font-bold px-2 py-1 rounded-full ${trend > 0 ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'} flex items-center`}>
-          {trend > 0 ? <TrendingUp className="w-3 h-3 mr-1" /> : <TrendingDown className="w-3 h-3 mr-1" />}
-          {Math.abs(trend)}%
-        </span>
-      )}
+      <h3 className="text-gray-500 text-sm font-medium mb-1">{title}</h3>
+      <p className="text-2xl font-bold text-gray-900">{value}</p>
     </div>
-    <h3 className="text-gray-500 text-sm font-medium mb-1">{title}</h3>
-    <p className="text-2xl font-bold text-gray-900">{value}</p>
-  </div>
-);
+  );
+};
 
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
@@ -44,7 +51,10 @@ const Dashboard = () => {
         setLoading(false);
       }
     };
+
     fetchStats();
+    const interval = setInterval(fetchStats, 30000); // Refresh every 30s
+    return () => clearInterval(interval);
   }, [API_URL, token]);
 
   if (loading) return (
@@ -138,15 +148,58 @@ const Dashboard = () => {
           </button>
         </div>
 
-        {/* Placeholder for Quick Actions or Recent Orders */}
+        {/* Performance Chart */}
         <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-8">
             <h2 className="font-bold text-gray-900 flex items-center">
               <TrendingUp className="w-5 h-5 mr-2 text-primary" />
-              Quick Actions & Performance
+              Sales Performance (Last 7 Days)
             </h2>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+              <AreaChart data={stats?.chartData || []}>
+                <defs>
+                  <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#331917" stopOpacity={0.1}/>
+                    <stop offset="95%" stopColor="#331917" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                <XAxis 
+                  dataKey="date" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{fontSize: 10, fill: '#9ca3af'}}
+                  tickFormatter={(str) => {
+                    const d = new Date(str);
+                    return d.toLocaleDateString('en-IN', { weekday: 'short' });
+                  }}
+                />
+                <YAxis 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{fontSize: 10, fill: '#9ca3af'}}
+                  tickFormatter={(val) => `₹${val}`}
+                />
+                <Tooltip 
+                  contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'}}
+                  labelFormatter={(str) => new Date(str).toLocaleDateString('en-IN', { dateStyle: 'long' })}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="sales" 
+                  stroke="#331917" 
+                  strokeWidth={3}
+                  fillOpacity={1} 
+                  fill="url(#colorSales)" 
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-8 pt-8 border-t border-gray-50">
             {[
               { label: 'Add Product', icon: Package, link: '/admin/products', color: 'bg-blue-50 text-blue-600' },
               { label: 'View All Orders', icon: ShoppingCart, link: '/admin/orders', color: 'bg-indigo-50 text-indigo-600' },
