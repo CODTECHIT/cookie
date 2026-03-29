@@ -207,7 +207,7 @@ const Cart = () => {
   }
 
   return (
-    <div className="pt-32 md:pt-44 pb-24 px-4 xl:px-10 max-w-[1700px] mx-auto min-h-screen bg-[#FDFBF7]">
+    <div className="pt-8 md:pt-44 pb-24 px-4 xl:px-10 max-w-[1700px] mx-auto min-h-screen bg-[#FDFBF7]">
       <div className="mb-6 md:mb-8">
         <h1 className="text-3xl md:text-4xl font-serif font-black text-primary italic mb-2">Shopping Bag</h1>
         <p className="text-xs md:text-sm font-medium text-stone-400 italic">You have {cartItems.length} items in your cart.</p>

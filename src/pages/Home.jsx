@@ -81,7 +81,7 @@ const Home = () => {
         description="Discover the authentic taste of Daksha Food Artisan. Handcrafted cashew cookies, nutrient-rich millets, and traditional snacks."
       />
 
-      <section className="lg:hidden pt-36 pb-10 space-y-6">
+      <section className="lg:hidden pt-6 pb-10 space-y-6">
         <div className="flex gap-4 px-4 overflow-x-auto hide-scrollbar py-2">
           {categories.map(cat => <MobileCategory key={cat._id} label={cat.name} to={`/category/${cat.slug || cat._id}`} src={cat.image} />)}
         </div>

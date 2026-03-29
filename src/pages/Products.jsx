@@ -193,7 +193,7 @@ const Products = () => {
   };
 
   return (
-    <div className="pt-36 lg:pt-24 pb-16 px-4 xl:px-10 max-w-[1700px] mx-auto min-h-screen bg-[#FDFBF7]">
+    <div className="pt-6 lg:pt-24 pb-16 px-4 xl:px-10 max-w-[1700px] mx-auto min-h-screen bg-[#FDFBF7]">
       <SEO title={seoTitle} description={seoDesc} noIndex={showNoIndex} />
 
       {/* Mobile Sticky Bar */}
