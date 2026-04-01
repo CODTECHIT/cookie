@@ -1,0 +1,53 @@
+# Daksha Food Artisan - SEO Robots Configuration
+# This file instructs search engine crawlers how to interact with our site
+
+# Allow all bots to crawl the site
+User-agent: *
+Allow: /
+
+# Disallow specific paths that should not be indexed
+Disallow: /admin/
+Disallow: /api/
+Disallow: /private/
+Disallow: /temp/
+Disallow: /*.json$
+Disallow: /*.xml$
+Disallow: /search
+Disallow: /cart
+Disallow: /checkout
+Disallow: /order-confirmation
+
+# Allow search engines to index key pages
+Allow: /products
+Allow: /category
+Allow: /product
+Allow: /about
+Allow: /services
+Allow: /privacy-policy
+
+# Crawl delay (in seconds) - be respectful to server resources
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://dakshafoodartisan.com/sitemap.xml
+
+# Mobile-friendly declarations
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /assets/
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.webp$
+
+# Block bad bots
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /

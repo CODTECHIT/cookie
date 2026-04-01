@@ -55,11 +55,7 @@ const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const prodRes = await axios.get(
-          `${API_URL}/reports/best-sellers?limit=12`,
-        );
-        if (prodRes.data.success) setBestSellers(prodRes.data.data);
-
+        // Fetch all products (public endpoint)
         const prodAllRes = await axios.get(`${API_URL}/products`);
         if (prodAllRes.data.success) {
           const allProds =
@@ -67,10 +63,27 @@ const Home = () => {
             prodAllRes.data.products ||
             prodAllRes.data.data ||
             [];
-          const featured = Array.isArray(allProds)
-            ? allProds.filter((p) => p.isFeatured === true)
-            : [];
-          setFeaturedProducts(featured.slice(0, 10));
+
+          // Filter best sellers from all products (those with sales count or rating)
+          if (Array.isArray(allProds)) {
+            const bestSellingProds = allProds
+              .filter(
+                (p) =>
+                  p.isFeatured === true || (p.salesCount && p.salesCount > 0),
+              )
+              .sort((a, b) => (b.salesCount || 0) - (a.salesCount || 0))
+              .slice(0, 12);
+
+            setBestSellers(
+              bestSellingProds.length > 0
+                ? bestSellingProds
+                : allProds.slice(0, 12),
+            );
+
+            // Filter featured products
+            const featured = allProds.filter((p) => p.isFeatured === true);
+            setFeaturedProducts(featured.slice(0, 10));
+          }
         }
 
         const bannerRes = await axios.get(`${API_URL}/content/banners`);
