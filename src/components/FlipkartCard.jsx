@@ -18,9 +18,10 @@ const FlipkartCard = ({ p }) => {
         className="relative aspect-square overflow-hidden rounded-lg md:rounded-xl bg-stone-100 mb-2 md:mb-4"
       >
         <img
-          src={p.img}
+          src={p.img || "/placeholder-product.png"}
           alt={p.title}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-out"
+          onError={(e) => { e.target.src = "/placeholder-product.png"; }}
         />
 
         {/* Badges */}

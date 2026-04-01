@@ -1,9 +1,9 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const orderItemSchema = new mongoose.Schema({
-  productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
-  productName: String,   // snapshot
-  image: String,         // snapshot
+  productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+  productName: String, // snapshot
+  image: String, // snapshot
   variant: {
     weight: String,
     sku: String,
@@ -16,16 +16,16 @@ const orderItemSchema = new mongoose.Schema({
 const statusHistorySchema = new mongoose.Schema({
   status: String,
   changedAt: { type: Date, default: Date.now },
-  changedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  changedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   note: String,
 });
 
 const orderSchema = new mongoose.Schema(
   {
-    orderNumber: { type: String, unique: true },   // "DFA-2024-00045"
+    orderNumber: { type: String, unique: true }, // "DFA-2024-00045"
 
     // Customer
-    customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    customerId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     customerSnapshot: {
       name: String,
       phone: String,
@@ -45,27 +45,35 @@ const orderSchema = new mongoose.Schema(
     deliveryCharge: { type: Number, default: 0 },
     discount: { type: Number, default: 0 },
     couponCode: String,
-    couponId: { type: mongoose.Schema.Types.ObjectId, ref: 'Coupon' },
+    couponId: { type: mongoose.Schema.Types.ObjectId, ref: "Coupon" },
     grandTotal: { type: Number, required: true },
 
     // Payment
     paymentMethod: {
       type: String,
-      enum: ['UPI', 'CARD', 'NETBANKING', 'COD'],
+      enum: ["UPI", "CARD", "NETBANKING", "COD"],
       required: true,
     },
     paymentStatus: {
       type: String,
-      enum: ['Paid', 'Pending', 'Failed', 'Refunded'],
-      default: 'Pending',
+      enum: ["Paid", "Pending", "Failed", "Refunded"],
+      default: "Pending",
     },
-    paymentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Payment' },
+    paymentFailure: {
+      code: String,
+      description: String,
+      reason: String,
+      source: String,
+      step: String,
+      occurredAt: Date,
+    },
+    paymentId: { type: mongoose.Schema.Types.ObjectId, ref: "Payment" },
 
     // Order Status
     status: {
       type: String,
-      enum: ['Pending', 'Packed', 'Shipped', 'Delivered', 'Cancelled'],
-      default: 'Pending',
+      enum: ["Pending", "Packed", "Shipped", "Delivered", "Cancelled"],
+      default: "Pending",
     },
     statusHistory: [statusHistorySchema],
 
@@ -81,7 +89,7 @@ const orderSchema = new mongoose.Schema(
 
     notes: String,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Indexes for fast dashboard & filter queries
@@ -90,7 +98,7 @@ orderSchema.index({ status: 1 });
 orderSchema.index({ paymentStatus: 1 });
 orderSchema.index({ paymentMethod: 1 });
 orderSchema.index({ createdAt: -1 });
-orderSchema.index({ 'items.productId': 1 });
+orderSchema.index({ "items.productId": 1 });
 
-const Order = mongoose.model('Order', orderSchema);
+const Order = mongoose.model("Order", orderSchema);
 export default Order;

@@ -8,7 +8,8 @@ const ProductCard = ({ product }) => {
         <img
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           alt={product.title}
-          src={product.image}
+          src={product.image || "/placeholder-product.png"}
+          onError={(e) => { e.target.src = "/placeholder-product.png"; }}
         />
         {product.discount && (
           <div className="absolute top-3 left-3 bg-tertiary text-white text-[10px] font-bold px-2 py-1 rounded">

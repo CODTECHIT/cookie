@@ -1,29 +1,48 @@
-import User from '../models/User.js';
-import jwt from 'jsonwebtoken';
-import { successResponse, errorResponse } from '../utils/apiResponse.js';
+import User from "../models/User.js";
+import jwt from "jsonwebtoken";
+import { successResponse, errorResponse } from "../utils/apiResponse.js";
 
 const signToken = (id) =>
-  jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
+  jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN || "7d",
+  });
 
 // POST /api/auth/login — Admin login
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password)
-      return errorResponse(res, 'Email and password are required', 400);
+    const rawEmail = req.body?.email;
+    const password = req.body?.password;
+    const email = rawEmail?.trim().toLowerCase();
 
-    const user = await User.findOne({ email, role: 'admin' }).select('+passwordHash');
+    if (!email || !password)
+      return errorResponse(res, "Email and password are required", 400);
+
+    const user = await User.findOne({ email, role: "admin" }).select(
+      "+passwordHash",
+    );
     if (!user || !(await user.comparePassword(password)))
-      return errorResponse(res, 'Invalid email or password', 401);
+      return errorResponse(res, "Invalid email or password", 401);
 
     if (!user.isActive)
-      return errorResponse(res, 'Account is deactivated', 403);
+      return errorResponse(res, "Account is deactivated", 403);
 
     user.lastLoginAt = Date.now();
     await user.save({ validateBeforeSave: false });
 
     const token = signToken(user._id);
-    successResponse(res, { token, user: { id: user._id, name: user.name, email: user.email, role: user.role } }, 'Login successful');
+    successResponse(
+      res,
+      {
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
+      },
+      "Login successful",
+    );
   } catch (err) {
     errorResponse(res, err.message);
   }
@@ -31,22 +50,57 @@ export const login = async (req, res) => {
 
 // GET /api/auth/me — Get current admin
 export const getMe = async (req, res) => {
-  successResponse(res, req.user, 'Current user');
+  successResponse(res, req.user, "Current user");
 };
 
 // POST /api/auth/register — Customer registration
 export const register = async (req, res) => {
   try {
-    const { name, email, phone, password } = req.body;
-    
+    const name = req.body?.name?.trim();
+    const email = req.body?.email?.trim().toLowerCase();
+    const phone = req.body?.phone?.trim();
+    const password = req.body?.password;
+
+    if (!name || !(email || phone) || !password) {
+      return errorResponse(
+        res,
+        "Name, email or phone, and password are required",
+        400,
+      );
+    }
+
     // Check if user exists
     const userExists = await User.findOne({ $or: [{ email }, { phone }] });
-    if (userExists) return errorResponse(res, 'User with this email or phone already exists', 400);
+    if (userExists)
+      return errorResponse(
+        res,
+        "User with this email or phone already exists",
+        400,
+      );
 
-    const user = await User.create({ name, email, phone, passwordHash: password, role: 'customer' });
+    const user = await User.create({
+      name,
+      email,
+      phone,
+      passwordHash: password,
+      role: "customer",
+    });
     const token = signToken(user._id);
-    
-    successResponse(res, { token, user: { id: user._id, name: user.name, email: user.email, role: user.role } }, 'Account created', 201);
+
+    successResponse(
+      res,
+      {
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
+      },
+      "Account created",
+      201,
+    );
   } catch (err) {
     errorResponse(res, err.message);
   }
@@ -55,24 +109,41 @@ export const register = async (req, res) => {
 // POST /api/auth/customer-login — Customer login
 export const customerLogin = async (req, res) => {
   try {
-    const { email, phone, password } = req.body;
+    const email = req.body?.email?.trim().toLowerCase();
+    const phone = req.body?.phone?.trim();
+    const password = req.body?.password;
     if (!(email || phone) || !password)
-      return errorResponse(res, 'Credentials and password are required', 400);
+      return errorResponse(res, "Credentials and password are required", 400);
 
     const query = email ? { email } : { phone };
-    const user = await User.findOne({ ...query, role: 'customer' }).select('+passwordHash');
-    
+    const user = await User.findOne({ ...query, role: "customer" }).select(
+      "+passwordHash",
+    );
+
     if (!user || !(await user.comparePassword(password)))
-      return errorResponse(res, 'Invalid credentials', 401);
+      return errorResponse(res, "Invalid credentials", 401);
 
     if (!user.isActive)
-      return errorResponse(res, 'Account is deactivated', 403);
+      return errorResponse(res, "Account is deactivated", 403);
 
     user.lastLoginAt = Date.now();
     await user.save({ validateBeforeSave: false });
 
     const token = signToken(user._id);
-    successResponse(res, { token, user: { id: user._id, name: user.name, email: user.email, phone: user.phone, role: user.role } }, 'Login successful');
+    successResponse(
+      res,
+      {
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          role: user.role,
+        },
+      },
+      "Login successful",
+    );
   } catch (err) {
     errorResponse(res, err.message);
   }
@@ -81,14 +152,26 @@ export const customerLogin = async (req, res) => {
 // POST /api/auth/register-admin — Create first admin (one-time setup)
 export const registerAdmin = async (req, res) => {
   try {
-    const adminExists = await User.findOne({ role: 'admin' });
+    const adminExists = await User.findOne({ role: "admin" });
     if (adminExists)
-      return errorResponse(res, 'Admin already exists. Use login.', 400);
+      return errorResponse(res, "Admin already exists. Use login.", 400);
 
-    const { name, email, password } = req.body;
-    const admin = await User.create({ name, email, passwordHash: password, role: 'admin' });
+    const name = req.body?.name?.trim();
+    const email = req.body?.email?.trim().toLowerCase();
+    const password = req.body?.password;
+
+    if (!name || !email || !password) {
+      return errorResponse(res, "Name, email and password are required", 400);
+    }
+
+    const admin = await User.create({
+      name,
+      email,
+      passwordHash: password,
+      role: "admin",
+    });
     const token = signToken(admin._id);
-    successResponse(res, { token }, 'Admin registered', 201);
+    successResponse(res, { token }, "Admin registered", 201);
   } catch (err) {
     errorResponse(res, err.message);
   }

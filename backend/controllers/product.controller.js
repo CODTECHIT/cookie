@@ -1,23 +1,36 @@
-import Product from '../models/Product.js';
-import Review from '../models/Review.js';
-import { cloudinary } from '../middleware/upload.js';
-import { successResponse, errorResponse } from '../utils/apiResponse.js';
+import Product from "../models/Product.js";
+import Review from "../models/Review.js";
+import { cloudinary } from "../middleware/upload.js";
+import { successResponse, errorResponse } from "../utils/apiResponse.js";
 
 // GET /api/products  (public + admin)
 export const getProducts = async (req, res) => {
   try {
-    const { category, featured, lowStock, page = 1, limit = 20, search } = req.query;
+    const {
+      category,
+      featured,
+      lowStock,
+      page = 1,
+      limit = 20,
+      search,
+    } = req.query;
     const filter = {};
     if (category) {
-      const Category = (await import('../models/Category.js')).default;
-      const parts = category.split(',');
-      const ids = parts.filter(p => p.length === 24 && /^[0-9a-fA-F]{24}$/.test(p));
-      const slugs = parts.filter(p => p.length !== 24 || !/^[0-9a-fA-F]{24}$/.test(p));
+      const Category = (await import("../models/Category.js")).default;
+      const parts = category.split(",");
+      const ids = parts.filter(
+        (p) => p.length === 24 && /^[0-9a-fA-F]{24}$/.test(p),
+      );
+      const slugs = parts.filter(
+        (p) => p.length !== 24 || !/^[0-9a-fA-F]{24}$/.test(p),
+      );
 
       let finalIds = [...ids];
       if (slugs.length > 0) {
-        const categoriesFromSlugs = await Category.find({ slug: { $in: slugs } }).select('_id');
-        finalIds = [...finalIds, ...categoriesFromSlugs.map(c => c._id)];
+        const categoriesFromSlugs = await Category.find({
+          slug: { $in: slugs },
+        }).select("_id");
+        finalIds = [...finalIds, ...categoriesFromSlugs.map((c) => c._id)];
       }
 
       if (finalIds.length > 1) {
@@ -26,22 +39,31 @@ export const getProducts = async (req, res) => {
         filter.categoryId = finalIds[0];
       }
     }
-    if (featured === 'true') filter.isFeatured = true;
-    if (lowStock === 'true') filter.totalStock = { $lte: 10 }; // Assuming low stock is total sum or similar
+    if (featured === "true") filter.isFeatured = true;
+    if (lowStock === "true") filter.totalStock = { $lte: 10 }; // Assuming low stock is total sum or similar
     if (search) {
       filter.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } },
-        { shortDescription: { $regex: search, $options: 'i' } }
+        { name: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+        { shortDescription: { $regex: search, $options: "i" } },
       ];
     }
 
     const skip = (page - 1) * limit;
     const [products, total] = await Promise.all([
-      Product.find(filter).populate('categoryId', 'name slug').skip(skip).limit(Number(limit)).sort({ createdAt: -1 }),
+      Product.find(filter)
+        .populate("categoryId", "name slug")
+        .skip(skip)
+        .limit(Number(limit))
+        .sort({ createdAt: -1 }),
       Product.countDocuments(filter),
     ]);
-    successResponse(res, { products, total, page: Number(page), pages: Math.ceil(total / limit) });
+    successResponse(res, {
+      products,
+      total,
+      page: Number(page),
+      pages: Math.ceil(total / limit),
+    });
   } catch (err) {
     errorResponse(res, err.message);
   }
@@ -55,23 +77,29 @@ export const getProductById = async (req, res) => {
 
     // Check if it's a valid MongoDB ObjectId
     if (idOrSlug.length === 24 && /^[0-9a-fA-F]{24}$/.test(idOrSlug)) {
-      product = await Product.findById(idOrSlug).populate('categoryId', 'name slug');
+      product = await Product.findById(idOrSlug).populate(
+        "categoryId",
+        "name slug",
+      );
     } else {
-      product = await Product.findOne({ slug: idOrSlug }).populate('categoryId', 'name slug');
+      product = await Product.findOne({ slug: idOrSlug }).populate(
+        "categoryId",
+        "name slug",
+      );
     }
 
-    if (!product) return errorResponse(res, 'Product not found', 404);
+    if (!product) return errorResponse(res, "Product not found", 404);
 
     const reviews = await Review.find({ productId: product._id })
-      .populate('customerId', 'name')
+      .populate("customerId", "name")
       .sort({ createdAt: -1 });
 
-    const formattedReviews = reviews.map(r => ({
+    const formattedReviews = reviews.map((r) => ({
       _id: r._id,
       userId: r.customerId,
       rating: r.rating,
       comment: r.comment,
-      isApproved: r.status === 'Approved',
+      isApproved: r.status === "Approved",
       createdAt: r.createdAt,
     }));
 
@@ -84,67 +112,91 @@ export const getProductById = async (req, res) => {
 // POST /api/products  (admin)
 export const createProduct = async (req, res) => {
   try {
-    const { 
-      name, slug, categoryId, description, shortDescription, 
-      variants, tags, isFeatured, metaTitle, metaDescription 
+    const {
+      name,
+      slug,
+      categoryId,
+      description,
+      shortDescription,
+      variants,
+      tags,
+      isFeatured,
+      metaTitle,
+      metaDescription,
     } = req.body;
 
     // Build images array from uploaded files
-    const images = (req.files || []).map((file, idx) => ({
-      url: file.path,
-      publicId: file.filename,
-      isMain: idx === 0,
-    }));
+    // ✅ Ensure Cloudinary URLs are used (secure_url is the Cloudinary secure URL)
+    const images = (req.files || []).map((file, idx) => {
+      // Use secure_url from Cloudinary response, fallback to path
+      const cloudinaryUrl = file.secure_url || file.path;
+      if (!cloudinaryUrl || cloudinaryUrl.includes("localhost")) {
+        throw new Error(
+          `Invalid image URL returned: ${cloudinaryUrl}. Check Cloudinary configuration.`,
+        );
+      }
+      return {
+        url: cloudinaryUrl,
+        publicId: file.filename,
+        isMain: idx === 0,
+      };
+    });
 
     let parsedVariants = [];
     try {
       if (variants) {
-        parsedVariants = typeof variants === 'string' ? JSON.parse(variants) : variants;
+        parsedVariants =
+          typeof variants === "string" ? JSON.parse(variants) : variants;
       }
     } catch {
-      return errorResponse(res, 'Invalid variants data format', 400);
+      return errorResponse(res, "Invalid variants data format", 400);
     }
 
     let parsedTags = [];
     try {
       if (tags) {
-        parsedTags = typeof tags === 'string' ? JSON.parse(tags) : tags;
+        parsedTags = typeof tags === "string" ? JSON.parse(tags) : tags;
       }
     } catch {
       parsedTags = [];
     }
 
     // Auto-generate slug if missing
-    const finalSlug = slug || name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    const finalSlug =
+      slug ||
+      name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)+/g, "");
 
     const product = await Product.create({
-      name, 
-      slug: finalSlug, 
-      categoryId, 
-      description, 
+      name,
+      slug: finalSlug,
+      categoryId,
+      description,
       shortDescription,
-      images, 
+      images,
       variants: parsedVariants,
       tags: parsedTags,
-      isFeatured: isFeatured === 'true' || isFeatured === true,
-      metaTitle, 
+      isFeatured: isFeatured === "true" || isFeatured === true,
+      metaTitle,
       metaDescription,
     });
 
-    successResponse(res, product, 'Product created successfully', 201);
+    successResponse(res, product, "Product created successfully", 201);
   } catch (err) {
-    console.error('❌ Create Product Error:', err);
-    
+    console.error("❌ Create Product Error:", err);
+
     // Handle Mongoose specific errors
-    if (err.name === 'ValidationError') {
-      const messages = Object.values(err.errors).map(e => e.message);
-      return errorResponse(res, messages.join(', '), 400);
+    if (err.name === "ValidationError") {
+      const messages = Object.values(err.errors).map((e) => e.message);
+      return errorResponse(res, messages.join(", "), 400);
     }
     if (err.code === 11000) {
-      return errorResponse(res, 'Slug or duplicate key already exists', 400);
+      return errorResponse(res, "Slug or duplicate key already exists", 400);
     }
-    
-    errorResponse(res, err.message || 'Error occurred while creating product');
+
+    errorResponse(res, err.message || "Error occurred while creating product");
   }
 };
 
@@ -154,12 +206,21 @@ export const updateProduct = async (req, res) => {
     const { variants, tags, isFeatured } = req.body;
 
     const product = await Product.findById(req.params.id);
-    if (!product) return errorResponse(res, 'Product not found', 404);
+    if (!product) return errorResponse(res, "Product not found", 404);
 
     // Update fields from req.body
     const allowedFields = [
-      'name', 'slug', 'description', 'shortDescription', 'categoryId',
-      'isActive', 'lowStockThreshold', 'discount', 'totalSold', 'avgRating', 'reviewCount'
+      "name",
+      "slug",
+      "description",
+      "shortDescription",
+      "categoryId",
+      "isActive",
+      "lowStockThreshold",
+      "discount",
+      "totalSold",
+      "avgRating",
+      "reviewCount",
     ];
     for (const field of allowedFields) {
       if (req.body[field] !== undefined) product[field] = req.body[field];
@@ -167,44 +228,54 @@ export const updateProduct = async (req, res) => {
 
     if (variants) {
       try {
-        const parsed = typeof variants === 'string' ? JSON.parse(variants) : variants;
+        const parsed =
+          typeof variants === "string" ? JSON.parse(variants) : variants;
         product.variants = parsed;
       } catch {
-        return errorResponse(res, 'Invalid variants data format', 400);
+        return errorResponse(res, "Invalid variants data format", 400);
       }
     }
 
     if (tags) {
       try {
-        product.tags = typeof tags === 'string' ? JSON.parse(tags) : tags;
+        product.tags = typeof tags === "string" ? JSON.parse(tags) : tags;
       } catch {
         // Ignore tag parsing errors
       }
     }
 
     if (isFeatured !== undefined) {
-      product.isFeatured = isFeatured === 'true' || isFeatured === true;
+      product.isFeatured = isFeatured === "true" || isFeatured === true;
     }
 
     // Append new uploaded images
+    // ✅ Ensure Cloudinary URLs are used
     if (req.files && req.files.length > 0) {
-      const newImages = req.files.map((file) => ({
-        url: file.path,
-        publicId: file.filename,
-        isMain: false,
-      }));
+      const newImages = req.files.map((file) => {
+        const cloudinaryUrl = file.secure_url || file.path;
+        if (!cloudinaryUrl || cloudinaryUrl.includes("localhost")) {
+          throw new Error(
+            `Invalid image URL returned: ${cloudinaryUrl}. Check Cloudinary configuration.`,
+          );
+        }
+        return {
+          url: cloudinaryUrl,
+          publicId: file.filename,
+          isMain: false,
+        };
+      });
       product.images.push(...newImages);
     }
 
     await product.save();
-    successResponse(res, product, 'Product updated successfully');
+    successResponse(res, product, "Product updated successfully");
   } catch (err) {
-    console.error('❌ Update Product Error:', err);
-    if (err.name === 'ValidationError') {
-      const messages = Object.values(err.errors).map(e => e.message);
-      return errorResponse(res, messages.join(', '), 400);
+    console.error("❌ Update Product Error:", err);
+    if (err.name === "ValidationError") {
+      const messages = Object.values(err.errors).map((e) => e.message);
+      return errorResponse(res, messages.join(", "), 400);
     }
-    errorResponse(res, err.message || 'Error occurred while updating product');
+    errorResponse(res, err.message || "Error occurred while updating product");
   }
 };
 
@@ -212,14 +283,14 @@ export const updateProduct = async (req, res) => {
 export const deleteProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
-    if (!product) return errorResponse(res, 'Product not found', 404);
+    if (!product) return errorResponse(res, "Product not found", 404);
 
     // Delete images from Cloudinary
     for (const img of product.images) {
       if (img.publicId) await cloudinary.uploader.destroy(img.publicId);
     }
     await product.deleteOne();
-    successResponse(res, null, 'Product deleted');
+    successResponse(res, null, "Product deleted");
   } catch (err) {
     errorResponse(res, err.message);
   }
@@ -230,10 +301,10 @@ export const updateStock = async (req, res) => {
   try {
     const { variantIndex, stockQty } = req.body;
     const product = await Product.findById(req.params.id);
-    if (!product) return errorResponse(res, 'Product not found', 404);
+    if (!product) return errorResponse(res, "Product not found", 404);
     product.variants[variantIndex].stockQty = stockQty;
     await product.save();
-    successResponse(res, product, 'Stock updated');
+    successResponse(res, product, "Stock updated");
   } catch (err) {
     errorResponse(res, err.message);
   }
@@ -243,21 +314,22 @@ export const updateStock = async (req, res) => {
 export const getProductReviews = async (req, res) => {
   try {
     const { id: idOrSlug } = req.params;
-    const product = idOrSlug.length === 24 && /^[0-9a-fA-F]{24}$/.test(idOrSlug)
-      ? await Product.findById(idOrSlug)
-      : await Product.findOne({ slug: idOrSlug });
-    if (!product) return errorResponse(res, 'Product not found', 404);
+    const product =
+      idOrSlug.length === 24 && /^[0-9a-fA-F]{24}$/.test(idOrSlug)
+        ? await Product.findById(idOrSlug)
+        : await Product.findOne({ slug: idOrSlug });
+    if (!product) return errorResponse(res, "Product not found", 404);
 
     const reviews = await Review.find({ productId: product._id })
-      .populate('customerId', 'name')
+      .populate("customerId", "name")
       .sort({ createdAt: -1 });
 
-    const formatted = reviews.map(r => ({
+    const formatted = reviews.map((r) => ({
       _id: r._id,
       userId: r.customerId,
       rating: r.rating,
       comment: r.comment,
-      isApproved: r.status === 'Approved',
+      isApproved: r.status === "Approved",
       createdAt: r.createdAt,
     }));
 
@@ -272,10 +344,11 @@ export const createProductReview = async (req, res) => {
   try {
     const { id: idOrSlug } = req.params;
     const { rating, comment } = req.body;
-    const product = idOrSlug.length === 24 && /^[0-9a-fA-F]{24}$/.test(idOrSlug)
-      ? await Product.findById(idOrSlug)
-      : await Product.findOne({ slug: idOrSlug });
-    if (!product) return errorResponse(res, 'Product not found', 404);
+    const product =
+      idOrSlug.length === 24 && /^[0-9a-fA-F]{24}$/.test(idOrSlug)
+        ? await Product.findById(idOrSlug)
+        : await Product.findOne({ slug: idOrSlug });
+    if (!product) return errorResponse(res, "Product not found", 404);
 
     const review = await Review.create({
       productId: product._id,
@@ -284,11 +357,11 @@ export const createProductReview = async (req, res) => {
       comment,
     });
 
-    successResponse(res, review, 'Review submitted', 201);
+    successResponse(res, review, "Review submitted", 201);
   } catch (err) {
-    if (err.name === 'ValidationError') {
-      const messages = Object.values(err.errors).map(e => e.message);
-      return errorResponse(res, messages.join(', '), 400);
+    if (err.name === "ValidationError") {
+      const messages = Object.values(err.errors).map((e) => e.message);
+      return errorResponse(res, messages.join(", "), 400);
     }
     errorResponse(res, err.message);
   }

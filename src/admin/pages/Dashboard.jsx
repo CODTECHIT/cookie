@@ -1,13 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useAdmin } from '../context/AdminContext';
-import { 
-  TrendingUp, TrendingDown, ShoppingCart, DollarSign, 
-  Package, AlertTriangle, ArrowRight, Loader2, Ticket, Grid, Star, Image
-} from 'lucide-react';
-import { 
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
-} from 'recharts';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useAdmin } from "../context/AdminContext";
+import {
+  TrendingUp,
+  TrendingDown,
+  ShoppingCart,
+  DollarSign,
+  Package,
+  AlertTriangle,
+  ArrowRight,
+  Loader2,
+  Ticket,
+  Grid,
+  Star,
+  Image,
+} from "lucide-react";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 const StatCard = (props) => {
   const Icon = props.icon;
@@ -15,12 +32,20 @@ const StatCard = (props) => {
   return (
     <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all group">
       <div className="flex items-center justify-between mb-4">
-        <div className={`p-3 rounded-xl ${color} text-white group-hover:scale-110 transition-transform`}>
+        <div
+          className={`p-3 rounded-xl ${color} text-white group-hover:scale-110 transition-transform`}
+        >
           <Icon className="w-6 h-6" />
         </div>
         {trend && (
-          <span className={`text-xs font-bold px-2 py-1 rounded-full ${trend > 0 ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'} flex items-center`}>
-            {trend > 0 ? <TrendingUp className="w-3 h-3 mr-1" /> : <TrendingDown className="w-3 h-3 mr-1" />}
+          <span
+            className={`text-xs font-bold px-2 py-1 rounded-full ${trend > 0 ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"} flex items-center`}
+          >
+            {trend > 0 ? (
+              <TrendingUp className="w-3 h-3 mr-1" />
+            ) : (
+              <TrendingDown className="w-3 h-3 mr-1" />
+            )}
             {Math.abs(trend)}%
           </span>
         )}
@@ -34,19 +59,36 @@ const StatCard = (props) => {
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [timeView, setTimeView] = useState("daily");
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0],
+  );
+  const [selectedMonth, setSelectedMonth] = useState(
+    `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`,
+  );
   const { API_URL, token } = useAdmin();
+  const navigate = useNavigate();
+
+  const isMonthly = timeView === "monthly";
+  const activeChartData = stats?.chartData || [];
+  const periodLabel = isMonthly ? "Selected Month" : "Selected Day";
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
         const { data } = await axios.get(`${API_URL}/admin/dashboard`, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
+          params: {
+            view: timeView,
+            date: selectedDate,
+            month: selectedMonth,
+          },
         });
         if (data.success) {
           setStats(data.data);
         }
       } catch (err) {
-        console.error('Error fetching dashboard stats:', err);
+        console.error("Error fetching dashboard stats:", err);
       } finally {
         setLoading(false);
       }
@@ -55,55 +97,98 @@ const Dashboard = () => {
     fetchStats();
     const interval = setInterval(fetchStats, 30000); // Refresh every 30s
     return () => clearInterval(interval);
-  }, [API_URL, token]);
+  }, [API_URL, token, timeView, selectedDate, selectedMonth]);
 
-  if (loading) return (
-    <div className="h-[60vh] flex items-center justify-center">
-      <Loader2 className="w-10 h-10 animate-spin text-primary" />
-    </div>
-  );
+  if (loading)
+    return (
+      <div className="h-[60vh] flex items-center justify-center">
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+      </div>
+    );
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 leading-tight">Overview Dashboard</h1>
-          <p className="text-gray-500">Track your business performance and key metrics in real-time.</p>
+          <h1 className="text-2xl font-bold text-gray-900 leading-tight">
+            Overview Dashboard
+          </h1>
+          <p className="text-gray-500">
+            Track your business performance and key metrics in real-time.
+          </p>
         </div>
         <div className="flex items-center space-x-3 bg-white p-1 rounded-xl shadow-sm border border-gray-100">
-          <button className="px-4 py-2 text-sm font-medium bg-primary text-white rounded-lg shadow-sm">Daily</button>
-          <button className="px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 rounded-lg">Monthly</button>
+          <button
+            onClick={() => setTimeView("daily")}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              !isMonthly
+                ? "bg-primary text-white shadow-sm"
+                : "text-gray-500 hover:bg-gray-50"
+            }`}
+          >
+            Daily
+          </button>
+          <button
+            onClick={() => setTimeView("monthly")}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              isMonthly
+                ? "bg-primary text-white shadow-sm"
+                : "text-gray-500 hover:bg-gray-50"
+            }`}
+          >
+            Monthly
+          </button>
         </div>
+      </div>
+
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <label className="text-sm font-medium text-gray-600">
+          {isMonthly ? "Select Month" : "Select Date"}
+        </label>
+        {isMonthly ? (
+          <input
+            type="month"
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+            className="w-full sm:w-auto px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/30"
+          />
+        ) : (
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className="w-full sm:w-auto px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/30"
+          />
+        )}
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard 
-          title="Total Orders" 
-          value={stats?.totalOrders || 0} 
-          icon={ShoppingCart} 
-          trend={12} 
-          color="bg-blue-500" 
+        <StatCard
+          title={`${periodLabel} Orders`}
+          value={stats?.periodOrders || 0}
+          icon={ShoppingCart}
+          trend={stats?.periodOrdersTrend || 0}
+          color="bg-blue-500"
         />
-        <StatCard 
-          title="Total Sales" 
-          value={`₹${stats?.totalSales?.toLocaleString() || 0}`} 
-          icon={DollarSign} 
-          trend={8.5} 
-          color="bg-emerald-500" 
+        <StatCard
+          title={`${periodLabel} Sales`}
+          value={`₹${stats?.periodSales?.toLocaleString() || 0}`}
+          icon={DollarSign}
+          trend={stats?.periodSalesTrend || 0}
+          color="bg-emerald-500"
         />
-        <StatCard 
-          title="Today's Orders" 
-          value={stats?.todayOrders || 0} 
-          icon={Package} 
-          trend={-2.4} 
-          color="bg-orange-500" 
+        <StatCard
+          title="Previous Period Orders"
+          value={stats?.previousPeriodOrders || 0}
+          icon={Package}
+          color="bg-orange-500"
         />
-        <StatCard 
-          title="Today's Sales" 
-          value={`₹${stats?.todaySales?.toLocaleString() || 0}`} 
-          icon={TrendingUp} 
-          color="bg-purple-500" 
+        <StatCard
+          title="Previous Period Sales"
+          value={`₹${stats?.previousPeriodSales?.toLocaleString() || 0}`}
+          icon={TrendingUp}
+          color="bg-purple-500"
         />
       </div>
 
@@ -122,10 +207,17 @@ const Dashboard = () => {
           <div className="flex-1 space-y-4">
             {stats?.lowStockProducts?.length > 0 ? (
               stats.lowStockProducts.map((product) => (
-                <div key={product._id} className="flex items-center justify-between p-3 bg-gray-50/50 rounded-xl hover:bg-gray-50 transition-colors">
+                <div
+                  key={product._id}
+                  className="flex items-center justify-between p-3 bg-gray-50/50 rounded-xl hover:bg-gray-50 transition-colors"
+                >
                   <div className="min-w-0">
-                    <p className="font-medium text-gray-900 text-sm truncate">{product.name}</p>
-                    <p className="text-xs text-gray-500">{product.variants?.[0]?.weight || 'N/A'}</p>
+                    <p className="font-medium text-gray-900 text-sm truncate">
+                      {product.name}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {product.variants?.[0]?.weight || "N/A"}
+                    </p>
                   </div>
                   <span className="px-3 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-lg whitespace-nowrap">
                     {product.totalStock} left
@@ -137,12 +229,19 @@ const Dashboard = () => {
                 <div className="p-4 bg-green-50 rounded-full mb-3 text-green-500">
                   <Package className="w-8 h-8" />
                 </div>
-                <p className="text-sm font-medium text-gray-600">All products in stock</p>
-                <p className="text-xs text-gray-400 mt-1 italic">Good job! Check back later.</p>
+                <p className="text-sm font-medium text-gray-600">
+                  All products in stock
+                </p>
+                <p className="text-xs text-gray-400 mt-1 italic">
+                  Good job! Check back later.
+                </p>
               </div>
             )}
           </div>
-          <button className="w-full mt-6 py-3 text-primary font-bold text-sm bg-primary/5 hover:bg-primary/10 rounded-xl transition-all flex items-center justify-center group">
+          <button
+            onClick={() => navigate("/admin/products")}
+            className="w-full mt-6 py-3 text-primary font-bold text-sm bg-primary/5 hover:bg-primary/10 rounded-xl transition-all flex items-center justify-center group"
+          >
             Manage Inventory
             <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
           </button>
@@ -153,47 +252,70 @@ const Dashboard = () => {
           <div className="flex items-center justify-between mb-8">
             <h2 className="font-bold text-gray-900 flex items-center">
               <TrendingUp className="w-5 h-5 mr-2 text-primary" />
-              Sales Performance (Last 7 Days)
+              Sales Performance ({isMonthly ? "Selected Month" : "Selected Day"}
+              )
             </h2>
           </div>
-          
+
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-              <AreaChart data={stats?.chartData || []}>
+              <AreaChart data={activeChartData}>
                 <defs>
                   <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#331917" stopOpacity={0.1}/>
-                    <stop offset="95%" stopColor="#331917" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#331917" stopOpacity={0.1} />
+                    <stop offset="95%" stopColor="#331917" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                <XAxis 
-                  dataKey="date" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{fontSize: 10, fill: '#9ca3af'}}
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  vertical={false}
+                  stroke="#f0f0f0"
+                />
+                <XAxis
+                  dataKey="date"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 10, fill: "#9ca3af" }}
                   tickFormatter={(str) => {
-                    const d = new Date(str);
-                    return d.toLocaleDateString('en-IN', { weekday: 'short' });
+                    if (isMonthly) {
+                      const day = String(str).split("-")[2];
+                      return Number(day);
+                    }
+                    return str;
                   }}
                 />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{fontSize: 10, fill: '#9ca3af'}}
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 10, fill: "#9ca3af" }}
                   tickFormatter={(val) => `₹${val}`}
                 />
-                <Tooltip 
-                  contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'}}
-                  labelFormatter={(str) => new Date(str).toLocaleDateString('en-IN', { dateStyle: 'long' })}
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: "12px",
+                    border: "none",
+                    boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
+                  }}
+                  labelFormatter={(str) => {
+                    if (isMonthly) {
+                      const [year, month, day] = String(str)
+                        .split("-")
+                        .map(Number);
+                      const d = new Date(year, month - 1, day);
+                      return d.toLocaleDateString("en-IN", {
+                        dateStyle: "long",
+                      });
+                    }
+                    return `${str} hrs`;
+                  }}
                 />
-                <Area 
-                  type="monotone" 
-                  dataKey="sales" 
-                  stroke="#331917" 
+                <Area
+                  type="monotone"
+                  dataKey="sales"
+                  stroke="#331917"
                   strokeWidth={3}
-                  fillOpacity={1} 
-                  fill="url(#colorSales)" 
+                  fillOpacity={1}
+                  fill="url(#colorSales)"
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -201,21 +323,56 @@ const Dashboard = () => {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-8 pt-8 border-t border-gray-50">
             {[
-              { label: 'Add Product', icon: Package, link: '/admin/products', color: 'bg-blue-50 text-blue-600' },
-              { label: 'View All Orders', icon: ShoppingCart, link: '/admin/orders', color: 'bg-indigo-50 text-indigo-600' },
-              { label: 'Create Coupon', icon: Ticket, link: '/admin/coupons', color: 'bg-orange-50 text-orange-600' },
-              { label: 'Update Stock', icon: Grid, link: '/admin/products', color: 'bg-emerald-50 text-emerald-600' },
-              { label: 'Moderate Reviews', icon: Star, link: '/admin/reviews', color: 'bg-purple-50 text-purple-600' },
-              { label: 'Edit Homepage', icon: Image, link: '/admin/content', color: 'bg-pink-50 text-pink-600' },
+              {
+                label: "Add Product",
+                icon: Package,
+                link: "/admin/products",
+                color: "bg-blue-50 text-blue-600",
+              },
+              {
+                label: "View All Orders",
+                icon: ShoppingCart,
+                link: "/admin/orders",
+                color: "bg-indigo-50 text-indigo-600",
+              },
+              {
+                label: "Create Coupon",
+                icon: Ticket,
+                link: "/admin/coupons",
+                color: "bg-orange-50 text-orange-600",
+              },
+              {
+                label: "Update Stock",
+                icon: Grid,
+                link: "/admin/products",
+                color: "bg-emerald-50 text-emerald-600",
+              },
+              {
+                label: "Moderate Reviews",
+                icon: Star,
+                link: "/admin/reviews",
+                color: "bg-purple-50 text-purple-600",
+              },
+              {
+                label: "Edit Homepage",
+                icon: Image,
+                link: "/admin/content",
+                color: "bg-pink-50 text-pink-600",
+              },
             ].map((action, i) => (
-              <button 
-                key={i} 
+              <button
+                key={i}
+                onClick={() => navigate(action.link)}
                 className="flex flex-col items-center justify-center p-4 rounded-2xl border border-gray-50 hover:border-primary/20 hover:shadow-md transition-all group hover:-translate-y-1"
               >
-                <div className={`p-3 rounded-xl mb-3 transition-all group-hover:scale-110 ${action.color}`}>
+                <div
+                  className={`p-3 rounded-xl mb-3 transition-all group-hover:scale-110 ${action.color}`}
+                >
                   <action.icon className="w-6 h-6" />
                 </div>
-                <span className="text-xs font-bold text-gray-600 group-hover:text-primary">{action.label}</span>
+                <span className="text-xs font-bold text-gray-600 group-hover:text-primary">
+                  {action.label}
+                </span>
               </button>
             ))}
           </div>
