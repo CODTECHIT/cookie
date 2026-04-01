@@ -416,21 +416,20 @@ const Products = () => {
             ))}
           </div>
 
-          {!loading && filteredProducts.length === 0 && (
-            {/* ⚡ Load More Button for Pagination */}
-            {!loading && hasMore && filteredProducts.length > 0 && (
-              <div className="flex justify-center mt-12">
-                <button
-                  onClick={() => setPage(page + 1)}
-                  className="bg-primary text-secondary-fixed px-8 py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-2xl hover:shadow-3xl transition-all active:scale-95"
-                >
-                  Load More Products
-                </button>
-              </div>
-            )}
+          {/* ⚡ Load More Button for Pagination */}
+          {!loading && hasMore && filteredProducts.length > 0 && (
+            <div className="flex justify-center mt-12">
+              <button
+                onClick={() => setPage(page + 1)}
+                className="bg-primary text-secondary-fixed px-8 py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-2xl hover:shadow-3xl transition-all active:scale-95"
+              >
+                Load More Products
+              </button>
+            </div>
+          )}
 
-            {!loading && filteredProducts.length === 0 && (
-              <div className="text-center py-24 xl:py-40 bg-white/50 rounded-[3rem] border border-stone-100/50 backdrop-blur-sm">
+          {!loading && filteredProducts.length === 0 && (
+            <div className="text-center py-24 xl:py-40 bg-white/50 rounded-[3rem] border border-stone-100/50 backdrop-blur-sm">
               <h3 className="text-2xl xl:text-4xl font-serif italic text-primary mb-4">
                 {searchTerm
                   ? `The item "${searchTerm}" is not available`
@@ -438,12 +437,12 @@ const Products = () => {
               </h3>
               <p className="text-sm xl:text-base text-stone-400 font-medium mb-12">
                 Try browsing our entire collection below.
-                                setPage(1);
               </p>
               <button
                 onClick={() => {
                   setSelectedCategories([]);
                   setPriceRange(5000);
+                  setPage(1);
                 }}
                 className="bg-primary text-secondary-fixed px-10 py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-2xl transition-all"
               >

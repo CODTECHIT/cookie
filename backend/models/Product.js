@@ -66,7 +66,6 @@ productSchema.index({ totalSold: -1 });
 productSchema.index({ isActive: 1, createdAt: -1 });
 productSchema.index({ isFeatured: 1, createdAt: -1 });
 productSchema.index({ categoryId: 1, isActive: 1 });
-productSchema.index({ slug: 1 }); // for URL lookups
 
 const Product = mongoose.model('Product', productSchema);
 export default Product;

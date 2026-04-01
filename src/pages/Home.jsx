@@ -75,9 +75,7 @@ const Home = () => {
 
         if (featuredRes.data.success) {
           const products =
-            featuredRes.data.data?.products ||
-            featuredRes.data.products ||
-            [];
+            featuredRes.data.data?.products || featuredRes.data.products || [];
           setFeaturedProducts(Array.isArray(products) ? products : []);
         }
 
@@ -115,14 +113,14 @@ const Home = () => {
   };
 
   return (
-    <div className="bg-background min-h-screen pb-20 lg:pb-0">
+    <div className="bg-background min-h-screen pb-20 lg:pb-0 overflow-x-hidden">
       <SEO
         title="Artisanal Cookies & Healthy Millet Powders"
         description="Discover the authentic taste of Daksha Food Artisan. Handcrafted cashew cookies, nutrient-rich millets, and traditional snacks."
       />
 
-      <section className="lg:hidden pt-6 pb-10 space-y-6">
-        <div className="flex gap-4 px-4 overflow-x-auto hide-scrollbar py-2">
+      <section className="lg:hidden pt-6 pb-10 space-y-8">
+        <div className="grid grid-cols-4 gap-x-2 gap-y-4 px-4 pb-2 pt-2 sm:flex sm:gap-5 sm:overflow-x-auto sm:hide-scrollbar sm:pb-4">
           {categories.map((cat) => (
             <MobileCategory
               key={cat._id}
@@ -171,10 +169,10 @@ const Home = () => {
                 Featured Treasures
               </h2>
             </div>
-            <MarqueeCarousel duration={25} gap="gap-6 px-6">
-              <div className="flex gap-6">
+            <MarqueeCarousel duration={35} gap="gap-4 px-4" className="pb-2">
+              <div className="flex gap-4 px-4">
                 {[...featuredProducts, ...featuredProducts].map((prod, i) => (
-                  <div key={`${prod._id}-${i}`} className="min-w-[140px]">
+                  <div key={`${prod._id}-${i}`} className="min-w-[120px] shrink-0">
                     <RoundProductCard
                       p={prod}
                       onBuy={() => handleBuyNow(prod, prod.variants?.[0])}
@@ -472,11 +470,8 @@ const Home = () => {
 
 /* Sub-Components */
 const MobileCategory = ({ label, src, to }) => (
-  <Link
-    to={to}
-    className="flex flex-col items-center gap-1 shrink-0 min-w-[64px]"
-  >
-    <div className="w-14 h-14 rounded-full border border-primary/5 bg-white shadow-md p-0.5 overflow-hidden">
+  <Link to={to} className="flex flex-col items-center gap-1 shrink-0 w-[72px]">
+    <div className="w-14 h-14 rounded-full border border-primary/5 bg-white shadow-md p-0.5 overflow-hidden shrink-0">
       <img
         src={src || "/placeholder-category.png"}
         onError={(e) => (e.target.src = "/placeholder-category.png")}
@@ -484,7 +479,7 @@ const MobileCategory = ({ label, src, to }) => (
         alt={label}
       />
     </div>
-    <span className="text-[9px] font-black uppercase text-primary opacity-80">
+    <span className="text-[9px] font-black uppercase text-primary opacity-80 text-center leading-none w-full">
       {label}
     </span>
   </Link>

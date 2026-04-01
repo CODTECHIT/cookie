@@ -55,6 +55,7 @@ const Cart = () => {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState("");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("ALL");
 
   const applyCoupon = async () => {
     if (!couponCode) return;
@@ -125,7 +126,7 @@ const Cart = () => {
         discount: currentDiscount,
         couponCode: appliedCoupon?.code,
         couponId: appliedCoupon?.couponId,
-        paymentMethod: "CARD", // Default to CARD for Razorpay
+        paymentMethod: selectedPaymentMethod === "ALL" ? "CARD" : selectedPaymentMethod,
         customerSnapshot: {
           name: shippingAddress.name,
           phone: shippingAddress.phone,
@@ -178,14 +179,14 @@ const Cart = () => {
           ? `Order #${localOrder.orderNumber} (TEST MODE: use test card)`
           : "Order #" + localOrder.orderNumber,
         order_id: rzpOrder.id,
-        // In test mode, card flow is the most reliable path.
+        // Allow all enabled Razorpay payment methods instead of forcing cards only.
         method: {
           card: true,
-          upi: false,
-          netbanking: false,
-          wallet: false,
-          emi: false,
-          paylater: false,
+          upi: true,
+          netbanking: true,
+          wallet: true,
+          emi: true,
+          paylater: true,
         },
         retry: {
           enabled: true,
@@ -201,7 +202,7 @@ const Cart = () => {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
-              method: "CARD",
+              method: response?.method || selectedPaymentMethod || "CARD",
             };
 
             console.log("⏳ Calling backend verify with:", verifyData);
