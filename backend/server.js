@@ -94,6 +94,23 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 if (process.env.NODE_ENV !== "production") app.use(morgan("dev"));
 
+// ⚡ Caching middleware for public endpoints
+app.use((req, res, next) => {
+  // Cache public product endpoints for 5 minutes
+  if (req.method === 'GET' && /^\/api\/(products|categories)/.test(req.path)) {
+    res.set('Cache-Control', 'public, max-age=300'); // 5 minutes
+  }
+  // Cache static content for 1 hour
+  else if (req.method === 'GET' && /^\/api\/(content|banners)/.test(req.path)) {
+    res.set('Cache-Control', 'public, max-age=3600'); // 1 hour
+  }
+  // No cache for user-specific or admin endpoints
+  else if (/^\/api\/(admin|customers|orders|auth)/.test(req.path)) {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  }
+  next();
+});
+
 // ─── API Routes ───────────────────────────────────────────────────────────────
 app.use("/api/auth", authRoutes);
 app.use("/api/admin/dashboard", dashboardRoutes);

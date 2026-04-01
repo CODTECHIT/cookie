@@ -131,6 +131,11 @@ const Products = () => {
     categorySlug || categoryId ? [categorySlug || categoryId] : [],
   );
   const [selectedWeight, setSelectedWeight] = useState("");
+  
+  // ⚡ Add pagination state
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
   const sortOptions = [
     { label: "Relevance", value: "Relevance" },
@@ -143,6 +148,7 @@ const Products = () => {
     setSelectedCategories(
       categorySlug || categoryId ? [categorySlug || categoryId] : [],
     );
+    setPage(1); // Reset page when filters change
   }, [categorySlug, categoryId]);
 
   const activeCategory = useMemo(() => {
@@ -165,6 +171,7 @@ const Products = () => {
     "Browse our full collection of artisanal cookies, millet-based health powders, and traditional snacks.";
   const showNoIndex = activeCategory?.isIndexed === false;
 
+  // ⚡ OPTIMIZED: Fetch with pagination and move filtering to backend
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
@@ -172,39 +179,44 @@ const Products = () => {
         params: {
           category: selectedCategories.join(","),
           search: searchTerm,
-          isActive: true,
-          visibleonCatalog: true,
+          page,
+          limit: 12, // Load 12 products per page
         },
       });
-      if (data.success) setProducts(data.data.products);
+      if (data.success) {
+        setProducts(page === 1 ? data.data.products : [...products, ...data.data.products]);
+        setTotalPages(data.data.pages || 1);
+        setHasMore(page < (data.data.pages || 1));
+      }
     } catch (err) {
       console.error("Error fetching products:", err);
     } finally {
       setLoading(false);
     }
-  }, [API_URL, selectedCategories, searchTerm]);
+  }, [API_URL, selectedCategories, searchTerm, page]);
 
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
 
+  // ⚡ Client-side filtering for weight and price only (minimal impact)
   const filteredProducts = useMemo(() => {
-    let result = products.filter((p) => {
-      if (selectedCategories.length > 0) {
-        const pCatId = p.categoryId?._id || p.categoryId;
-        const pCatSlug = p.categoryId?.slug;
-        const isMatch = selectedCategories.some(
-          (sel) => sel === pCatId || sel === pCatSlug,
-        );
-        if (!isMatch) return false;
-      }
-      if (p.visibleonCatalog === false) return false;
-      const minPrice =
+    let result = [...products];
+
+    if (result.visibleonCatalog === false) result = result.filter(p => p.visibleonCatalog !== false);
+    
+    const minPrice =
+      result[0]?.variants?.reduce(
+        (min, v) => (v.price < min ? v.price : min),
+        Infinity,
+      ) || 0;
+    result = result.filter(p => {
+      const pMinPrice =
         p.variants?.reduce(
           (min, v) => (v.price < min ? v.price : min),
           Infinity,
         ) || 0;
-      return minPrice <= priceRange;
+      return pMinPrice <= priceRange;
     });
 
     if (selectedWeight) {
@@ -223,7 +235,7 @@ const Products = () => {
       );
     }
     return result;
-  }, [products, priceRange, selectedWeight, sortBy, selectedCategories]);
+  }, [products, priceRange, selectedWeight, sortBy]);
 
   const toggleCategory = (cat) => {
     setSelectedCategories((prev) =>
@@ -405,7 +417,20 @@ const Products = () => {
           </div>
 
           {!loading && filteredProducts.length === 0 && (
-            <div className="text-center py-24 xl:py-40 bg-white/50 rounded-[3rem] border border-stone-100/50 backdrop-blur-sm">
+            {/* ⚡ Load More Button for Pagination */}
+            {!loading && hasMore && filteredProducts.length > 0 && (
+              <div className="flex justify-center mt-12">
+                <button
+                  onClick={() => setPage(page + 1)}
+                  className="bg-primary text-secondary-fixed px-8 py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-2xl hover:shadow-3xl transition-all active:scale-95"
+                >
+                  Load More Products
+                </button>
+              </div>
+            )}
+
+            {!loading && filteredProducts.length === 0 && (
+              <div className="text-center py-24 xl:py-40 bg-white/50 rounded-[3rem] border border-stone-100/50 backdrop-blur-sm">
               <h3 className="text-2xl xl:text-4xl font-serif italic text-primary mb-4">
                 {searchTerm
                   ? `The item "${searchTerm}" is not available`
@@ -413,6 +438,7 @@ const Products = () => {
               </h3>
               <p className="text-sm xl:text-base text-stone-400 font-medium mb-12">
                 Try browsing our entire collection below.
+                                setPage(1);
               </p>
               <button
                 onClick={() => {

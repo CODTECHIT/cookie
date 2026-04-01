@@ -98,6 +98,12 @@ orderSchema.index({ status: 1 });
 orderSchema.index({ paymentStatus: 1 });
 orderSchema.index({ paymentMethod: 1 });
 orderSchema.index({ createdAt: -1 });
+
+// ⚡ Compound indexes for dashboard queries (major speed improvement)
+orderSchema.index({ paymentStatus: 1, createdAt: -1 });
+orderSchema.index({ status: 1, createdAt: -1 });
+orderSchema.index({ customerId: 1, createdAt: -1 });
+orderSchema.index({ paymentStatus: 1, paymentMethod: 1 });
 orderSchema.index({ "items.productId": 1 });
 
 const Order = mongoose.model("Order", orderSchema);

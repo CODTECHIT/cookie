@@ -55,38 +55,32 @@ const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch all products (public endpoint)
-        const prodAllRes = await axios.get(`${API_URL}/products`);
-        if (prodAllRes.data.success) {
-          const allProds =
-            prodAllRes.data.data?.products ||
-            prodAllRes.data.products ||
-            prodAllRes.data.data ||
+        // ⚡ OPTIMIZED: Fetch only featured products (moved filtering to backend)
+        const [bestSellersRes, featuredRes, bannerRes] = await Promise.all([
+          // Fetch best sellers with limit (12 products only)
+          axios.get(`${API_URL}/products?featured=true&limit=12`),
+          // Fetch featured products (10 max)
+          axios.get(`${API_URL}/products?featured=true&limit=10`),
+          // Fetch banners
+          axios.get(`${API_URL}/content/banners`),
+        ]);
+
+        if (bestSellersRes.data.success) {
+          const products =
+            bestSellersRes.data.data?.products ||
+            bestSellersRes.data.products ||
             [];
-
-          // Filter best sellers from all products (those with sales count or rating)
-          if (Array.isArray(allProds)) {
-            const bestSellingProds = allProds
-              .filter(
-                (p) =>
-                  p.isFeatured === true || (p.salesCount && p.salesCount > 0),
-              )
-              .sort((a, b) => (b.salesCount || 0) - (a.salesCount || 0))
-              .slice(0, 12);
-
-            setBestSellers(
-              bestSellingProds.length > 0
-                ? bestSellingProds
-                : allProds.slice(0, 12),
-            );
-
-            // Filter featured products
-            const featured = allProds.filter((p) => p.isFeatured === true);
-            setFeaturedProducts(featured.slice(0, 10));
-          }
+          setBestSellers(Array.isArray(products) ? products : []);
         }
 
-        const bannerRes = await axios.get(`${API_URL}/content/banners`);
+        if (featuredRes.data.success) {
+          const products =
+            featuredRes.data.data?.products ||
+            featuredRes.data.products ||
+            [];
+          setFeaturedProducts(Array.isArray(products) ? products : []);
+        }
+
         if (bannerRes.data.success) {
           const activeBanners = bannerRes.data.data
             .filter((b) => b.isActive)

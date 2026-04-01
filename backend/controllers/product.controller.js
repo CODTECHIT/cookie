@@ -53,9 +53,13 @@ export const getProducts = async (req, res) => {
     const [products, total] = await Promise.all([
       Product.find(filter)
         .populate("categoryId", "name slug")
+        .select(
+          "name slug shortDescription images variants isFeatured price totalStock avgRating reviewCount",
+        )
         .skip(skip)
         .limit(Number(limit))
-        .sort({ createdAt: -1 }),
+        .sort({ createdAt: -1 })
+        .lean(),
       Product.countDocuments(filter),
     ]);
     successResponse(res, {
@@ -77,22 +81,22 @@ export const getProductById = async (req, res) => {
 
     // Check if it's a valid MongoDB ObjectId
     if (idOrSlug.length === 24 && /^[0-9a-fA-F]{24}$/.test(idOrSlug)) {
-      product = await Product.findById(idOrSlug).populate(
-        "categoryId",
-        "name slug",
-      );
+      product = await Product.findById(idOrSlug)
+        .populate("categoryId", "name slug")
+        .lean();
     } else {
-      product = await Product.findOne({ slug: idOrSlug }).populate(
-        "categoryId",
-        "name slug",
-      );
+      product = await Product.findOne({ slug: idOrSlug })
+        .populate("categoryId", "name slug")
+        .lean();
     }
 
     if (!product) return errorResponse(res, "Product not found", 404);
 
     const reviews = await Review.find({ productId: product._id })
       .populate("customerId", "name")
-      .sort({ createdAt: -1 });
+      .select("rating comment status createdAt customerId")
+      .sort({ createdAt: -1 })
+      .lean();
 
     const formattedReviews = reviews.map((r) => ({
       _id: r._id,
@@ -103,7 +107,7 @@ export const getProductById = async (req, res) => {
       createdAt: r.createdAt,
     }));
 
-    successResponse(res, { ...product.toObject(), reviews: formattedReviews });
+    successResponse(res, { ...product, reviews: formattedReviews });
   } catch (err) {
     errorResponse(res, err.message);
   }

@@ -38,197 +38,239 @@ export const getDashboard = async (req, res) => {
       periodStart.getTime() - periodDurationMs,
     );
 
-    const [
-      totalOrders,
-      todayOrders,
-      totalSalesResult,
-      todaySalesResult,
-      periodOrders,
-      periodSalesResult,
-      previousPeriodOrders,
-      previousPeriodSalesResult,
-      lowStockProducts,
-      totalCustomers,
-      pendingOrders,
-      salesHistory,
-      topPerformingProducts,
-      signUpUsers,
-      failedPayments,
-      growthTrends,
-      businessAnalysis,
-    ] = await Promise.all([
-      Order.countDocuments(),
-      Order.countDocuments({ createdAt: { $gte: today } }),
-
+    // ⚡ OPTIMIZED: Combine all order queries into 2 aggregation pipelines using $facet
+    const [orderMetrics, productMetrics, userMetrics] = await Promise.all([
+      // All order-related metrics in single query (down from 9 queries → 1)
       Order.aggregate([
-        { $match: { paymentStatus: "Paid" } },
-        { $group: { _id: null, total: { $sum: "$grandTotal" } } },
-      ]),
-
-      Order.aggregate([
-        { $match: { paymentStatus: "Paid", createdAt: { $gte: today } } },
-        { $group: { _id: null, total: { $sum: "$grandTotal" } } },
-      ]),
-
-      Order.countDocuments({
-        paymentStatus: "Paid",
-        createdAt: { $gte: periodStart, $lt: periodEnd },
-      }),
-
-      Order.aggregate([
-        {
-          $match: {
-            paymentStatus: "Paid",
-            createdAt: { $gte: periodStart, $lt: periodEnd },
-          },
-        },
-        { $group: { _id: null, total: { $sum: "$grandTotal" } } },
-      ]),
-
-      Order.countDocuments({
-        paymentStatus: "Paid",
-        createdAt: { $gte: previousPeriodStart, $lt: previousPeriodEnd },
-      }),
-
-      Order.aggregate([
-        {
-          $match: {
-            paymentStatus: "Paid",
-            createdAt: { $gte: previousPeriodStart, $lt: previousPeriodEnd },
-          },
-        },
-        { $group: { _id: null, total: { $sum: "$grandTotal" } } },
-      ]),
-
-      Product.find({ isLowStock: true })
-        .select("name totalStock variants")
-        .limit(10),
-      User.countDocuments({ role: "customer" }),
-      Order.countDocuments({ status: "Pending" }),
-
-      // Selected period sales (single day or single month)
-      Order.aggregate([
-        {
-          $match: {
-            paymentStatus: "Paid",
-            createdAt: { $gte: periodStart, $lt: periodEnd },
-          },
-        },
-        {
-          $group: {
-            _id: {
-              $dateToString: {
-                format: view === "monthly" ? "%Y-%m-%d" : "%H:00",
-                date: "$createdAt",
-              },
-            },
-            sales: { $sum: "$grandTotal" },
-            orders: { $count: {} },
-          },
-        },
-        { $sort: { _id: 1 } },
-      ]),
-
-      // Top performing products (dynamic, based on actual sales)
-      Order.aggregate([
-        { $match: { paymentStatus: "Paid" } },
-        { $unwind: "$items" },
-        {
-          $group: {
-            _id: "$items.productId",
-            totalQuantity: { $sum: "$items.quantity" },
-            totalRevenue: { $sum: "$items.totalPrice" },
-            orderCount: { $sum: 1 },
-          },
-        },
-        { $sort: { totalQuantity: -1 } },
-        { $limit: 10 },
-        {
-          $lookup: {
-            from: "products",
-            localField: "_id",
-            foreignField: "_id",
-            as: "productInfo",
-          },
-        },
-      ]),
-
-      // Sign-up users (accountable tracking)
-      User.aggregate([
-        { $match: { role: "customer" } },
-        {
-          $group: {
-            _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-            signups: { $count: {} },
-          },
-        },
-        { $sort: { _id: -1 } },
-        { $limit: 30 }, // Last 30 days
-      ]),
-
-      // Failed payments tracking
-      Order.aggregate([
-        { $match: { paymentStatus: "Failed", createdAt: { $gte: last7Days } } },
-        {
-          $group: {
-            _id: null,
-            count: { $count: {} },
-            totalAmount: { $sum: "$grandTotal" },
-          },
-        },
-      ]),
-
-      // Growth trends (month over month)
-      Order.aggregate([
-        { $match: { paymentStatus: "Paid" } },
-        {
-          $group: {
-            _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
-            sales: { $sum: "$grandTotal" },
-            orders: { $count: {} },
-          },
-        },
-        { $sort: { _id: -1 } },
-        { $limit: 6 },
-      ]),
-
-      // Strategic business analysis (based on sales performance)
-      Order.aggregate([
-        { $match: { paymentStatus: "Paid" } },
         {
           $facet: {
-            byPaymentMethod: [
-              {
-                $group: {
-                  _id: "$paymentMethod",
-                  count: { $count: {} },
-                  revenue: { $sum: "$grandTotal" },
-                },
-              },
-            ],
-            byStatus: [
-              {
-                $group: {
-                  _id: "$status",
-                  count: { $count: {} },
-                  revenue: { $sum: "$grandTotal" },
-                },
-              },
-            ],
-            conversionMetrics: [
+            totalMetrics: [
               {
                 $group: {
                   _id: null,
-                  totalOrders: { $count: {} },
-                  averageOrderValue: { $avg: "$grandTotal" },
-                  totalRevenue: { $sum: "$grandTotal" },
+                  totalOrders: { $sum: 1 },
+                  totalSales: {
+                    $sum: { $cond: [{ $eq: ["$paymentStatus", "Paid"] }, "$grandTotal", 0] },
+                  },
                 },
               },
+            ],
+            todayMetrics: [
+              {
+                $match: { createdAt: { $gte: today } },
+              },
+              {
+                $group: {
+                  _id: null,
+                  todayOrders: { $sum: 1 },
+                  todaySales: {
+                    $sum: { $cond: [{ $eq: ["$paymentStatus", "Paid"] }, "$grandTotal", 0] },
+                  },
+                },
+              },
+            ],
+            periodMetrics: [
+              {
+                $match: {
+                  paymentStatus: "Paid",
+                  createdAt: { $gte: periodStart, $lt: periodEnd },
+                },
+              },
+              {
+                $group: {
+                  _id: null,
+                  periodOrders: { $sum: 1 },
+                  periodSales: { $sum: "$grandTotal" },
+                },
+              },
+            ],
+            previousPeriodMetrics: [
+              {
+                $match: {
+                  paymentStatus: "Paid",
+                  createdAt: { $gte: previousPeriodStart, $lt: previousPeriodEnd },
+                },
+              },
+              {
+                $group: {
+                  _id: null,
+                  previousOrders: { $sum: 1 },
+                  previousSales: { $sum: "$grandTotal" },
+                },
+              },
+            ],
+            pendingOrders: [
+              {
+                $match: { status: "Pending" },
+              },
+              {
+                $count: "count",
+              },
+            ],
+            failedPayments: [
+              {
+                $match: { paymentStatus: "Failed", createdAt: { $gte: last7Days } },
+              },
+              {
+                $group: {
+                  _id: null,
+                  count: { $sum: 1 },
+                  totalAmount: { $sum: "$grandTotal" },
+                },
+              },
+            ],
+            salesHistory: [
+              {
+                $match: {
+                  paymentStatus: "Paid",
+                  createdAt: { $gte: periodStart, $lt: periodEnd },
+                },
+              },
+              {
+                $group: {
+                  _id: {
+                    $dateToString: {
+                      format: view === "monthly" ? "%Y-%m-%d" : "%H:00",
+                      date: "$createdAt",
+                    },
+                  },
+                  sales: { $sum: "$grandTotal" },
+                  orders: { $sum: 1 },
+                },
+              },
+              { $sort: { _id: 1 } },
+            ],
+            topProducts: [
+              { $match: { paymentStatus: "Paid" } },
+              { $unwind: "$items" },
+              {
+                $group: {
+                  _id: "$items.productId",
+                  totalQuantity: { $sum: "$items.quantity" },
+                  totalRevenue: { $sum: "$items.totalPrice" },
+                },
+              },
+              { $sort: { totalQuantity: -1 } },
+              { $limit: 10 },
+              {
+                $lookup: {
+                  from: "products",
+                  localField: "_id",
+                  foreignField: "_id",
+                  as: "productInfo",
+                },
+              },
+            ],
+            growthTrends: [
+              { $match: { paymentStatus: "Paid" } },
+              {
+                $group: {
+                  _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
+                  sales: { $sum: "$grandTotal" },
+                  orders: { $sum: 1 },
+                },
+              },
+              { $sort: { _id: -1 } },
+              { $limit: 6 },
+            ],
+            businessAnalysis: [
+              { $match: { paymentStatus: "Paid" } },
+              {
+                $facet: {
+                  byPaymentMethod: [
+                    {
+                      $group: {
+                        _id: "$paymentMethod",
+                        count: { $sum: 1 },
+                        revenue: { $sum: "$grandTotal" },
+                      },
+                    },
+                  ],
+                  byStatus: [
+                    {
+                      $group: {
+                        _id: "$status",
+                        count: { $sum: 1 },
+                        revenue: { $sum: "$grandTotal" },
+                      },
+                    },
+                  ],
+                  conversionMetrics: [
+                    {
+                      $group: {
+                        _id: null,
+                        totalOrders: { $sum: 1 },
+                        averageOrderValue: { $avg: "$grandTotal" },
+                        totalRevenue: { $sum: "$grandTotal" },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ]),
+
+      // Product metrics (down from 1 query, now optimized with field selection)
+      Product.find({ isLowStock: true })
+        .select("name totalStock variants")
+        .limit(10)
+        .lean(),
+
+      // User metrics combined (down from 2 queries → 1)
+      User.aggregate([
+        {
+          $facet: {
+            totalCustomers: [
+              { $match: { role: "customer" } },
+              { $count: "count" },
+            ],
+            signUpUsers: [
+              { $match: { role: "customer" } },
+              {
+                $group: {
+                  _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                  signups: { $sum: 1 },
+                },
+              },
+              { $sort: { _id: -1 } },
+              { $limit: 30 },
             ],
           },
         },
       ]),
     ]);
+
+    // Flatten metrics for easier access
+    const {
+      totalMetrics: [totalData = {}],
+      todayMetrics: [todayData = {}],
+      periodMetrics: [periodData = {}],
+      previousPeriodMetrics: [previousPeriodData = {}],
+      pendingOrders: [pendingData = {}],
+      failedPayments: [failedPaymentData = {}],
+      salesHistory,
+      topProducts: topPerformingProducts,
+      growthTrends,
+      businessAnalysis: [businessAnalysis = {}],
+    } = orderMetrics[0];
+
+    const lowStockProducts = productMetrics;
+
+    const { totalCustomers: [customerData = {}], signUpUsers } = userMetrics[0];
+
+    const totalOrders = totalData.totalOrders || 0;
+    const totalSales = totalData.totalSales || 0;
+    const todayOrders = todayData.todayOrders || 0;
+    const todaySalesResult = todayData.todaySales || 0;
+    const periodOrders = periodData.periodOrders || 0;
+    const periodSalesResult = [{ _id: null, total: periodData.periodSales || 0 }];
+    const previousPeriodOrders = previousPeriodData.previousOrders || 0;
+    const previousPeriodSalesResult = [{ _id: null, total: previousPeriodData.previousSales || 0 }];
+    const totalCustomers = customerData.count || 0;
+    const pendingOrders = pendingData.count || 0;
+    const failedPayments = failedPaymentData;
 
     // Format chart data based on selected view (ensure all slots exist)
     const chartData = [];
@@ -281,8 +323,8 @@ export const getDashboard = async (req, res) => {
     // Total signups in last 30 days
     const totalSignups = signupData.reduce((sum, day) => sum + day.signups, 0);
 
-    const currentPeriodSales = periodSalesResult[0]?.total || 0;
-    const previousPeriodSales = previousPeriodSalesResult[0]?.total || 0;
+    const currentPeriodSales = periodData.periodSales || 0;
+    const previousPeriodSales = previousPeriodData.previousSales || 0;
 
     const calculateTrend = (currentValue, previousValue) => {
       if (previousValue === 0) {
@@ -297,8 +339,8 @@ export const getDashboard = async (req, res) => {
       // Basic Metrics
       totalOrders,
       todayOrders,
-      totalSales: totalSalesResult[0]?.total || 0,
-      todaySales: todaySalesResult[0]?.total || 0,
+      totalSales,
+      todaySales: todaySalesResult,
       periodOrders,
       periodSales: currentPeriodSales,
       previousPeriodOrders,
@@ -308,8 +350,8 @@ export const getDashboard = async (req, res) => {
       totalCustomers,
       totalSignups,
       pendingOrders,
-      failedPaymentsCount: failedPayments[0]?.count || 0,
-      failedPaymentsAmount: failedPayments[0]?.totalAmount || 0,
+      failedPaymentsCount: failedPayments?.count || 0,
+      failedPaymentsAmount: failedPayments?.totalAmount || 0,
 
       // Charts & Trends
       chartData,
@@ -325,15 +367,14 @@ export const getDashboard = async (req, res) => {
         _id: product._id,
         totalQuantitySold: product.totalQuantity,
         totalRevenue: product.totalRevenue,
-        orderCount: product.orderCount,
         productInfo: product.productInfo[0] || null,
       })),
 
       // Business Analysis
       businessAnalysis: {
-        byPaymentMethod: businessAnalysis[0]?.byPaymentMethod || [],
-        byStatus: businessAnalysis[0]?.byStatus || [],
-        conversionMetrics: businessAnalysis[0]?.conversionMetrics[0] || {
+        byPaymentMethod: businessAnalysis?.byPaymentMethod || [],
+        byStatus: businessAnalysis?.byStatus || [],
+        conversionMetrics: businessAnalysis?.conversionMetrics[0] || {
           totalOrders: 0,
           averageOrderValue: 0,
           totalRevenue: 0,
