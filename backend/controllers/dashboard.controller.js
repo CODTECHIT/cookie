@@ -50,7 +50,13 @@ export const getDashboard = async (req, res) => {
                   _id: null,
                   totalOrders: { $sum: 1 },
                   totalSales: {
-                    $sum: { $cond: [{ $eq: ["$paymentStatus", "Paid"] }, "$grandTotal", 0] },
+                    $sum: {
+                      $cond: [
+                        { $eq: ["$paymentStatus", "Paid"] },
+                        "$grandTotal",
+                        0,
+                      ],
+                    },
                   },
                 },
               },
@@ -64,7 +70,13 @@ export const getDashboard = async (req, res) => {
                   _id: null,
                   todayOrders: { $sum: 1 },
                   todaySales: {
-                    $sum: { $cond: [{ $eq: ["$paymentStatus", "Paid"] }, "$grandTotal", 0] },
+                    $sum: {
+                      $cond: [
+                        { $eq: ["$paymentStatus", "Paid"] },
+                        "$grandTotal",
+                        0,
+                      ],
+                    },
                   },
                 },
               },
@@ -88,7 +100,10 @@ export const getDashboard = async (req, res) => {
               {
                 $match: {
                   paymentStatus: "Paid",
-                  createdAt: { $gte: previousPeriodStart, $lt: previousPeriodEnd },
+                  createdAt: {
+                    $gte: previousPeriodStart,
+                    $lt: previousPeriodEnd,
+                  },
                 },
               },
               {
@@ -109,7 +124,10 @@ export const getDashboard = async (req, res) => {
             ],
             failedPayments: [
               {
-                $match: { paymentStatus: "Failed", createdAt: { $gte: last7Days } },
+                $match: {
+                  paymentStatus: "Failed",
+                  createdAt: { $gte: last7Days },
+                },
               },
               {
                 $group: {
@@ -165,7 +183,9 @@ export const getDashboard = async (req, res) => {
               { $match: { paymentStatus: "Paid" } },
               {
                 $group: {
-                  _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
+                  _id: {
+                    $dateToString: { format: "%Y-%m", date: "$createdAt" },
+                  },
                   sales: { $sum: "$grandTotal" },
                   orders: { $sum: 1 },
                 },
@@ -173,38 +193,34 @@ export const getDashboard = async (req, res) => {
               { $sort: { _id: -1 } },
               { $limit: 6 },
             ],
-            businessAnalysis: [
+            businessAnalysisByPaymentMethod: [
               { $match: { paymentStatus: "Paid" } },
               {
-                $facet: {
-                  byPaymentMethod: [
-                    {
-                      $group: {
-                        _id: "$paymentMethod",
-                        count: { $sum: 1 },
-                        revenue: { $sum: "$grandTotal" },
-                      },
-                    },
-                  ],
-                  byStatus: [
-                    {
-                      $group: {
-                        _id: "$status",
-                        count: { $sum: 1 },
-                        revenue: { $sum: "$grandTotal" },
-                      },
-                    },
-                  ],
-                  conversionMetrics: [
-                    {
-                      $group: {
-                        _id: null,
-                        totalOrders: { $sum: 1 },
-                        averageOrderValue: { $avg: "$grandTotal" },
-                        totalRevenue: { $sum: "$grandTotal" },
-                      },
-                    },
-                  ],
+                $group: {
+                  _id: "$paymentMethod",
+                  count: { $sum: 1 },
+                  revenue: { $sum: "$grandTotal" },
+                },
+              },
+            ],
+            businessAnalysisByStatus: [
+              { $match: { paymentStatus: "Paid" } },
+              {
+                $group: {
+                  _id: "$status",
+                  count: { $sum: 1 },
+                  revenue: { $sum: "$grandTotal" },
+                },
+              },
+            ],
+            businessAnalysisConversionMetrics: [
+              { $match: { paymentStatus: "Paid" } },
+              {
+                $group: {
+                  _id: null,
+                  totalOrders: { $sum: 1 },
+                  averageOrderValue: { $avg: "$grandTotal" },
+                  totalRevenue: { $sum: "$grandTotal" },
                 },
               },
             ],
@@ -230,7 +246,9 @@ export const getDashboard = async (req, res) => {
               { $match: { role: "customer" } },
               {
                 $group: {
-                  _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                  _id: {
+                    $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+                  },
                   signups: { $sum: 1 },
                 },
               },
@@ -243,31 +261,40 @@ export const getDashboard = async (req, res) => {
     ]);
 
     // Flatten metrics for easier access
+    const orderData = orderMetrics?.[0] || {};
     const {
-      totalMetrics: [totalData = {}],
-      todayMetrics: [todayData = {}],
-      periodMetrics: [periodData = {}],
-      previousPeriodMetrics: [previousPeriodData = {}],
-      pendingOrders: [pendingData = {}],
-      failedPayments: [failedPaymentData = {}],
-      salesHistory,
-      topProducts: topPerformingProducts,
-      growthTrends,
-      businessAnalysis: [businessAnalysis = {}],
-    } = orderMetrics[0];
+      totalMetrics: [totalData = {}] = [],
+      todayMetrics: [todayData = {}] = [],
+      periodMetrics: [periodData = {}] = [],
+      previousPeriodMetrics: [previousPeriodData = {}] = [],
+      pendingOrders: [pendingData = {}] = [],
+      failedPayments: [failedPaymentData = {}] = [],
+      salesHistory = [],
+      topProducts: topPerformingProducts = [],
+      growthTrends = [],
+      businessAnalysisByPaymentMethod = [],
+      businessAnalysisByStatus = [],
+      businessAnalysisConversionMetrics = [],
+    } = orderData;
 
     const lowStockProducts = productMetrics;
 
-    const { totalCustomers: [customerData = {}], signUpUsers } = userMetrics[0];
+    const userData = userMetrics?.[0] || {};
+    const { totalCustomers: [customerData = {}] = [], signUpUsers = [] } =
+      userData;
 
     const totalOrders = totalData.totalOrders || 0;
     const totalSales = totalData.totalSales || 0;
     const todayOrders = todayData.todayOrders || 0;
     const todaySalesResult = todayData.todaySales || 0;
     const periodOrders = periodData.periodOrders || 0;
-    const periodSalesResult = [{ _id: null, total: periodData.periodSales || 0 }];
+    const periodSalesResult = [
+      { _id: null, total: periodData.periodSales || 0 },
+    ];
     const previousPeriodOrders = previousPeriodData.previousOrders || 0;
-    const previousPeriodSalesResult = [{ _id: null, total: previousPeriodData.previousSales || 0 }];
+    const previousPeriodSalesResult = [
+      { _id: null, total: previousPeriodData.previousSales || 0 },
+    ];
     const totalCustomers = customerData.count || 0;
     const pendingOrders = pendingData.count || 0;
     const failedPayments = failedPaymentData;
@@ -335,6 +362,34 @@ export const getDashboard = async (req, res) => {
       );
     };
 
+    const safeGrowthTrends = Array.isArray(growthTrends) ? growthTrends : [];
+    const safeTopPerformingProducts = Array.isArray(topPerformingProducts)
+      ? topPerformingProducts
+      : [];
+    const safeBusinessAnalysisByPaymentMethod = Array.isArray(
+      businessAnalysisByPaymentMethod,
+    )
+      ? businessAnalysisByPaymentMethod
+      : [];
+    const safeBusinessAnalysisByStatus = Array.isArray(businessAnalysisByStatus)
+      ? businessAnalysisByStatus
+      : [];
+    const safeBusinessAnalysisConversionMetrics = Array.isArray(
+      businessAnalysisConversionMetrics,
+    )
+      ? businessAnalysisConversionMetrics
+      : [];
+
+    const businessAnalysis = {
+      byPaymentMethod: safeBusinessAnalysisByPaymentMethod,
+      byStatus: safeBusinessAnalysisByStatus,
+      conversionMetrics: safeBusinessAnalysisConversionMetrics[0] || {
+        totalOrders: 0,
+        averageOrderValue: 0,
+        totalRevenue: 0,
+      },
+    };
+
     successResponse(res, {
       // Basic Metrics
       totalOrders,
@@ -356,25 +411,25 @@ export const getDashboard = async (req, res) => {
       // Charts & Trends
       chartData,
       signupData,
-      growthTrends: growthTrends.reverse(),
+      growthTrends: [...safeGrowthTrends].reverse(),
       selectedView: view,
       selectedDate: selectedDate.toISOString().split("T")[0],
       selectedMonth: `${selectedMonth.getFullYear()}-${String(selectedMonth.getMonth() + 1).padStart(2, "0")}`,
 
       // Products & Inventory
       lowStockProducts,
-      topPerformingProducts: topPerformingProducts.map((product) => ({
+      topPerformingProducts: safeTopPerformingProducts.map((product) => ({
         _id: product._id,
         totalQuantitySold: product.totalQuantity,
         totalRevenue: product.totalRevenue,
-        productInfo: product.productInfo[0] || null,
+        productInfo: product.productInfo?.[0] || null,
       })),
 
       // Business Analysis
       businessAnalysis: {
         byPaymentMethod: businessAnalysis?.byPaymentMethod || [],
         byStatus: businessAnalysis?.byStatus || [],
-        conversionMetrics: businessAnalysis?.conversionMetrics[0] || {
+        conversionMetrics: businessAnalysis?.conversionMetrics?.[0] || {
           totalOrders: 0,
           averageOrderValue: 0,
           totalRevenue: 0,
@@ -382,6 +437,7 @@ export const getDashboard = async (req, res) => {
       },
     });
   } catch (err) {
+    console.error("Dashboard controller error:", err?.stack || err);
     errorResponse(res, err.message);
   }
 };
