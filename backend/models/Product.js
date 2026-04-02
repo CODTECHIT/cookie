@@ -66,6 +66,8 @@ productSchema.index({ totalSold: -1 });
 productSchema.index({ isActive: 1, createdAt: -1 });
 productSchema.index({ isFeatured: 1, createdAt: -1 });
 productSchema.index({ categoryId: 1, isActive: 1 });
+productSchema.index({ name: 'text', description: 'text', shortDescription: 'text' });
+productSchema.index({ "variants.price": 1, isActive: 1 });
 
 const Product = mongoose.model('Product', productSchema);
 export default Product;

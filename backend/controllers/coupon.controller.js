@@ -42,44 +42,58 @@ export const deleteCoupon = async (req, res) => {
   }
 };
 
+/**
+ * Internal logic for validating coupon
+ */
+export const validateCouponInternal = async (code, cartTotal, userId) => {
+  const coupon = await Coupon.findOne({ code: code.toUpperCase(), isActive: true });
+
+  if (!coupon) return { success: false, message: 'Invalid coupon code' };
+  if (new Date() > coupon.validUntil) return { success: false, message: 'Coupon has expired' };
+  if (new Date() < coupon.validFrom) return { success: false, message: 'Coupon not yet active' };
+  
+  if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit)
+    return { success: false, message: 'Coupon usage limit reached' };
+
+  if (userId && coupon.perUserLimit) {
+      const Order = (await import('../models/Order.js')).default;
+      const userUsageCount = await Order.countDocuments({ 
+          customerId: userId, 
+          couponId: coupon._id,
+          paymentStatus: { $ne: 'Failed' }
+      });
+      if (userUsageCount >= coupon.perUserLimit) {
+          return { success: false, message: `You've already used this coupon ${userUsageCount} times` };
+      }
+  }
+
+  if (cartTotal < coupon.minOrderAmount)
+    return { success: false, message: `Minimum order of ₹${coupon.minOrderAmount} required` };
+
+  let discountAmount =
+    coupon.discountType === 'percentage'
+      ? (cartTotal * coupon.discountValue) / 100
+      : coupon.discountValue;
+
+  if (coupon.maxDiscountAmount) discountAmount = Math.min(discountAmount, coupon.maxDiscountAmount);
+
+  return {
+    success: true,
+    data: { couponId: coupon._id, code: coupon.code, discountAmount, discountType: coupon.discountType }
+  };
+};
+
 // POST /api/coupons/validate  (customer applies coupon at checkout)
 export const validateCoupon = async (req, res) => {
   try {
     const { code, cartTotal, userId } = req.body;
-    const coupon = await Coupon.findOne({ code: code.toUpperCase(), isActive: true });
-
-    if (!coupon) return errorResponse(res, 'Invalid coupon code', 400);
-    if (new Date() > coupon.validUntil) return errorResponse(res, 'Coupon has expired', 400);
-    if (new Date() < coupon.validFrom) return errorResponse(res, 'Coupon not yet active', 400);
+    const result = await validateCouponInternal(code, cartTotal, userId);
     
-    // Usage Limit (Total)
-    if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit)
-      return errorResponse(res, 'Coupon usage limit reached', 400);
-
-    // Per User Limit
-    if (userId && coupon.perUserLimit) {
-        const Order = (await import('../models/Order.js')).default;
-        const userUsageCount = await Order.countDocuments({ 
-            customerId: userId, 
-            couponId: coupon._id,
-            paymentStatus: { $ne: 'Failed' }
-        });
-        if (userUsageCount >= coupon.perUserLimit) {
-            return errorResponse(res, `You've already used this coupon ${userUsageCount} times`, 400);
-        }
+    if (result.success) {
+      successResponse(res, result.data, 'Coupon applied');
+    } else {
+      errorResponse(res, result.message, 400);
     }
-
-    if (cartTotal < coupon.minOrderAmount)
-      return errorResponse(res, `Minimum order of ₹${coupon.minOrderAmount} required`, 400);
-
-    let discountAmount =
-      coupon.discountType === 'percentage'
-        ? (cartTotal * coupon.discountValue) / 100
-        : coupon.discountValue;
-
-    if (coupon.maxDiscountAmount) discountAmount = Math.min(discountAmount, coupon.maxDiscountAmount);
-
-    successResponse(res, { couponId: coupon._id, code: coupon.code, discountAmount, discountType: coupon.discountType }, 'Coupon applied');
   } catch (err) {
     errorResponse(res, err.message);
   }

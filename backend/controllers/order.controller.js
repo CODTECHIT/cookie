@@ -65,23 +65,75 @@ export const createOrder = async (req, res) => {
   try {
     const {
       items,
-      subTotal,
-      deliveryCharge,
-      discount,
       couponCode,
-      couponId,
-      grandTotal,
       paymentMethod,
       customerSnapshot,
+      deliveryCharge: clientDeliveryCharge,
     } = req.body;
     const customerId = req.user._id;
+
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return errorResponse(res, "Cart is empty", 400);
+    }
+
+    // ⚡ SECURITY FIX: Recalculate everything on backend
+    const Product = (await import("../models/Product.js")).default;
+    let subTotal = 0;
+    const validatedItems = [];
+
+    for (const item of items) {
+      const product = await Product.findById(item.productId);
+      if (!product || !product.isActive) {
+        return errorResponse(res, `Product ${item.productName} is unavailable`, 400);
+      }
+
+      const variant = product.variants.find(v => v.weight === item.variant?.weight);
+      if (!variant) {
+        return errorResponse(res, `Invalid variant for ${product.name}`, 400);
+      }
+
+      const itemTotal = variant.price * item.quantity;
+      subTotal += itemTotal;
+
+      validatedItems.push({
+        productId: product._id,
+        productName: product.name,
+        image: product.images?.[0]?.url || item.image,
+        variant: { weight: variant.weight, sku: variant.sku },
+        quantity: item.quantity,
+        unitPrice: variant.price,
+        totalPrice: itemTotal,
+      });
+    }
+
+    // Validate Coupon if provided
+    let discount = 0;
+    let couponId = null;
+    if (couponCode) {
+      const { validateCouponInternal } = await import("./coupon.controller.js");
+      const couponRes = await validateCouponInternal(couponCode, subTotal, customerId);
+      if (couponRes.success) {
+        discount = couponRes.data.discountAmount;
+        couponId = couponRes.data.couponId;
+      } else {
+        return errorResponse(res, couponRes.message, 400);
+      }
+    }
+
+    // Recalculate shipping based on site settings
+    const SiteSetting = (await import("../models/SiteSetting.js")).default;
+    const settings = await SiteSetting.findOne();
+    const threshold = settings?.shippingBanner?.threshold || 999;
+    const deliveryCharge = subTotal >= threshold ? 0 : (clientDeliveryCharge || 0);
+
+    const grandTotal = Math.max(0, subTotal + deliveryCharge - discount);
 
     const orderNumber = await generateOrderNumber();
 
     const order = await Order.create({
       orderNumber,
       customerId,
-      items,
+      items: validatedItems,
       subTotal,
       deliveryCharge,
       discount,
@@ -93,11 +145,9 @@ export const createOrder = async (req, res) => {
       statusHistory: [{ status: "Pending", note: "Order placed" }],
     });
 
-    // Keep side-effects (customer metrics / coupon usage) in payment fulfillment only.
-    // This avoids counting failed payment attempts as completed purchases.
-
     successResponse(res, order, "Order created", 201);
   } catch (err) {
+    console.error("❌ Order Creation Error:", err);
     errorResponse(res, err.message);
   }
 };

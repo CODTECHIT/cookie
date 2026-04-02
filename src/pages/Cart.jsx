@@ -55,7 +55,6 @@ const Cart = () => {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState("");
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("ALL");
 
   const applyCoupon = async () => {
     if (!couponCode) return;
@@ -126,7 +125,7 @@ const Cart = () => {
         discount: currentDiscount,
         couponCode: appliedCoupon?.code,
         couponId: appliedCoupon?.couponId,
-        paymentMethod: selectedPaymentMethod === "ALL" ? "CARD" : selectedPaymentMethod,
+        paymentMethod: "ONLINE",
         customerSnapshot: {
           name: shippingAddress.name,
           phone: shippingAddress.phone,
@@ -202,7 +201,7 @@ const Cart = () => {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
-              method: response?.method || selectedPaymentMethod || "CARD",
+              method: response?.method || "ONLINE",
             };
 
             console.log("⏳ Calling backend verify with:", verifyData);
@@ -234,10 +233,6 @@ const Cart = () => {
             // Note: Razorpay SDK might log 400 errors from their API which can be ignored
             // if the payment actually went through. We rely on the webhook fallback.
             console.error("❌ Verification Error:", err);
-            const errorMsg =
-              err.response?.data?.message ||
-              err.message ||
-              "Verification error";
 
             // Don't fail completely - the webhook might still process it
             if (err.response?.status === 401) {

@@ -8,13 +8,14 @@ import SEO from "../components/SEO";
 import { getSafeImageUrl } from "../utils/imageUrl";
 
 const Home = () => {
-  const { categories, settings } = useSite();
+  const { categories, settings, loading: siteLoading } = useSite();
   const { addToCart } = useCart();
   const navigate = useNavigate();
   const [bestSellers, setBestSellers] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [banners, setBanners] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [contentLoading, setContentLoading] = useState(true);
 
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
@@ -50,15 +51,20 @@ const Home = () => {
     },
   ];
 
-  const activeSlides = heroBanners.length > 0 ? heroBanners : defaultSlides;
+  const isLoading = siteLoading || contentLoading;
+  const activeSlides = !isLoading
+    ? heroBanners.length > 0
+      ? heroBanners
+      : defaultSlides
+    : [];
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         // ⚡ OPTIMIZED: Fetch only featured products (moved filtering to backend)
         const [bestSellersRes, featuredRes, bannerRes] = await Promise.all([
-          // Fetch best sellers with limit (12 products only)
-          axios.get(`${API_URL}/products?featured=true&limit=12`),
+          // Fetch latest products for the best sellers strip
+          axios.get(`${API_URL}/products?limit=12`),
           // Fetch featured products (10 max)
           axios.get(`${API_URL}/products?featured=true&limit=10`),
           // Fetch banners
@@ -79,6 +85,20 @@ const Home = () => {
           setFeaturedProducts(Array.isArray(products) ? products : []);
         }
 
+        const featuredFallback =
+          featuredRes.data?.data?.products || featuredRes.data?.products || [];
+        if (
+          Array.isArray(featuredFallback) &&
+          featuredFallback.length === 0 &&
+          bestSellersRes.data.success
+        ) {
+          const fallbackProducts =
+            bestSellersRes.data.data?.products ||
+            bestSellersRes.data.products ||
+            [];
+          setFeaturedProducts(Array.isArray(fallbackProducts) ? fallbackProducts.slice(0, 8) : []);
+        }
+
         if (bannerRes.data.success) {
           const activeBanners = bannerRes.data.data
             .filter((b) => b.isActive)
@@ -87,18 +107,20 @@ const Home = () => {
         }
       } catch (err) {
         console.error("Error fetching data:", err);
+      } finally {
+        setContentLoading(false);
       }
     };
     fetchData();
   }, [API_URL]);
 
   useEffect(() => {
-    if (activeSlides.length === 0) return;
+    if (isLoading || activeSlides.length === 0) return;
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % activeSlides.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, [activeSlides.length]);
+  }, [activeSlides.length, isLoading]);
 
   const prevSlide = () =>
     setCurrentSlide(
@@ -119,6 +141,10 @@ const Home = () => {
         description="Discover the authentic taste of Daksha Food Artisan. Handcrafted cashew cookies, nutrient-rich millets, and traditional snacks."
       />
 
+      {isLoading ? (
+        <HomeLoadingState />
+      ) : (
+        <>
       <section className="lg:hidden pt-6 pb-10 space-y-8">
         <div className="grid grid-cols-4 gap-x-2 gap-y-4 px-4 pb-2 pt-2 sm:flex sm:gap-5 sm:overflow-x-auto sm:hide-scrollbar sm:pb-4">
           {categories.map((cat) => (
@@ -138,6 +164,7 @@ const Home = () => {
                 className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === currentSlide ? "opacity-60" : "opacity-0"}`}
                 src={slide.imageUrl || slide.src || "/placeholder-banner.png"}
                 onError={(e) => (e.target.src = "/placeholder-banner.png")}
+                decoding="async"
                 alt=""
               />
             ))}
@@ -464,6 +491,8 @@ const Home = () => {
           </div>
         </section>
       </main>
+        </>
+      )}
     </div>
   );
 };
@@ -476,6 +505,8 @@ const MobileCategory = ({ label, src, to }) => (
         src={src || "/placeholder-category.png"}
         onError={(e) => (e.target.src = "/placeholder-category.png")}
         className="w-full h-full object-cover rounded-full"
+        loading="lazy"
+        decoding="async"
         alt={label}
       />
     </div>
@@ -514,6 +545,8 @@ const MobileProductCard = ({ p, onAdd, onBuy }) => (
         src={getSafeImageUrl(p.images?.[0]?.url)}
         onError={(e) => (e.target.src = "/placeholder-product.png")}
         className="w-full h-full object-cover"
+        loading="lazy"
+        decoding="async"
         alt={p.name}
       />
     </Link>
@@ -550,6 +583,8 @@ const DesktopProductCard = ({ p, onAdd, onBuy }) => (
           src={getSafeImageUrl(p.images?.[0]?.url)}
           onError={(e) => (e.target.src = "/placeholder-product.png")}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2000ms]"
+          loading="lazy"
+          decoding="async"
           alt={p.name}
         />
       </Link>
@@ -665,5 +700,55 @@ const MarqueeCarousel = ({
     </div>
   );
 };
+
+const HomeLoadingState = () => (
+  <div className="pt-6 lg:pt-10 space-y-8 animate-pulse">
+    <div className="lg:hidden px-4 space-y-6">
+      <div className="flex gap-3 overflow-hidden">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="flex flex-col items-center gap-2 shrink-0 w-[72px]">
+            <div className="w-14 h-14 rounded-full bg-stone-200" />
+            <div className="h-2 w-12 rounded-full bg-stone-200" />
+          </div>
+        ))}
+      </div>
+      <div className="px-4">
+        <div className="aspect-[16/9] w-full bg-stone-200 rounded-3xl" />
+      </div>
+      <div className="px-4 bg-white py-4 rounded-3xl mx-4 shadow-sm">
+        <div className="h-2 w-24 bg-stone-200 rounded-full mx-auto mb-4" />
+        <div className="h-5 w-40 bg-stone-200 rounded-full mx-auto" />
+        <div className="mt-4 flex gap-4 overflow-hidden">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="min-w-[120px] h-32 rounded-2xl bg-stone-100" />
+          ))}
+        </div>
+      </div>
+      <div className="px-4 grid grid-cols-2 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="h-56 rounded-2xl bg-stone-200" />
+        ))}
+      </div>
+    </div>
+
+    <div className="hidden lg:block px-10 space-y-8">
+      <div className="h-[65vh] xl:h-[75vh] rounded-[2rem] bg-stone-200" />
+      <div className="flex justify-center gap-8">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="flex flex-col items-center gap-3 w-24">
+            <div className="w-20 h-20 rounded-full bg-stone-200" />
+            <div className="h-2 w-16 rounded-full bg-stone-200" />
+          </div>
+        ))}
+      </div>
+      <div className="h-12 w-56 bg-stone-200 rounded-full mx-auto" />
+      <div className="grid grid-cols-5 gap-6">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="h-80 rounded-3xl bg-stone-200" />
+        ))}
+      </div>
+    </div>
+  </div>
+);
 
 export default Home;

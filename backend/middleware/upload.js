@@ -37,7 +37,18 @@ const logoStorage = new CloudinaryStorage({
   },
 });
 
-export const uploadProductImages = multer({ storage: productStorage });
-export const uploadBannerImage = multer({ storage: bannerStorage });
-export const uploadLogo = multer({ storage: logoStorage });
+export const uploadProductImages = multer({ 
+  storage: productStorage,
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB
+});
+
+export const uploadBannerImage = multer({ 
+  storage: bannerStorage,
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB
+});
+
+export const uploadLogo = multer({ 
+  storage: logoStorage,
+  limits: { fileSize: 1 * 1024 * 1024 } // 1MB
+});
 export { cloudinary };

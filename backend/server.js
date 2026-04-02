@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 
 import connectDB from "./config/db.js";
 
@@ -30,79 +31,102 @@ await seedCategories();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ─── Global Middleware ────────────────────────────────────────────────────────
+// ─── Security Global Middleware ───────────────────────────────────────────────
+
+// 1. Helmet for secure headers
 app.use(
   helmet({
-    contentSecurityPolicy: false, // For easier local development with external scripts
-    crossOriginEmbedderPolicy: false,
-    crossOriginResourcePolicy: false,
-    referrerPolicy: { policy: "no-referrer-when-downgrade" },
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://checkout.razorpay.com"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        imgSrc: ["'self'", "data:", "https://res.cloudinary.com"],
+        connectSrc: ["'self'", "https://api.razorpay.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        frameSrc: ["'self'", "https://api.razorpay.com", "https://checkout.razorpay.com"],
+      },
+    },
+    crossOriginEmbedderPolicy: false, // Required for cross-origin images (Cloudinary)
+    crossOriginResourcePolicy: { policy: "cross-origin" },
   }),
 );
 
-// ✅ CORS MUST come BEFORE setting custom headers
+// 2. Global Rate Limiting
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 1000, // Limit each IP to 1000 requests per windowMs
+  message: "Too many requests from this IP, please try again after 15 minutes",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use("/api", globalLimiter);
+
+// 3. Auth Specific Rate Limiting (Prevent Brute Force)
+const authLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 20, // Limit login/register to 20 attempts per hour
+  message: "Too many authentication attempts, please try again after an hour",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use("/api/auth/login", authLimiter);
+app.use("/api/auth/customer-login", authLimiter);
+app.use("/api/auth/register", authLimiter);
+
+// 4. Stricter CORS
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "https://daksha-food.vercel.app", // Example production URL
+].filter(Boolean);
+
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or curl) or allow everything during development
-      if (!origin || process.env.NODE_ENV === "development") {
+      // Allow requests with no origin (like mobile apps or curl) or allow matching origins
+      if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === "development") {
         callback(null, true);
       } else {
-        const allowedOrigins = [
-          process.env.CLIENT_URL,
-          "http://localhost:5173",
-          "http://localhost:5174",
-        ];
-        if (allowedOrigins.indexOf(origin) !== -1) {
-          callback(null, true);
-        } else {
-          callback(null, true); // Still allowing for dynamic tunnels
-        }
+        callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,
-    // ✅ CRITICAL: Expose custom headers - including Razorpay headers
-    exposedHeaders: [
-      "request-id",
-      "x-rtb-fingerprint-id",
-      "content-type",
-      "access-control-allow-origin",
-      "access-control-allow-credentials",
-    ],
+    exposedHeaders: ["request-id"],
   }),
 );
 
-// ✅ Set custom headers AFTER CORS middleware
+// ─── Utils & Logging ─────────────────────────────────────────────────────────
 app.use((req, res, next) => {
-  // Generate and set request ID
   const requestId = `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   res.setHeader("request-id", requestId);
+  req.id = requestId;
 
-  // Set Permissions-Policy (restrict unnecessary sensors, allow payment)
   res.setHeader(
     "Permissions-Policy",
     "accelerometer=*, camera=(), geolocation=(), gyroscope=*, magnetometer=(), microphone=(), payment=*, usb=()",
   );
 
-  // Log for debugging
-  req.id = requestId;
-  console.log(`[${requestId}] ${req.method} ${req.path}`);
+  if (process.env.NODE_ENV === "development") {
+    console.log(`[${requestId}] ${req.method} ${req.path}`);
+  }
   next();
 });
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "10kb" })); // Limit JSON payload size
+app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 if (process.env.NODE_ENV !== "production") app.use(morgan("dev"));
 
-// ⚡ Caching middleware for public endpoints
+// ─── Caching Strategy ────────────────────────────────────────────────────────
 app.use((req, res, next) => {
   // Cache public product endpoints for 5 minutes
   if (req.method === 'GET' && /^\/api\/(products|categories)/.test(req.path)) {
-    res.set('Cache-Control', 'public, max-age=300'); // 5 minutes
+    res.set('Cache-Control', 'public, max-age=300'); 
   }
   // Cache static content for 1 hour
   else if (req.method === 'GET' && /^\/api\/(content|banners)/.test(req.path)) {
-    res.set('Cache-Control', 'public, max-age=3600'); // 1 hour
+    res.set('Cache-Control', 'public, max-age=3600');
   }
   // No cache for user-specific or admin endpoints
   else if (/^\/api\/(admin|customers|orders|auth)/.test(req.path)) {
@@ -143,10 +167,22 @@ app.use((req, res) => {
 
 // ─── Global Error Handler ─────────────────────────────────────────────────────
 app.use((err, req, res, next) => {
-  console.error("❌ Error:", err.stack);
+  if (process.env.NODE_ENV === "development") {
+    console.error("❌ Error Detail:", err.stack);
+  } else {
+    console.error("❌ Error:", err.message);
+  }
+
+  // Handle CORS errors specifically
+  if (err.message === "Not allowed by CORS") {
+    return res.status(403).json({ success: false, message: "CORS error: Origin not allowed" });
+  }
+
   res.status(err.statusCode || 500).json({
     success: false,
-    message: err.message || "Internal Server Error",
+    message: process.env.NODE_ENV === "production" 
+      ? "Internal Server Error" 
+      : err.message || "Internal Server Error",
   });
 });
 

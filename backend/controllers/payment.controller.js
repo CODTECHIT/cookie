@@ -143,7 +143,7 @@ export const exportPaymentsCSV = async (req, res) => {
     const escape = (value) => {
       const str = String(value ?? "");
       if (str.includes(",") || str.includes('"') || str.includes("\n")) {
-        return `\"${str.replace(/\"/g, '\"\"')}\"`;
+        return `"${str.replace(/"/g, '""')}"`;
       }
       return str;
     };
@@ -237,7 +237,7 @@ export const verifyPayment = async (req, res) => {
 
     // Fulfill the order
     const { order, payment, alreadyPaid } = await fulfillOrder(orderId, {
-      method: method || "CARD",
+      method: method?.toUpperCase() || "ONLINE",
       gatewayOrderId: razorpay_order_id,
       gatewayPaymentId: razorpay_payment_id,
       gatewaySignature: razorpay_signature,

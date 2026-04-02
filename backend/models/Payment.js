@@ -17,7 +17,7 @@ const paymentSchema = new mongoose.Schema(
     currency: { type: String, default: "INR" },
     method: {
       type: String,
-      enum: ["UPI", "CARD", "NETBANKING"],
+      enum: ["UPI", "CARD", "NETBANKING", "WALLET", "EMI", "PAYLATER", "ONLINE"],
       required: true,
     },
 

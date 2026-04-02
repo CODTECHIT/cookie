@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -18,25 +18,36 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import MyOrders from "./pages/MyOrders";
 import BottomNav from "./components/BottomNav";
 
-// Admin Imports
+// Contexts
 import { SiteProvider } from "./context/SiteContext";
 import { CartProvider } from "./context/CartContext";
 import { UserProvider } from "./context/UserContext";
 import { AdminProvider, useAdmin } from "./admin/context/AdminContext";
+
+// Customer Auth
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import AdminLayout from "./admin/components/AdminLayout";
-import AdminLogin from "./admin/pages/Login";
-import AdminDashboard from "./admin/pages/Dashboard";
-import ProductsManagement from "./admin/pages/Products";
-import OrdersManagement from "./admin/pages/Orders";
-import CustomersManagement from "./admin/pages/Customers";
-import PaymentsManagement from "./admin/pages/Payments";
-import ReportsManagement from "./admin/pages/Reports";
-import CouponsManagement from "./admin/pages/Coupons";
-import CategoriesManagement from "./admin/pages/Categories";
-import ContentCMS from "./admin/pages/ContentCMS";
-import ReviewsManagement from "./admin/pages/Reviews";
+
+// --- Lazy loaded Admin Components ---
+const AdminLayout = lazy(() => import("./admin/components/AdminLayout"));
+const AdminLogin = lazy(() => import("./admin/pages/Login"));
+const AdminDashboard = lazy(() => import("./admin/pages/Dashboard"));
+const ProductsManagement = lazy(() => import("./admin/pages/Products"));
+const OrdersManagement = lazy(() => import("./admin/pages/Orders"));
+const CustomersManagement = lazy(() => import("./admin/pages/Customers"));
+const PaymentsManagement = lazy(() => import("./admin/pages/Payments"));
+const ReportsManagement = lazy(() => import("./admin/pages/Reports"));
+const CouponsManagement = lazy(() => import("./admin/pages/Coupons"));
+const CategoriesManagement = lazy(() => import("./admin/pages/Categories"));
+const ContentCMS = lazy(() => import("./admin/pages/ContentCMS"));
+const ReviewsManagement = lazy(() => import("./admin/pages/Reviews"));
+
+// Loading Component for Suspense
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-background uppercase tracking-[0.5em] font-black text-gray-400 animate-pulse">
+    Loading Module...
+  </div>
+);
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -69,137 +80,142 @@ function App() {
           <UserProvider>
             <AdminProvider>
               <Router>
-                <Routes>
-                  {/* CUSTOMER ROUTES */}
-                  <Route
-                    path="/"
-                    element={
-                      <CustomerLayout>
-                        <Home />
-                      </CustomerLayout>
-                    }
-                  />
-                  <Route
-                    path="/login"
-                    element={
-                      <CustomerLayout>
-                        <Login />
-                      </CustomerLayout>
-                    }
-                  />
-                  <Route
-                    path="/register"
-                    element={
-                      <CustomerLayout>
-                        <Register />
-                      </CustomerLayout>
-                    }
-                  />
-                  <Route
-                    path="/products"
-                    element={
-                      <CustomerLayout>
-                        <Products />
-                      </CustomerLayout>
-                    }
-                  />
-                  <Route
-                    path="/category/:categorySlug"
-                    element={
-                      <CustomerLayout>
-                        <Products />
-                      </CustomerLayout>
-                    }
-                  />
-                  <Route
-                    path="/millets"
-                    element={
-                      <CustomerLayout>
-                        <Products />
-                      </CustomerLayout>
-                    }
-                  />
-                  <Route
-                    path="/product/:id"
-                    element={
-                      <CustomerLayout>
-                        <ProductDetail />
-                      </CustomerLayout>
-                    }
-                  />
-                  <Route
-                    path="/cart"
-                    element={
-                      <CustomerLayout>
-                        <Cart />
-                      </CustomerLayout>
-                    }
-                  />
-                  <Route
-                    path="/about"
-                    element={
-                      <CustomerLayout>
-                        <About />
-                      </CustomerLayout>
-                    }
-                  />
-                  <Route
-                    path="/services"
-                    element={
-                      <CustomerLayout>
-                        <Services />
-                      </CustomerLayout>
-                    }
-                  />
-                  <Route
-                    path="/privacy-policy"
-                    element={
-                      <CustomerLayout>
-                        <PrivacyPolicy />
-                      </CustomerLayout>
-                    }
-                  />
-                  <Route
-                    path="/my-orders"
-                    element={
-                      <CustomerLayout>
-                        <MyOrders />
-                      </CustomerLayout>
-                    }
-                  />
-
-                  {/* ADMIN ROUTES */}
-                  <Route path="/admin/login" element={<AdminLogin />} />
-                  <Route
-                    path="/admin"
-                    element={
-                      <ProtectedRoute>
-                        <AdminLayout />
-                      </ProtectedRoute>
-                    }
-                  >
+                <Suspense fallback={<PageLoader />}>
+                  <Routes>
+                    {/* CUSTOMER ROUTES */}
                     <Route
-                      index
-                      element={<Navigate to="/admin/dashboard" replace />}
+                      path="/"
+                      element={
+                        <CustomerLayout>
+                          <Home />
+                        </CustomerLayout>
+                      }
                     />
-                    <Route path="dashboard" element={<AdminDashboard />} />
-                    <Route path="products" element={<ProductsManagement />} />
-                    <Route path="orders" element={<OrdersManagement />} />
-                    <Route path="customers" element={<CustomersManagement />} />
-                    <Route path="payments" element={<PaymentsManagement />} />
-                    <Route path="reports" element={<ReportsManagement />} />
-                    <Route path="coupons" element={<CouponsManagement />} />
                     <Route
-                      path="categories"
-                      element={<CategoriesManagement />}
+                      path="/login"
+                      element={
+                        <CustomerLayout>
+                          <Login />
+                        </CustomerLayout>
+                      }
                     />
-                    <Route path="reviews" element={<ReviewsManagement />} />
-                    <Route path="content" element={<ContentCMS />} />
-                  </Route>
+                    <Route
+                      path="/register"
+                      element={
+                        <CustomerLayout>
+                          <Register />
+                        </CustomerLayout>
+                      }
+                    />
+                    <Route
+                      path="/products"
+                      element={
+                        <CustomerLayout>
+                          <Products />
+                        </CustomerLayout>
+                      }
+                    />
+                    <Route
+                      path="/category/:categorySlug"
+                      element={
+                        <CustomerLayout>
+                          <Products />
+                        </CustomerLayout>
+                      }
+                    />
+                    <Route
+                      path="/millets"
+                      element={
+                        <CustomerLayout>
+                          <Products />
+                        </CustomerLayout>
+                      }
+                    />
+                    <Route
+                      path="/product/:id"
+                      element={
+                        <CustomerLayout>
+                          <ProductDetail />
+                        </CustomerLayout>
+                      }
+                    />
+                    <Route
+                      path="/cart"
+                      element={
+                        <CustomerLayout>
+                          <Cart />
+                        </CustomerLayout>
+                      }
+                    />
+                    <Route
+                      path="/about"
+                      element={
+                        <CustomerLayout>
+                          <About />
+                        </CustomerLayout>
+                      }
+                    />
+                    <Route
+                      path="/services"
+                      element={
+                        <CustomerLayout>
+                          <Services />
+                        </CustomerLayout>
+                      }
+                    />
+                    <Route
+                      path="/privacy-policy"
+                      element={
+                        <CustomerLayout>
+                          <PrivacyPolicy />
+                        </CustomerLayout>
+                      }
+                    />
+                    <Route
+                      path="/my-orders"
+                      element={
+                        <CustomerLayout>
+                          <MyOrders />
+                        </CustomerLayout>
+                      }
+                    />
 
-                  {/* Fallback */}
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
+                    {/* ADMIN ROUTES */}
+                    <Route path="/admin/login" element={<AdminLogin />} />
+                    <Route
+                      path="/admin"
+                      element={
+                        <ProtectedRoute>
+                          <AdminLayout />
+                        </ProtectedRoute>
+                      }
+                    >
+                      <Route
+                        index
+                        element={<Navigate to="/admin/dashboard" replace />}
+                      />
+                      <Route path="dashboard" element={<AdminDashboard />} />
+                      <Route path="products" element={<ProductsManagement />} />
+                      <Route path="orders" element={<OrdersManagement />} />
+                      <Route
+                        path="customers"
+                        element={<CustomersManagement />}
+                      />
+                      <Route path="payments" element={<PaymentsManagement />} />
+                      <Route path="reports" element={<ReportsManagement />} />
+                      <Route path="coupons" element={<CouponsManagement />} />
+                      <Route
+                        path="categories"
+                        element={<CategoriesManagement />}
+                      />
+                      <Route path="reviews" element={<ReviewsManagement />} />
+                      <Route path="content" element={<ContentCMS />} />
+                    </Route>
+
+                    {/* Fallback */}
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                  </Routes>
+                </Suspense>
               </Router>
             </AdminProvider>
           </UserProvider>

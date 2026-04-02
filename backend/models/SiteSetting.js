@@ -40,6 +40,7 @@ const siteSettingSchema = new mongoose.Schema(
     },
 
     lowStockThreshold: { type: Number, default: 10 },
+    orderSequence: { type: Number, default: 0 },
 
     aboutUs: String,
     returnPolicy: String,
