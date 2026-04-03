@@ -16,9 +16,9 @@ export const SiteProvider = ({ children }) => {
   const fetchSiteData = useCallback(async () => {
     try {
       const [settingsRes, catRes, couponRes] = await Promise.all([
-        axios.get(`${API_URL}/content/settings`),
-        axios.get(`${API_URL}/categories`),
-        axios.get(`${API_URL}/coupons`)
+        axios.get(`${API_URL}/content/settings?t=${Date.now()}`),
+        axios.get(`${API_URL}/categories?t=${Date.now()}`),
+        axios.get(`${API_URL}/coupons?t=${Date.now()}`)
       ]);
 
       if (settingsRes.data.success) setSettings(settingsRes.data.data);
