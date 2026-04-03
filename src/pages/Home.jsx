@@ -8,20 +8,20 @@ import SEO from "../components/SEO";
 import { getSafeImageUrl } from "../utils/imageUrl";
 
 const Home = () => {
-  const { categories, settings, loading: siteLoading } = useSite();
+  const { categories, settings, banners: siteBanners, loading: siteLoading } = useSite();
   const { addToCart } = useCart();
   const navigate = useNavigate();
   const [bestSellers, setBestSellers] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
-  const [banners, setBanners] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [contentLoading, setContentLoading] = useState(true);
 
   const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:5000/api');
 
-  const heroBanners = banners.filter((b) => b.position === "hero");
-  const middleBanners = banners.filter((b) => b.position === "middle");
-  const bottomBanners = banners.filter((b) => b.position === "bottom");
+  // Use banners from context if available
+  const heroBanners = (siteBanners || []).filter((b) => b.position === "hero");
+  const middleBanners = (siteBanners || []).filter((b) => b.position === "middle");
+  const bottomBanners = (siteBanners || []).filter((b) => b.position === "bottom");
 
   const defaultSlides = [
     {
@@ -61,52 +61,30 @@ const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // ⚡ OPTIMIZED: Fetch only featured products (moved filtering to backend)
-        const [bestSellersRes, featuredRes, bannerRes] = await Promise.all([
-          // Fetch latest products for the best sellers strip
-          axios.get(`${API_URL}/products?limit=12`),
-          // Fetch featured products (10 max)
-          axios.get(`${API_URL}/products?featured=true&limit=10`),
-          // Fetch banners
-          axios.get(`${API_URL}/content/banners`),
+        // ⚡ OPTIMIZED: Fetch products only. Banners/Categories are now from SiteContext.
+        const [bestSellersRes, featuredRes] = await Promise.all([
+          axios.get(`${API_URL}/products?limit=12&t=${Date.now()}`),
+          axios.get(`${API_URL}/products?featured=true&limit=10&t=${Date.now()}`)
         ]);
 
         if (bestSellersRes.data.success) {
-          const products =
-            bestSellersRes.data.data?.products ||
-            bestSellersRes.data.products ||
-            [];
+          const products = bestSellersRes.data.data?.products || bestSellersRes.data.products || [];
           setBestSellers(Array.isArray(products) ? products : []);
         }
 
         if (featuredRes.data.success) {
-          const products =
-            featuredRes.data.data?.products || featuredRes.data.products || [];
+          const products = featuredRes.data.data?.products || featuredRes.data.products || [];
           setFeaturedProducts(Array.isArray(products) ? products : []);
         }
 
-        const featuredFallback =
-          featuredRes.data?.data?.products || featuredRes.data?.products || [];
-        if (
-          Array.isArray(featuredFallback) &&
-          featuredFallback.length === 0 &&
-          bestSellersRes.data.success
-        ) {
-          const fallbackProducts =
-            bestSellersRes.data.data?.products ||
-            bestSellersRes.data.products ||
-            [];
-          setFeaturedProducts(Array.isArray(fallbackProducts) ? fallbackProducts.slice(0, 8) : []);
+        // Fallback for featured products
+        if (featuredRes.data.success && (!featuredRes.data.data?.products || (Array.isArray(featuredRes.data.data.products) && featuredRes.data.data.products.length === 0))) {
+           const fallbackProducts = bestSellersRes.data.data?.products || bestSellersRes.data.products || [];
+           setFeaturedProducts(Array.isArray(fallbackProducts) ? fallbackProducts.slice(0, 8) : []);
         }
 
-        if (bannerRes.data.success) {
-          const activeBanners = bannerRes.data.data
-            .filter((b) => b.isActive)
-            .sort((a, b) => a.sortOrder - b.sortOrder);
-          setBanners(activeBanners);
-        }
       } catch (err) {
-        console.error("Error fetching data:", err);
+        console.error("Error fetching home products:", err);
       } finally {
         setContentLoading(false);
       }

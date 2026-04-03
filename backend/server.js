@@ -20,6 +20,7 @@ import reviewRoutes from "./routes/review.routes.js";
 import shippingRoutes from "./routes/shipping.routes.js";
 import contentRoutes from "./routes/content.routes.js";
 import reportRoutes from "./routes/report.routes.js";
+import siteRoutes from "./routes/site.routes.js";
 import seedAdmin from "./utils/seedAdmin.js";
 import seedCategories from "./utils/seedCategories.js";
 
@@ -107,6 +108,12 @@ app.use((req, res, next) => {
   req.id = requestId;
 
   // ⚡ 2024 Cache-Prevention Fix: Force fresh content for all /api requests
+  // but allow site bootstrap to be cached for 60s for performance
+  if (req.originalUrl.startsWith("/api/site/bootstrap")) {
+    res.setHeader("Cache-Control", "public, s-maxage=60, stale-while-revalidate=120");
+    return next();
+  }
+
   if (req.originalUrl.startsWith("/api")) {
     res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
     res.setHeader("Pragma", "no-cache");
@@ -168,6 +175,7 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/shipping", shippingRoutes);
 app.use("/api/content", contentRoutes);
 app.use("/api/reports", reportRoutes);
+app.use("/api/site", siteRoutes);
 
 // ─── Health Check ─────────────────────────────────────────────────────────────
 app.get("/api/health", (req, res) => {

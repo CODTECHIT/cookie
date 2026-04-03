@@ -9,27 +9,31 @@ export const SiteProvider = ({ children }) => {
   const [settings, setSettings] = useState(null);
   const [categories, setCategories] = useState([]);
   const [coupons, setCoupons] = useState([]);
+  const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:5000/api');
 
   const fetchSiteData = useCallback(async () => {
     try {
-      const [settingsRes, catRes, couponRes] = await Promise.all([
-        axios.get(`${API_URL}/content/settings?t=${Date.now()}`),
-        axios.get(`${API_URL}/categories?t=${Date.now()}`),
-        axios.get(`${API_URL}/coupons?t=${Date.now()}`)
-      ]);
-
-      if (settingsRes.data.success) setSettings(settingsRes.data.data);
-      if (catRes.data.success) setCategories(catRes.data.data.filter(c => c.isActive));
-      if (couponRes.data.success) {
-          const activeCoupons = couponRes.data.data.filter(c => 
+      // ⚡ Optimized: All site data pulled in ONE single round-trip
+      const { data } = await axios.get(`${API_URL}/site/bootstrap?t=${Date.now()}`);
+      
+      if (data.success) {
+        const { settings, categories, coupons, banners } = data.data;
+        setSettings(settings);
+        setCategories(categories || []);
+        setBanners(banners || []);
+        
+        // Filter coupons for active/valid ones
+        if (coupons) {
+          const activeCoupons = coupons.filter(c => 
             c.isActive && 
             new Date() <= new Date(c.validUntil) && 
             new Date() >= new Date(c.validFrom)
           );
           setCoupons(activeCoupons);
+        }
       }
     } catch (err) {
       console.error('Error fetching site data:', err);
@@ -43,7 +47,7 @@ export const SiteProvider = ({ children }) => {
   }, [fetchSiteData]);
 
   return (
-    <SiteContext.Provider value={{ settings, categories, coupons, loading, API_URL, refreshSiteData: fetchSiteData }}>
+    <SiteContext.Provider value={{ settings, categories, coupons, banners, loading, API_URL, refreshSiteData: fetchSiteData }}>
       {children}
     </SiteContext.Provider>
   );
