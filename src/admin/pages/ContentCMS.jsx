@@ -12,7 +12,7 @@ const ContentCMS = () => {
   const { API_URL, token } = useAdmin();
   const { refreshSiteData } = useSite();
   const [banners, setBanners] = useState([]);
-  const [settings, setSettings] = useState(null);
+  const [, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('banners');
   
@@ -35,7 +35,7 @@ const ContentCMS = () => {
     seoTitle: '', seoDescription: '',
     shippingTitle: '', shippingSubtitle: '', shippingThreshold: 999, shippingEnabled: true
   });
-  const [logoFile, setLogoFile] = useState(null);
+  const [logoFile] = useState(null);
 
   const fetchContent = useCallback(async () => {
     setLoading(true);
@@ -106,13 +106,18 @@ const ContentCMS = () => {
         const { data } = await axios.delete(`${API_URL}/content/banners/${id}`, { 
           headers: { Authorization: `Bearer ${token}` } 
         });
-        if (data.success) {
+        if (data.success || data.message?.includes('not found')) {
           fetchContent();
         } else {
           alert(data.message || 'Delete failed');
         }
       } catch (err) { 
-        alert(err.response?.data?.message || 'Delete failed: Server error'); 
+        // ⚡ UX Fix: If already deleted (404), just refresh
+        if (err.response?.status === 404) {
+          fetchContent();
+        } else {
+          alert(err.response?.data?.message || 'Delete failed: Server error'); 
+        }
       }
     }
   };

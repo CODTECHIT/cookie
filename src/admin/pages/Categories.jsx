@@ -94,14 +94,20 @@ const CategoriesManagement = () => {
         const { data } = await axios.delete(`${API_URL}/categories/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        if (data.success) {
+        if (data.success || data.message?.includes('not found')) {
           fetchCategories();
           refreshSiteData?.();
         } else {
           alert(data.message || 'Delete failed');
         }
       } catch (err) { 
-        alert(err.response?.data?.message || 'Delete failed: Server error'); 
+        // ⚡ UX Fix: If already deleted (404), just refresh
+        if (err.response?.status === 404) {
+          fetchCategories();
+          refreshSiteData?.();
+        } else {
+          alert(err.response?.data?.message || 'Delete failed: Server error'); 
+        }
       }
     }
   };
