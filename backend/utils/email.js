@@ -5,14 +5,18 @@ import nodemailer from 'nodemailer';
  * Configured for Gmail SMTP using App Passwords
  */
 export const sendEmail = async (options) => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+     throw new Error(`Email credentials missing in .env: USER=${!!process.env.EMAIL_USER}, PASS=${!!process.env.EMAIL_PASS}`);
+  }
+
   // 1. Create a transporter
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 465,
     secure: true, // true for 465, false for 587
     auth: {
-      user: process.env.EMAIL_USER, // e.g. manacookies07@gmail.com
-      pass: process.env.EMAIL_PASS, // ⚡ 16-character GOOGLE APP PASSWORD ⚡
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
   });
 
