@@ -25,16 +25,16 @@ const AdminLayout = () => {
   const location = useLocation();
 
   const menuItems = [
-    { title: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
-    { title: "Products", path: "/admin/products", icon: ShoppingBag },
-    { title: "Orders", path: "/admin/orders", icon: ShoppingCart },
-    { title: "Customers", path: "/admin/customers", icon: Users },
-    { title: "Payments", path: "/admin/payments", icon: CreditCard },
-    { title: "Reports", path: "/admin/reports", icon: BarChart3 },
-    { title: "Coupons", path: "/admin/coupons", icon: Ticket },
-    { title: "Categories", path: "/admin/categories", icon: Grid },
-    { title: "Reviews", path: "/admin/reviews", icon: Star },
-    { title: "Content", path: "/admin/content", icon: Image },
+    { title: "Dashboard", path: "/cookies/admin@123/dashboard", icon: LayoutDashboard },
+    { title: "Products", path: "/cookies/admin@123/products", icon: ShoppingBag },
+    { title: "Orders", path: "/cookies/admin@123/orders", icon: ShoppingCart },
+    { title: "Customers", path: "/cookies/admin@123/customers", icon: Users },
+    { title: "Payments", path: "/cookies/admin@123/payments", icon: CreditCard },
+    { title: "Reports", path: "/cookies/admin@123/reports", icon: BarChart3 },
+    { title: "Coupons", path: "/cookies/admin@123/coupons", icon: Ticket },
+    { title: "Categories", path: "/cookies/admin@123/categories", icon: Grid },
+    { title: "Reviews", path: "/cookies/admin@123/reviews", icon: Star },
+    { title: "Content", path: "/cookies/admin@123/content", icon: Image },
   ];
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
@@ -57,7 +57,7 @@ const AdminLayout = () => {
       `}
       >
         <div className="h-20 flex items-center px-6 border-b border-gray-100 mb-6 bg-primary text-white">
-          <Link to="/admin/dashboard" className="flex items-center space-x-2">
+          <Link to="/cookies/admin@123/dashboard" className="flex items-center space-x-2">
             <LayoutDashboard className="w-8 h-8" />
             <span className="text-xl font-bold tracking-tight">
               Admin Console

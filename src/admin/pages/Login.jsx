@@ -10,7 +10,7 @@ const AdminLogin = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login, admin } = useAdmin();
 
-  if (admin) return <Navigate to="/admin/dashboard" replace />;
+  if (admin) return <Navigate to="/cookies/admin@123/dashboard" replace />;
 
   const handleSubmit = async (e) => {
     e.preventDefault();

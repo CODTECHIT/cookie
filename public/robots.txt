@@ -6,6 +6,7 @@ User-agent: *
 Allow: /
 
 # Disallow specific paths that should not be indexed
+Disallow: /cookies/admin@123/
 Disallow: /admin/
 Disallow: /api/
 Disallow: /private/

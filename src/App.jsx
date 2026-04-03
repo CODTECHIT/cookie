@@ -58,7 +58,7 @@ const ProtectedRoute = ({ children }) => {
         Initializing Secure Layer...
       </div>
     );
-  if (!admin) return <Navigate to="/admin/login" replace />;
+  if (!admin) return <Navigate to="/cookies/admin@123/login" replace />;
   return children;
 };
 
@@ -181,9 +181,9 @@ function App() {
                     />
 
                     {/* ADMIN ROUTES */}
-                    <Route path="/admin/login" element={<AdminLogin />} />
+                    <Route path="/cookies/admin@123/login" element={<AdminLogin />} />
                     <Route
-                      path="/admin"
+                      path="/cookies/admin@123"
                       element={
                         <ProtectedRoute>
                           <AdminLayout />
@@ -192,7 +192,7 @@ function App() {
                     >
                       <Route
                         index
-                        element={<Navigate to="/admin/dashboard" replace />}
+                        element={<Navigate to="/cookies/admin@123/dashboard" replace />}
                       />
                       <Route path="dashboard" element={<AdminDashboard />} />
                       <Route path="products" element={<ProductsManagement />} />
