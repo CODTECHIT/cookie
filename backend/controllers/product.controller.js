@@ -286,8 +286,22 @@ export const updateProduct = async (req, res) => {
 // DELETE /api/products/:id  (admin)
 export const deleteProduct = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
-    if (!product) return errorResponse(res, "Product not found", 404);
+    const { id: idOrSlug } = req.params;
+    console.log(`🗑️ Deletion request received for: ${idOrSlug}`);
+
+    let product;
+    // Check if it's a valid MongoDB ObjectId
+    if (idOrSlug.length === 24 && /^[0-9a-fA-F]{24}$/.test(idOrSlug)) {
+      product = await Product.findById(idOrSlug);
+    } else {
+      // Fallback: search by slug if the parameter isn't a valid ObjectId
+      product = await Product.findOne({ slug: idOrSlug });
+    }
+
+    if (!product) {
+      console.warn(`⚠️ Product not found for deletion: ${idOrSlug}`);
+      return errorResponse(res, `Product not found: ${idOrSlug}`, 404);
+    }
 
     // ⚡ Resilience Fix: Try deleting images from Cloudinary, but don't fail the whole request if it fails
     if (product.images && product.images.length > 0) {
@@ -295,10 +309,13 @@ export const deleteProduct = async (req, res) => {
         await Promise.all(
           product.images
             .filter((img) => img.publicId)
-            .map((img) => cloudinary.uploader.destroy(img.publicId))
+            .map((img) => cloudinary.uploader.destroy(img.publicId)),
         );
       } catch (cloudErr) {
-        console.error("⚠️ Cloudinary cleanup failed during product deletion:", cloudErr.message);
+        console.error(
+          "⚠️ Cloudinary cleanup failed during product deletion:",
+          cloudErr.message,
+        );
       }
     }
 
