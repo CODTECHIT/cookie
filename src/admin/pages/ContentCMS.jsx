@@ -103,9 +103,17 @@ const ContentCMS = () => {
   const deleteBanner = async (id) => {
     if (window.confirm('Delete this banner?')) {
       try {
-        await axios.delete(`${API_URL}/content/banners/${id}`, { headers: { Authorization: `Bearer ${token}` } });
-        fetchContent();
-      } catch { alert('Delete failed'); }
+        const { data } = await axios.delete(`${API_URL}/content/banners/${id}`, { 
+          headers: { Authorization: `Bearer ${token}` } 
+        });
+        if (data.success) {
+          fetchContent();
+        } else {
+          alert(data.message || 'Delete failed');
+        }
+      } catch (err) { 
+        alert(err.response?.data?.message || 'Delete failed: Server error'); 
+      }
     }
   };
 

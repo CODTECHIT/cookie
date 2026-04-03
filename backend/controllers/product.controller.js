@@ -289,14 +289,24 @@ export const deleteProduct = async (req, res) => {
     const product = await Product.findById(req.params.id);
     if (!product) return errorResponse(res, "Product not found", 404);
 
-    // Delete images from Cloudinary
-    for (const img of product.images) {
-      if (img.publicId) await cloudinary.uploader.destroy(img.publicId);
+    // ⚡ Resilience Fix: Try deleting images from Cloudinary, but don't fail the whole request if it fails
+    if (product.images && product.images.length > 0) {
+      try {
+        await Promise.all(
+          product.images
+            .filter((img) => img.publicId)
+            .map((img) => cloudinary.uploader.destroy(img.publicId))
+        );
+      } catch (cloudErr) {
+        console.error("⚠️ Cloudinary cleanup failed during product deletion:", cloudErr.message);
+      }
     }
+
     await product.deleteOne();
-    successResponse(res, null, "Product deleted");
+    successResponse(res, null, "Product deleted successfully");
   } catch (err) {
-    errorResponse(res, err.message);
+    console.error("❌ Delete Product Error:", err);
+    errorResponse(res, err.message || "Failed to delete product");
   }
 };
 

@@ -125,11 +125,17 @@ const ProductsManagement = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Delete this product?')) {
       try {
-        await axios.delete(`${API_URL}/products/${id}`, {
+        const { data } = await axios.delete(`${API_URL}/products/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        fetchProducts();
-      } catch { alert('Delete failed'); }
+        if (data.success) {
+          fetchProducts();
+        } else {
+          alert(data.message || 'Delete failed');
+        }
+      } catch (err) { 
+        alert(err.response?.data?.message || 'Delete failed: Server error'); 
+      }
     }
   };
 

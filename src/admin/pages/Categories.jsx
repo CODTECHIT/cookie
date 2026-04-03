@@ -91,12 +91,18 @@ const CategoriesManagement = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Delete category? Ensure no products are linked to this first.')) {
       try {
-        await axios.delete(`${API_URL}/categories/${id}`, {
+        const { data } = await axios.delete(`${API_URL}/categories/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        fetchCategories();
-        refreshSiteData?.();
-      } catch { alert('Delete failed'); }
+        if (data.success) {
+          fetchCategories();
+          refreshSiteData?.();
+        } else {
+          alert(data.message || 'Delete failed');
+        }
+      } catch (err) { 
+        alert(err.response?.data?.message || 'Delete failed: Server error'); 
+      }
     }
   };
 
