@@ -34,7 +34,7 @@ const CategoriesManagement = () => {
   const fetchCategories = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get(`${API_URL}/categories`, {
+      const { data } = await axios.get(`${API_URL}/categories?t=${Date.now()}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (data.success) setCategories(data.data);

@@ -28,7 +28,7 @@ const CouponsManagement = () => {
   const fetchCoupons = useCallback(async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get(`${API_URL}/coupons`, {
+      const { data } = await axios.get(`${API_URL}/coupons?t=${Date.now()}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (data.success) setCoupons(data.data);

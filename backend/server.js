@@ -106,6 +106,13 @@ app.use((req, res, next) => {
   res.setHeader("request-id", requestId);
   req.id = requestId;
 
+  // ⚡ 2024 Cache-Prevention Fix: Force fresh content for all /api requests
+  if (req.originalUrl.startsWith("/api")) {
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+  }
+
   res.setHeader(
     "Permissions-Policy",
     "accelerometer=*, camera=(), geolocation=(), gyroscope=*, magnetometer=(), microphone=(), payment=*, usb=()",

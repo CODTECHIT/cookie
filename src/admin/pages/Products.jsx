@@ -31,7 +31,7 @@ const ProductsManagement = () => {
 
   const fetchProducts = useCallback(async () => {
     try {
-      const { data } = await axios.get(`${API_URL}/products`, {
+      const { data } = await axios.get(`${API_URL}/products?t=${Date.now()}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (data.success) setProducts(data.data.products);

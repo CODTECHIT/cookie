@@ -21,7 +21,7 @@ const ReviewsManagement = () => {
   const fetchReviews = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get(`${API_URL}/reviews`, {
+      const { data } = await axios.get(`${API_URL}/reviews?t=${Date.now()}`, {
         params: { rating: ratingFilter },
         headers: { Authorization: `Bearer ${token}` }
       });

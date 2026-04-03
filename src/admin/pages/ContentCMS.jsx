@@ -40,10 +40,10 @@ const ContentCMS = () => {
   const fetchContent = useCallback(async () => {
     setLoading(true);
     try {
-      const bannerRes = await axios.get(`${API_URL}/content/banners`, { headers: { Authorization: `Bearer ${token}` } });
+      const bannerRes = await axios.get(`${API_URL}/content/banners?t=${Date.now()}`, { headers: { Authorization: `Bearer ${token}` } });
       if (bannerRes.data.success) setBanners(bannerRes.data.data);
 
-      const settingsRes = await axios.get(`${API_URL}/content/settings`, { headers: { Authorization: `Bearer ${token}` } });
+      const settingsRes = await axios.get(`${API_URL}/content/settings?t=${Date.now()}`, { headers: { Authorization: `Bearer ${token}` } });
       if (settingsRes.data.success) {
         setSettings(settingsRes.data.data);
         setSettingsForm({
