@@ -4,13 +4,13 @@ export const getSafeImageUrl = (url, fallback = "/placeholder-product.png") => {
   // Old seeded/broken localhost image entries should not be requested in browser.
   if (/^https?:\/\/localhost:\d+\//i.test(url)) return fallback;
 
-  // Mixed-content hardening on HTTPS pages.
+  // ⚡ Mixed-content hardening: Upgrade http to https automatically on production
   if (
     typeof window !== "undefined" &&
     window.location.protocol === "https:" &&
     url.startsWith("http://")
   ) {
-    return fallback;
+    return url.replace("http://", "https://");
   }
 
   return url;
