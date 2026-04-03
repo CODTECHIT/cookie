@@ -62,7 +62,10 @@ const Cart = () => {
     setCouponError("");
     try {
       const API_URL =
-        import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+        import.meta.env.VITE_API_URL ||
+        (window.location.hostname === "localhost"
+          ? "http://localhost:5000/api"
+          : "/api");
       const { data } = await axios.post(`${API_URL}/coupons/validate`, {
         code: couponCode,
         cartTotal: subtotal,
@@ -106,7 +109,10 @@ const Cart = () => {
     setLoading(true);
     try {
       const API_URL =
-        import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+        import.meta.env.VITE_API_URL ||
+        (window.location.hostname === "localhost"
+          ? "http://localhost:5000/api"
+          : "/api");
 
       // 1. Create order in backend
       const orderData = {
