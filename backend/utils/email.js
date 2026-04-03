@@ -41,5 +41,11 @@ export const sendEmail = async (options) => {
   };
 
   // 3. Send email
-  await transporter.sendMail(mailOptions);
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✅ Email sent successfully to ${options.email}. Response: ${info.response}`);
+  } catch (err) {
+    console.error(`❌ Gmail rejection error: ${err.message}`);
+    throw err;
+  }
 };
