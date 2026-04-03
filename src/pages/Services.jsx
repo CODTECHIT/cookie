@@ -15,8 +15,9 @@ const Services = () => {
   return (
     <div className="bg-background min-h-screen font-sans text-on-surface antialiased overflow-x-hidden">
       <SEO 
-        title="Our Services | Premium Cookie & Millet Production"
-        description="At Daksha Cookies & Millets, we offer high-quality cookie manufacturing, millet processing, and wholesale solutions."
+        title="Our Services | Premium Cookie Manufacturing & Millet Processing"
+        description="Daksha Food Artisan offers high-quality cookie manufacturing, millet processing, bulk orders, and wholesale solutions. Order custom gift packaging for weddings, corporate events, and special occasions. Free shipping above ₹999."
+        keywords="cookie manufacturing, millet processing, bulk orders, wholesale cookies, corporate gifting, wedding cookies, custom packaging, artisanal bakery, bulk supply India"
       />
 
       {/* 🚀 PROFESSIONAL HERO SECTION */}

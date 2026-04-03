@@ -68,9 +68,9 @@ const MyOrders = () => {
     return (
       <>
         <SEO
-          title="My Orders"
-          description="View and track your orders from Daksha Food Artisan. Monitor shipment status and manage your purchases."
-          keywords="my orders, order tracking, shipment status"
+          title="My Orders | Daksha Food Artisan"
+          description="View and track your orders from Daksha Food Artisan. Monitor shipment status and manage your purchases of handcrafted cookies and millet products."
+          keywords="my orders, order tracking, shipment status, cookies online, order history"
           url={`${window.location.origin}/my-orders`}
         />
         <div className="min-h-screen flex items-center justify-center px-4 md:px-8 py-20">
@@ -105,9 +105,9 @@ const MyOrders = () => {
   return (
     <>
       <SEO
-        title="My Orders"
-        description="View and track your orders from Daksha Food Artisan. Monitor shipment status and manage your purchases."
-        keywords="my orders, order tracking, shipment status"
+        title="My Orders | Daksha Food Artisan - Track Your Orders"
+        description="View and track your orders from Daksha Food Artisan. Monitor shipment status, order history, and manage your purchases of artisanal cookies and millet products."
+        keywords="my orders, order tracking, shipment status, cookies online, order history, order management"
         url={`${window.location.origin}/my-orders`}
       />
       <div className="pt-44 pb-20 px-4 md:px-8 max-w-6xl mx-auto min-h-screen">

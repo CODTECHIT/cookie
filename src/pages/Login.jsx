@@ -31,9 +31,9 @@ const Login = () => {
   return (
     <>
       <SEO
-        title="Sign In"
-        description="Log in to your Daksha Food Artisan account to track orders and manage your preferences for handcrafted cookies and millet products."
-        keywords="login, sign in, Daksha, account, order tracking"
+        title="Sign In | Login to Daksha Food Artisan"
+        description="Log in to your Daksha Food Artisan account to track orders and manage your preferences for handcrafted cookies and millet products. Shop premium artisanal cookies online."
+        keywords="login, sign in, Daksha account, order tracking, cookies online, buy cookies India, account login"
         url={`${window.location.origin}/login`}
       />
       <div className="pt-44 pb-20 px-6 min-h-screen bg-[#FDFBF7] flex items-center justify-center">

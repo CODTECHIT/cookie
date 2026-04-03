@@ -115,12 +115,38 @@ const ProductDetail = () => {
   return (
     <div className="pt-44 lg:pt-28 pb-24 px-4 xl:px-16 max-w-[1700px] mx-auto min-h-screen bg-[#FDFBF7]">
       <SEO
-        title={product.name}
-        description={
-          product.shortDescription || product.description?.substring(0, 160)
-        }
+        title={`${product.name} | Buy Online at Daksha Food Artisan`}
+        description={product.shortDescription || product.description?.substring(0, 160) || `Buy premium ${product.name} at Daksha Food Artisan. Handcrafted with love using traditional recipes and organic ingredients. Free shipping on orders above ₹999.`}
+        keywords={`${product.name}, buy ${product.name} online, artisanal cookies, Daksha cookies, premium cookies, handcrafted cookies, healthy millet cookies, organic cookies India`}
         image={images[0]}
         type="product"
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "Product",
+          "name": product.name,
+          "description": product.shortDescription || product.description,
+          "image": images,
+          "brand": {
+            "@type": "Brand",
+            "name": "Daksha Food Artisan"
+          },
+          "offers": {
+            "@type": "Offer",
+            "priceCurrency": "INR",
+            "price": selectedVariant?.price,
+            "priceValidUntil": new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0],
+            "availability": "https://schema.org/InStock",
+            "seller": {
+              "@type": "Organization",
+              "name": "Daksha Food Artisan"
+            }
+          },
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": product.avgRating || 5.0,
+            "reviewCount": product.reviewCount || 0
+          }
+        }}
       />
 
       {/* Breadcrumbs */}

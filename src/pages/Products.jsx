@@ -162,13 +162,13 @@ const Products = () => {
   }, [categories, selectedCategories]);
 
   const seoTitle = searchTerm
-    ? `Search results for "${searchTerm}"`
+    ? `Search results for "${searchTerm}" | Daksha Food Artisan`
     : activeCategory?.metaTitle ||
       activeCategory?.name ||
-      "Health & Heritage Collection";
+      "Premium Cookies & Healthy Millets Collection";
   const seoDesc =
     activeCategory?.metaDescription ||
-    "Browse our full collection of artisanal cookies, millet-based health powders, and traditional snacks.";
+    "Browse our curated collection of artisanal handcrafted cookies, millet-based health powders, and traditional snacks. 100% organic ingredients, free shipping above ₹999.";
   const showNoIndex = activeCategory?.isIndexed === false;
 
   // ⚡ OPTIMIZED: Fetch with pagination and move filtering to backend
@@ -250,7 +250,12 @@ const Products = () => {
 
   return (
     <div className="pt-6 lg:pt-24 pb-16 px-4 xl:px-10 max-w-[1700px] mx-auto min-h-screen bg-[#FDFBF7]">
-      <SEO title={seoTitle} description={seoDesc} noIndex={showNoIndex} />
+      <SEO 
+        title={seoTitle} 
+        description={seoDesc} 
+        keywords={`${activeCategory?.metaKeywords || ''}, cookies online, millet snacks, healthy food, artisanal products, Daksha cookies, buy cookies India, premium cookies, organic millets`}
+        noIndex={showNoIndex} 
+      />
 
       {/* Mobile Sticky Bar */}
       <div className="lg:hidden fixed bottom-24 left-4 right-4 z-[100] flex bg-[#331917]/95 backdrop-blur-xl text-white rounded-3xl shadow-[0_20px_50px_rgba(51,25,23,0.3)] overflow-hidden border border-white/10">

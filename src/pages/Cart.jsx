@@ -320,9 +320,9 @@ const Cart = () => {
     return (
       <>
         <SEO
-          title="Shopping Cart"
-          description="Your shopping cart is empty. Browse our collection of handcrafted cookies and millet products and start adding items."
-          keywords="shopping cart, bag, checkout"
+          title="Shopping Cart | Daksha Food Artisan"
+          description="Your shopping cart is empty. Browse our collection of handcrafted cookies and millet products. Free shipping on orders above ₹999. Shop premium artisanal cookies online."
+          keywords="shopping cart, bag, checkout, cookies online, buy cookies India"
           url={`${window.location.origin}/cart`}
         />
         <div className="pt-44 pb-24 px-4 xl:px-10 max-w-[1700px] mx-auto min-h-screen bg-[#FDFBF7]">
@@ -351,9 +351,9 @@ const Cart = () => {
   return (
     <>
       <SEO
-        title="Shopping Cart"
-        description="Review and manage your shopping cart. Add, remove, or update quantities of our handcrafted cookies and millet products before checkout."
-        keywords="shopping cart, bag, items, checkout"
+        title="Shopping Cart | Daksha Food Artisan"
+        description="Review and manage your shopping cart. Add, remove, or update quantities of our handcrafted cookies and millet products before checkout. Free shipping above ₹999."
+        keywords="shopping cart, bag, items, checkout, cookies online, buy cookies India"
         url={`${window.location.origin}/cart`}
       />
       <div className="pt-8 md:pt-44 pb-24 px-4 xl:px-10 max-w-[1700px] mx-auto min-h-screen bg-[#FDFBF7]">

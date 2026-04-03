@@ -81,12 +81,22 @@
     <meta name="twitter:image" content="/assets/og-image.png" />
     <meta name="twitter:creator" content="@daksha" />
 
-    <!-- Security & Trust -->
-    <meta
-      name="security-contact"
-      content="mailto:inspacialdesigns@gmail.com"
-    />
-    <meta name="format-detection" content="telephone=no" />
+    <!-- Geo Tags for Local SEO -->
+    <meta name="geo.region" content="IN-AP" />
+    <meta name="geo.placename" content="Nuzvidu, Eluru, Andhra Pradesh" />
+    <meta name="geo.position" content="16.7839;80.6216" />
+    <meta name="ICBM" content="16.7839, 80.6216" />
+
+    <!-- Business Info -->
+    <meta name="business:contact_data:street_address" content="Nuzvidu, Eluru" />
+    <meta name="business:contact_data:locality" content="Nuzvidu" />
+    <meta name="business:contact_data:region" content="Andhra Pradesh" />
+    <meta name="business:contact_data:postal_code" content="517590" />
+    <meta name="business:contact_data:country_name" content="India" />
+
+    <!-- Additional SEO -->
+    <meta name="pinterest" content="nopin" />
+    <meta name="skype_toolbar" content="skype_toolbar_loader_compatible" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
 
     <!-- Fonts -->
@@ -102,6 +112,76 @@
     <!-- Payment Gateway -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
+    <!-- JSON-LD Structured Data for Local Business -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Bakery",
+      "name": "Daksha Food Artisan",
+      "description": "Authentic, health-conscious artisanal treats including millet-based cookies and traditional snacks from Andhra Pradesh.",
+      "url": "https://dakshacookiesmillets.com",
+      "logo": "https://dakshacookiesmillets.com/logo.png",
+      "image": "https://dakshacookiesmillets.com/assets/home-hero-cinematic.png",
+      "telephone": "+919704254959",
+      "email": "inspacialdesigns@gmail.com",
+      "priceRange": "₹99 - ₹999",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Nuzvidu, Eluru",
+        "addressLocality": "Nuzvidu",
+        "addressRegion": "Andhra Pradesh",
+        "postalCode": "517590",
+        "addressCountry": "IN"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": "16.7839",
+        "longitude": "80.6216"
+      },
+      "openingHours": "Mo-Su 09:00-20:00",
+      "sameAs": [
+        "https://www.instagram.com/daksha",
+        "https://www.facebook.com/daksha"
+      ],
+      "areaServed": {
+        "@type": "State",
+        "name": "Andhra Pradesh"
+      },
+      "serviceType": "Artisanal Cookies, Millet Powders, Traditional Snacks"
+    }
+    </script>
+
+    <!-- Organization Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Daksha Food Artisan",
+      "url": "https://dakshacookiesmillets.com",
+      "logo": "https://dakshacookiesmillets.com/logo.png",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+919704254959",
+        "contactType": "Customer Service",
+        "email": "inspacialdesigns@gmail.com"
+      }
+    }
+    </script>
+
+    <!-- Website Schema with Search Action -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Daksha Food Artisan",
+      "url": "https://dakshacookiesmillets.com",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://dakshacookiesmillets.com/products?search={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
 
   </head>
 

@@ -6,9 +6,9 @@ const PrivacyPolicy = () => {
   return (
     <>
       <SEO
-        title="Privacy Policy"
-        description="Learn how Daksha Food Artisan collects, uses, and protects your personal data. Our commitment to your privacy and secure shopping."
-        keywords="privacy policy, data protection, personal information, security"
+        title="Privacy Policy | Daksha Food Artisan"
+        description="Learn how Daksha Food Artisan collects, uses, and protects your personal data. Our commitment to your privacy and secure shopping experience. Contact us for any privacy concerns."
+        keywords="privacy policy, data protection, personal information, security, cookies policy, terms of service, GDPR, data privacy India"
         url={`${window.location.origin}/privacy-policy`}
         noIndex={false}
       />

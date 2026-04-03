@@ -14,8 +14,9 @@ const About = () => {
     return (
         <div className="bg-background min-h-screen font-sans text-on-surface antialiased overflow-x-hidden">
             <SEO 
-                title="Our Story | The Daksha Heritage"
-                description="Discover the legacy of Daksha Cookies & Millets. Where traditional wisdom meets modern wellness innovation."
+                title="Our Story | The Daksha Heritage - Artisan Cookies & Millets"
+                description="Discover the legacy of Daksha Cookies & Millets. Where traditional wisdom meets modern wellness innovation. Learn about our journey from Andhra Pradesh to becoming India's premier artisanal cookie brand."
+                keywords="Daksha story, heritage cookies, artisan bakery Andhra Pradesh, traditional recipes, millet health benefits, our journey, family recipes, handmade cookies, premium cookies India, bulk orders"
             />
 
             {/* 🏺 REFINED HERO SECTION */}

@@ -88,8 +88,9 @@ const Home = () => {
   return (
     <div className="bg-background min-h-screen pb-20 lg:pb-0 overflow-x-hidden">
       <SEO
-        title="Artisanal Cookies & Healthy Millet Powders"
-        description="Discover the authentic taste of Daksha Food Artisan. Handcrafted cashew cookies, nutrient-rich millets, and traditional snacks."
+        title="Artisanal Cookies & Healthy Millet Powders | Daksha Food Artisan"
+        description="Discover the authentic taste of Daksha Food Artisan. Handcrafted cashew cookies, nutrient-rich millets, ragi malt, and traditional snacks from Andhra Pradesh. Free shipping on orders above ₹999. Buy premium cookies online in India."
+        keywords="handcrafted cookies, artisanal cookies, millet cookies, healthy cookies, ragi malt, ragi malt powder, cashew cookies, organic cookies, premium cookies, traditional snacks, Andhra Pradesh snacks, buy cookies online India, gluten-free cookies, homemade cookies, gift cookies"
       />
 
       {isLoading ? (
