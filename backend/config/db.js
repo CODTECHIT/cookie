@@ -13,6 +13,7 @@ const connectDB = async () => {
       cached.promise = mongoose.connect(process.env.MONGO_URI, {
          dbName: "daksha_food_db",
          bufferCommands: false,
+         maxPoolSize: 1, // Crucial for serverless to prevent connection leaks
       }).then((mongoose) => {
          return mongoose;
       });
