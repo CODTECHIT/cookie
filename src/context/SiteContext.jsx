@@ -10,22 +10,26 @@ export const SiteProvider = ({ children }) => {
   const [categories, setCategories] = useState([]);
   const [coupons, setCoupons] = useState([]);
   const [banners, setBanners] = useState([]);
+  const [bestSellers, setBestSellers] = useState([]);
+  const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:5000/api');
 
   const fetchSiteData = useCallback(async () => {
     try {
-      // ⚡ Optimized: All site data pulled in ONE single round-trip
+      // ⚡ Optimized Boot: ONE request for ALL critical storefront data
       const { data } = await axios.get(`${API_URL}/site/bootstrap?t=${Date.now()}`);
       
       if (data.success) {
-        const { settings, categories, coupons, banners } = data.data;
+        const { settings, categories, coupons, banners, featuredProducts, bestSellers } = data.data;
         setSettings(settings);
         setCategories(categories || []);
         setBanners(banners || []);
+        setBestSellers(bestSellers || []);
+        setFeaturedProducts(featuredProducts || []);
         
-        // Filter coupons for active/valid ones
+        // Filter active/valid coupons
         if (coupons) {
           const activeCoupons = coupons.filter(c => 
             c.isActive && 
@@ -47,7 +51,11 @@ export const SiteProvider = ({ children }) => {
   }, [fetchSiteData]);
 
   return (
-    <SiteContext.Provider value={{ settings, categories, coupons, banners, loading, API_URL, refreshSiteData: fetchSiteData }}>
+    <SiteContext.Provider value={{ 
+      settings, categories, coupons, banners, 
+      bestSellers, featuredProducts, 
+      loading, API_URL, refreshSiteData: fetchSiteData 
+    }}>
       {children}
     </SiteContext.Provider>
   );
