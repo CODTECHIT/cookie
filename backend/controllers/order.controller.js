@@ -164,7 +164,7 @@ export const updateOrderStatus = async (req, res) => {
     if (status === "Delivered") order.deliveredAt = new Date();
 
     await order.save();
-    successResponse(res, order, "Order status updated");
+    successResponse(res, order, `Order status updated to ${status}`);
   } catch (err) {
     errorResponse(res, err.message);
   }
@@ -173,14 +173,30 @@ export const updateOrderStatus = async (req, res) => {
 // PATCH /api/orders/:id/tracking  (admin — add tracking info)
 export const updateTracking = async (req, res) => {
   try {
-    const { shippingCarrier, trackingNumber, trackingUrl, estimatedDelivery } =
-      req.body;
-    const order = await Order.findByIdAndUpdate(
-      req.params.id,
-      { shippingCarrier, trackingNumber, trackingUrl, estimatedDelivery },
-      { new: true },
-    );
-    successResponse(res, order, "Tracking updated");
+    const { shippingCarrier, trackingNumber, trackingUrl, estimatedDelivery } = req.body;
+    
+    // 🚚 Automatically advance status to Shipped when tracking is added
+    const order = await Order.findById(req.params.id);
+    if (!order) return errorResponse(res, "Order not found", 404);
+
+    order.shippingCarrier = shippingCarrier;
+    order.trackingNumber = trackingNumber;
+    order.trackingUrl = trackingUrl;
+    order.estimatedDelivery = estimatedDelivery;
+
+    // Only auto-advance if not already Shipped/Delivered
+    if (!["Shipped", "Delivered"].includes(order.status)) {
+      order.status = "Shipped";
+      order.statusHistory.push({ 
+        status: "Shipped", 
+        changedBy: req.user._id, 
+        note: `Tracking information added: ${shippingCarrier} #${trackingNumber}` 
+      });
+    }
+
+    await order.save();
+    
+    successResponse(res, order, "Tracking information updated and order marked as Shipped");
   } catch (err) {
     errorResponse(res, err.message);
   }
@@ -189,7 +205,10 @@ export const updateTracking = async (req, res) => {
 // GET /api/orders/my-orders  (customer orders)
 export const getMyOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ customerId: req.user._id }).sort({
+    const orders = await Order.find({ 
+      customerId: req.user._id,
+      paymentStatus: { $in: ["Paid", "Failed"] } 
+    }).sort({
       createdAt: -1,
     });
     successResponse(res, orders);

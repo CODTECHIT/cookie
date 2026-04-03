@@ -29,7 +29,7 @@ Allow: /privacy-policy
 Crawl-delay: 1
 
 # Sitemap location
-Sitemap: https://dakshafoodartisan.com/sitemap.xml
+Sitemap: https://dakshacookiesmillets.com/sitemap.xml
 
 # Mobile-friendly declarations
 User-agent: Googlebot

@@ -135,6 +135,16 @@ app.use((req, res, next) => {
   next();
 });
 
+// ─── Root Route ──────────────────────────────────────────────────────────────
+app.get("/", (req, res) => {
+  res.send(`
+    <div style="font-family: sans-serif; text-align: center; padding: 50px;">
+      <h1>🍪 Daksha Food Artisan API</h1>
+      <p>Server is running. Documentation: <a href="/api/health">/api/health</a></p>
+    </div>
+  `);
+});
+
 // ─── API Routes ───────────────────────────────────────────────────────────────
 app.use("/api/auth", authRoutes);
 app.use("/api/admin/dashboard", dashboardRoutes);

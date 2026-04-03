@@ -99,8 +99,8 @@ const Footer = () => {
                 </div>
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-widest text-secondary-fixed/30 mb-1">Inquiries</p>
-                  <a href={`mailto:${settings?.email || "dakshacookiesmillets@gmail.com"}`} className="text-xs font-black italic text-secondary-fixed hover:text-white transition-colors block break-all">
-                    {settings?.email || "dakshacookiesmillets@gmail.com"}
+                  <a href={`mailto:${settings?.email || "inspacialdesigns@gmail.com"}`} className="text-xs font-black italic text-secondary-fixed hover:text-white transition-colors block break-all">
+                    {settings?.email || "inspacialdesigns@gmail.com"}
                   </a>
                 </div>
               </div>

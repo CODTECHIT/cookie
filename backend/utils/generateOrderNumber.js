@@ -11,7 +11,7 @@ export const generateOrderNumber = async () => {
   const settings = await SiteSetting.findOneAndUpdate(
     {},
     { $inc: { orderSequence: 1 } },
-    { new: true, upsert: true }
+    { returnDocument: 'after', upsert: true }
   );
 
   const prefix = settings?.invoice?.prefix || 'DFA';

@@ -173,7 +173,7 @@ const PrivacyPolicy = () => {
                 </p>
                 <p>
                   <strong className="text-white">Email:</strong>{" "}
-                  dakshacookiesmillets@gmail.com
+                  inspacialdesigns@gmail.com
                 </p>
                 <p>
                   <strong className="text-white">WhatsApp:</strong> +91

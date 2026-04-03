@@ -58,7 +58,7 @@ const SEO = ({
       "@type": "ContactPoint",
       contactType: "Customer Service",
       telephone: "+919704254959",
-      email: "dakshacookiesmillets@gmail.com",
+      email: "inspacialdesigns@gmail.com",
     },
   };
 
@@ -91,6 +91,19 @@ const SEO = ({
         item: siteUrl,
       },
     ],
+  };
+
+  // WebSite Schema
+  const websiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: siteTitle,
+    url: siteUrl,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${siteUrl}/products?search={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
   };
 
   return (
@@ -147,6 +160,11 @@ const SEO = ({
       {/* Organization Schema */}
       <script type="application/ld+json">
         {JSON.stringify(organizationSchema)}
+      </script>
+
+      {/* WebSite Schema */}
+      <script type="application/ld+json">
+        {JSON.stringify(websiteSchema)}
       </script>
 
       {/* Local Business Schema */}
