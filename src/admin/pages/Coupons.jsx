@@ -82,11 +82,21 @@ const CouponsManagement = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Delete this coupon?')) {
       try {
-        await axios.delete(`${API_URL}/coupons/${id}`, {
+        const { data } = await axios.delete(`${API_URL}/coupons/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        fetchCoupons();
-      } catch (err) { alert('Delete failed'); }
+        if (data.success || data.message?.includes('not found')) {
+          fetchCoupons();
+        } else {
+          alert(data.message || 'Delete failed');
+        }
+      } catch (err) { 
+        if (err.response?.status === 404) {
+          fetchCoupons();
+        } else {
+          alert(err.response?.data?.message || 'Delete failed'); 
+        }
+      }
     }
   };
 

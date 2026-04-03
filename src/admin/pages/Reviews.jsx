@@ -33,11 +33,21 @@ const ReviewsManagement = () => {
   const deleteReview = async (id) => {
     if (window.confirm('Permanently delete this review?')) {
       try {
-        await axios.delete(`${API_URL}/reviews/${id}`, {
+        const { data } = await axios.delete(`${API_URL}/reviews/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        fetchReviews();
-      } catch { alert('Delete failed'); }
+        if (data.success || data.message?.includes('not found')) {
+          fetchReviews();
+        } else {
+          alert(data.message || 'Delete failed');
+        }
+      } catch (err) { 
+        if (err.response?.status === 404) {
+          fetchReviews();
+        } else {
+          alert(err.response?.data?.message || 'Delete failed'); 
+        }
+      }
     }
   };
 
