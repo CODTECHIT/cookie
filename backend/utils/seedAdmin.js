@@ -13,11 +13,7 @@ const seedAdmin = async () => {
     let admin = await User.findOne({ role: 'admin' });
 
     if (admin) {
-      // Update existing admin to match .env
-      admin.email = email;
-      admin.passwordHash = password; // Trigger hashing in pre('save')
-      await admin.save();
-      console.log('✅ Admin credentials updated successfully.');
+      // Admin exists, skip seeding to avoid Cold Start delays
       return;
     }
 
