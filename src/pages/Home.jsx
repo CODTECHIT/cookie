@@ -17,7 +17,7 @@ const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [contentLoading, setContentLoading] = useState(true);
 
-  const API_URL = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api');
+  const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:5000/api');
 
   const heroBanners = banners.filter((b) => b.position === "hero");
   const middleBanners = banners.filter((b) => b.position === "middle");

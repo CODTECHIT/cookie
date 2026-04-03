@@ -11,7 +11,7 @@ export const SiteProvider = ({ children }) => {
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const API_URL = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api');
+  const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:5000/api');
 
   const fetchSiteData = useCallback(async () => {
     try {
