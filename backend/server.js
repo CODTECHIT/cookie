@@ -4,6 +4,7 @@ import cors from "cors";
 import morgan from "morgan";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import mongoose from "mongoose";
 
 import connectDB from "./config/db.js";
 
@@ -214,11 +215,28 @@ app.use((err, req, res, next) => {
   });
 });
 
-if (process.env.NODE_ENV !== "production") {
-  app.listen(PORT, () => {
+// ─── Listeners & Graceful Shutdown ─────────────────────────────────────────────
+const server = app.listen(PORT, async () => {
     console.log(`🚀 Backend Server running on http://localhost:${PORT}`);
     console.log(`📦 Environment: ${process.env.NODE_ENV || "development"}`);
-  });
-}
+});
+
+// Handle graceful shutdown for database connections
+const shutdown = async (signal) => {
+    console.log(`\n🛑 Signal received (${signal}). Closing connections...`);
+    try {
+        await mongoose.connection.close(false);
+        console.log('✅ MongoDB connection closed.');
+        server.close(() => {
+            console.log('✅ Server HTTP terminated.');
+            process.exit(0);
+        });
+    } catch (err) {
+        process.exit(1);
+    }
+};
+
+process.on("SIGINT", () => shutdown("SIGINT"));
+process.on("SIGTERM", () => shutdown("SIGTERM"));
 
 export default app;

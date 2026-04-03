@@ -7,27 +7,39 @@ if (!cached) {
 }
 
 const connectDB = async () => {
-   if (cached.conn) return cached.conn;
+    if (cached.conn) return cached.conn;
 
-   if (!cached.promise) {
-      cached.promise = mongoose.connect(process.env.MONGO_URI, {
-         dbName: "daksha_food_db",
-         bufferCommands: false,
-         maxPoolSize: 1, // Crucial for serverless to prevent connection leaks
-      }).then((mongoose) => {
-         return mongoose;
-      });
-   }
+    if (!cached.promise) {
+       const opts = {
+          dbName: "daksha_food_db",
+          bufferCommands: false,
+          maxPoolSize: 10, // Optimized for M0 free tier
+          minPoolSize: 1,
+          serverSelectionTimeoutMS: 5000, 
+          socketTimeoutMS: 45000,
+          family: 4, // Use IPv4
+          heartbeatFrequencyMS: 10000,
+       };
 
-   try {
-      cached.conn = await cached.promise;
-      console.log(`✅ MongoDB Connected`);
-   } catch (error) {
-      cached.promise = null;
-      console.error(`❌ MongoDB Connection Error: ${error.message}`);
-      throw error;
-   }
-   return cached.conn;
+       cached.promise = mongoose.connect(process.env.MONGO_URI, opts).then((mongoose) => {
+          return mongoose;
+       });
+    }
+
+    try {
+       cached.conn = await cached.promise;
+       
+       // Alert if we lose connection
+       mongoose.connection.on('error', err => console.error('❌ MongoDB secondary error:', err));
+       mongoose.connection.on('disconnected', () => console.warn('⚠️ MongoDB disconnected. Re-connecting...'));
+       
+       console.log(`✅ MongoDB Connected (${mongoose.connection.name})`);
+    } catch (error) {
+       cached.promise = null;
+       console.error(`❌ MongoDB Connection Error: ${error.message}`);
+       throw error;
+    }
+    return cached.conn;
 };
 
 export default connectDB;
