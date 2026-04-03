@@ -79,7 +79,9 @@ const allowedOrigins = [
   process.env.CLIENT_URL,
   "http://localhost:5173",
   "http://localhost:5174",
-  "https://daksha-food.vercel.app", // Example production URL
+  "https://daksha-food.vercel.app",
+  "https://dakshacookiesmillets.com",
+  "https://www.dakshacookiesmillets.com",
 ].filter(Boolean);
 
 app.use(
