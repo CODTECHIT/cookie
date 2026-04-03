@@ -139,7 +139,7 @@ const Login = () => {
 
           <div className="mt-8 text-center">
             <Link
-              to="/admin/login"
+              to="/cookies/admin@123/login"
               className="text-[10px] font-black uppercase tracking-widest text-stone-300 hover:text-stone-400 transition-colors"
             >
               Staff or Admin Member? Login here

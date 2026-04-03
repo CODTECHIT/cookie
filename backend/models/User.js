@@ -19,6 +19,8 @@ const userSchema = new mongoose.Schema(
     role: { type: String, enum: ['admin', 'customer'], default: 'customer' },
 
     addresses: [addressSchema],
+    resetPasswordOTP: { type: String, select: false },
+    resetPasswordExpires: { type: Date, select: false },
 
     // Customer metrics (denormalized for fast dashboard)
     totalOrders: { type: Number, default: 0 },

@@ -27,6 +27,7 @@ import { AdminProvider, useAdmin } from "./admin/context/AdminContext";
 // Customer Auth
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
 
 // --- Lazy loaded Admin Components ---
 const AdminLayout = lazy(() => import("./admin/components/AdminLayout"));
@@ -96,6 +97,14 @@ function App() {
                       element={
                         <CustomerLayout>
                           <Login />
+                        </CustomerLayout>
+                      }
+                    />
+                    <Route
+                      path="/forgot-password"
+                      element={
+                        <CustomerLayout>
+                          <ForgotPassword />
                         </CustomerLayout>
                       }
                     />

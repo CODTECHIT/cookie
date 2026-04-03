@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAdmin } from '../context/AdminContext';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Link } from 'react-router-dom';
 import { Lock, Mail, Loader2 } from 'lucide-react';
 
 const AdminLogin = () => {
@@ -83,6 +83,12 @@ const AdminLogin = () => {
                 <span>Login Securely</span>
               )}
             </button>
+
+            <div className="mt-4 text-center">
+              <Link to="/forgot-password" size={14} className="text-xs font-bold text-gray-400 hover:text-primary transition-colors">
+                Forgot Password?
+              </Link>
+            </div>
           </form>
         </div>
       </div>

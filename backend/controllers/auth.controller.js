@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 import { successResponse, errorResponse } from "../utils/apiResponse.js";
+import { sendEmail } from "../utils/email.js";
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -172,6 +173,73 @@ export const registerAdmin = async (req, res) => {
     });
     const token = signToken(admin._id);
     successResponse(res, { token }, "Admin registered", 201);
+  } catch (err) {
+    errorResponse(res, err.message);
+  }
+};
+
+// POST /api/auth/forgot-password
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email: rawEmail } = req.body;
+    const email = rawEmail?.trim().toLowerCase();
+
+    if (!email) return errorResponse(res, "Email is required", 400);
+
+    const user = await User.findOne({ email });
+    if (!user) return errorResponse(res, "If an account exists with this email, you will receive an OTP", 200);
+
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // Save OTP to user (valid for 10 minutes)
+    user.resetPasswordOTP = otp;
+    user.resetPasswordExpires = Date.now() + 10 * 60 * 1000;
+    await user.save({ validateBeforeSave: false });
+
+    // ⚡ REAL EMAIL SENDER ACTIVATED!
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: "[Daksha Food Artisan] Secure Password Reset Request",
+        otp
+      });
+    } catch (emailErr) {
+      console.error("❌ Email Error:", emailErr.message);
+      // Fallback for developers if EMAIL_USER/PASS are not set yet
+      console.log(`🔐 BACKUP OTP for ${email}: ${otp}`);
+    }
+
+    successResponse(res, null, "OTP sent to your email address (valid for 10 mins)");
+  } catch (err) {
+    errorResponse(res, err.message);
+  }
+};
+
+// POST /api/auth/reset-password
+export const resetPassword = async (req, res) => {
+  try {
+    const { email: rawEmail, otp, password: newPassword } = req.body;
+    const email = rawEmail?.trim().toLowerCase();
+
+    if (!email || !otp || !newPassword) 
+      return errorResponse(res, "Email, OTP and New Password are required", 400);
+
+    const user = await User.findOne({ 
+      email, 
+      resetPasswordOTP: otp,
+      resetPasswordExpires: { $gt: Date.now() }
+    }).select("+resetPasswordOTP +resetPasswordExpires");
+
+    if (!user) return errorResponse(res, "Invalid or expired OTP", 400);
+
+    // Update password and clear OTP
+    user.passwordHash = newPassword;
+    user.resetPasswordOTP = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    successResponse(res, null, "Password reset successful! You can now login.");
   } catch (err) {
     errorResponse(res, err.message);
   }
