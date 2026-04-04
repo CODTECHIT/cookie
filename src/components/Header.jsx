@@ -5,7 +5,7 @@ import { useCart } from "../context/CartContext";
 import { useUser } from "../context/UserContext";
 
 const Header = () => {
-  const { categories, settings, coupons } = useSite();
+  const { categories, coupons } = useSite();
   const { cartCount } = useCart();
   const { user, logout } = useUser();
   const [scrolled, setScrolled] = useState(false);
@@ -45,6 +45,7 @@ const Header = () => {
     },
     { name: "Services", path: "/services" },
     { name: "About Us", path: "/about" },
+    { name: "Contact", path: "/contact" },
     { name: "My Orders", path: "/my-orders" },
   ];
 
@@ -104,7 +105,7 @@ const Header = () => {
                   >
                     {link.name}
                     {link.dropdown && (
-                      <span className="material-symbols-outlined text-sm font-black transition-transform group-hover/nav:rotate-180">
+                      <span className="material-symbols-outlined text-sm transition-transform group-hover/nav:rotate-180">
                         expand_more
                       </span>
                     )}
@@ -355,12 +356,12 @@ const Header = () => {
               </nav>
 
               <div className="mt-auto pt-10 border-t border-primary/5 space-y-6">
-                <div className="flex items-center gap-4 text-primary/60">
+                <a href="https://wa.me/919704254959?text=Hello%21%20I%27m%20interested%20in%20Daksha%20Cookies%20%26%20Millets.%20Can%20you%20please%20provide%20more%20information%3F" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 text-primary/60 hover:text-primary transition-colors">
                   <span className="material-symbols-outlined">call</span>
                   <span className="text-[10px] font-black uppercase tracking-widest">
-                    {settings?.phone || "+91 9704254959"}
+                    +91 9704254959
                   </span>
-                </div>
+                </a>
                 {user ? (
                   <div className="space-y-3">
                     <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10">

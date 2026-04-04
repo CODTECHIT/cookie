@@ -119,8 +119,8 @@ const Services = () => {
             <p className="text-sm md:text-base text-stone-400 font-medium italic mb-10 opacity-80">
                 Discuss your custom orders, wholesale requirements, or specific powder processing needs.
             </p>
-            <a href="tel:+919704254959" className="inline-flex items-center gap-4 bg-secondary text-primary px-10 py-4 rounded-xl font-black text-xs uppercase tracking-[0.3em] hover:bg-white transition-all shadow-xl active:scale-95 group">
-                Contact Us Now
+            <a href="https://wa.me/919704254959?text=Hello%21%20I%27m%20interested%20in%20Daksha%20Cookies%20%26%20Millets.%20Can%20you%20please%20provide%20more%20information%3F" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-4 bg-secondary text-primary px-10 py-4 rounded-xl font-black text-xs uppercase tracking-[0.3em] hover:bg-white transition-all shadow-xl active:scale-95 group">
+                Chat on WhatsApp
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </a>
         </div>

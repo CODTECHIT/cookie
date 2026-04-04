@@ -8,6 +8,8 @@ import {
 import { HelmetProvider } from "react-helmet-async";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import ScrollToTop from "./components/ScrollToTop";
+import WhatsAppButton from "./components/WhatsAppButton";
 import Home from "./pages/Home";
 import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
@@ -16,6 +18,7 @@ import About from "./pages/About";
 import Services from "./pages/Services";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import MyOrders from "./pages/MyOrders";
+import Contact from "./pages/Contact";
 import BottomNav from "./components/BottomNav";
 
 // Contexts
@@ -70,6 +73,7 @@ const CustomerLayout = ({ children }) => (
     <main className="flex-grow pb-24 lg:pb-0">{children}</main>
     <BottomNav />
     <Footer />
+    <WhatsAppButton />
   </div>
 );
 
@@ -81,6 +85,7 @@ function App() {
           <UserProvider>
             <AdminProvider>
               <Router>
+                <ScrollToTop />
                 <Suspense fallback={<PageLoader />}>
                   <Routes>
                     {/* CUSTOMER ROUTES */}
@@ -169,6 +174,14 @@ function App() {
                       element={
                         <CustomerLayout>
                           <Services />
+                        </CustomerLayout>
+                      }
+                    />
+                    <Route
+                      path="/contact"
+                      element={
+                        <CustomerLayout>
+                          <Contact />
                         </CustomerLayout>
                       }
                     />

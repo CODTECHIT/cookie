@@ -6,8 +6,8 @@ const PrivacyPolicy = () => {
   return (
     <>
       <SEO
-        title="Privacy Policy | Daksha Food Artisan"
-        description="Learn how Daksha Food Artisan collects, uses, and protects your personal data. Our commitment to your privacy and secure shopping experience. Contact us for any privacy concerns."
+        title="Privacy Policy | Daksha Cookies & Millets"
+        description="Learn how Daksha Cookies & Millets collects, uses, and protects your personal data. Our commitment to your privacy and secure shopping experience."
         keywords="privacy policy, data protection, personal information, security, cookies policy, terms of service, GDPR, data privacy India"
         url={`${window.location.origin}/privacy-policy`}
         noIndex={false}
@@ -173,11 +173,11 @@ const PrivacyPolicy = () => {
                 </p>
                 <p>
                   <strong className="text-white">Email:</strong>{" "}
-                  inspacialdesigns@gmail.com
+                  dakshacookiesmillets@gmail.com
                 </p>
                 <p>
-                  <strong className="text-white">WhatsApp:</strong> +91
-                  9704254959
+                  <strong className="text-white">Mobile:</strong> +91
+                  9704254959 (only WhatsApp)
                 </p>
               </div>
             </div>

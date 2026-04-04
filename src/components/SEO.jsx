@@ -24,13 +24,13 @@ const SEO = ({
   schema = null,
   noIndex = false,
 }) => {
-  const siteTitle = "Daksha Food Artisan";
-  const siteTagline = "Handcrafted Cookies & Millets";
+  const siteTitle = "Daksha Cookies & Millets";
+  const siteTagline = "Premium Artisanal Hearth & Heritage";
   const fullTitle = title
     ? `${title} | ${siteTitle}`
     : `${siteTitle} | ${siteTagline}`;
   const defaultDesc =
-    "Authentic, health-conscious artisanal treats including millet-based cookies and traditional snacks from the heart of Andhra Pradesh. Fresh, organic ingredients.";
+    "Authentic, health-conscious artisanal treats including millet-based cookies and traditional snacks from the heart of Andhra Pradesh. Handcrafted with soul.";
   const siteUrl = window.location.origin;
   const canonicalUrl =
     url || (typeof window !== "undefined" ? window.location.href : siteUrl);
@@ -61,7 +61,7 @@ const SEO = ({
       "@type": "ContactPoint",
       contactType: "Customer Service",
       telephone: "+919704254959",
-      email: "inspacialdesigns@gmail.com",
+      email: "dakshacookiesmillets@gmail.com",
     },
   };
 
