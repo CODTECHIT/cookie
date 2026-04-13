@@ -207,7 +207,7 @@ export const createProduct = async (req, res) => {
 // PUT /api/products/:id  (admin)
 export const updateProduct = async (req, res) => {
   try {
-    const { variants, tags, isFeatured } = req.body;
+    const { variants, tags, isFeatured, existingImages: existingImagesRaw } = req.body;
 
     const product = await Product.findById(req.params.id);
     if (!product) return errorResponse(res, "Product not found", 404);
@@ -222,9 +222,6 @@ export const updateProduct = async (req, res) => {
       "isActive",
       "lowStockThreshold",
       "discount",
-      "totalSold",
-      "avgRating",
-      "reviewCount",
     ];
     for (const field of allowedFields) {
       if (req.body[field] !== undefined) product[field] = req.body[field];
@@ -232,8 +229,7 @@ export const updateProduct = async (req, res) => {
 
     if (variants) {
       try {
-        const parsed =
-          typeof variants === "string" ? JSON.parse(variants) : variants;
+        const parsed = typeof variants === "string" ? JSON.parse(variants) : variants;
         product.variants = parsed;
       } catch {
         return errorResponse(res, "Invalid variants data format", 400);
@@ -242,9 +238,12 @@ export const updateProduct = async (req, res) => {
 
     if (tags) {
       try {
-        product.tags = typeof tags === "string" ? JSON.parse(tags) : tags;
+        const parsedTags = typeof tags === "string" ? JSON.parse(tags) : tags;
+        product.tags = Array.isArray(parsedTags) 
+          ? parsedTags.filter(t => t && t.trim() !== "") 
+          : [];
       } catch {
-        // Ignore tag parsing errors
+        // Fallback or ignore
       }
     }
 
@@ -252,33 +251,44 @@ export const updateProduct = async (req, res) => {
       product.isFeatured = isFeatured === "true" || isFeatured === true;
     }
 
+    // 📸 Handle Image Management (Add/Remove)
+    let finalImages = product.images;
+
+    // If admin sent a specific list of remaining images, use that
+    if (existingImagesRaw) {
+      try {
+        finalImages = typeof existingImagesRaw === "string" 
+          ? JSON.parse(existingImagesRaw) 
+          : existingImagesRaw;
+      } catch (err) {
+        console.error("Failed to parse existingImagesRaw", err);
+      }
+    }
+
     // Append new uploaded images
-    // ✅ Ensure Cloudinary URLs are used
     if (req.files && req.files.length > 0) {
       const newImages = req.files.map((file) => {
         const cloudinaryUrl = file.secure_url || file.path;
-        if (!cloudinaryUrl || cloudinaryUrl.includes("localhost")) {
-          throw new Error(
-            `Invalid image URL returned: ${cloudinaryUrl}. Check Cloudinary configuration.`,
-          );
-        }
         return {
           url: cloudinaryUrl,
           publicId: file.filename,
           isMain: false,
         };
       });
-      product.images.push(...newImages);
+      finalImages = [...finalImages, ...newImages];
     }
+    
+    // Ensure at least one image is main if images exist
+    if (finalImages.length > 0 && !finalImages.some(img => img.isMain)) {
+      finalImages[0].isMain = true;
+    }
+
+    product.images = finalImages;
 
     await product.save();
     successResponse(res, product, "Product updated successfully");
   } catch (err) {
     console.error("❌ Update Product Error:", err);
-    if (err.name === "ValidationError") {
-      const messages = Object.values(err.errors).map((e) => e.message);
-      return errorResponse(res, messages.join(", "), 400);
-    }
     errorResponse(res, err.message || "Error occurred while updating product");
   }
 };

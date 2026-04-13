@@ -25,7 +25,7 @@ const ProductsManagement = () => {
   const [formData, setFormData] = useState({
     name: '', slug: '', categoryId: '', description: '', shortDescription: '',
     variants: [{ weight: '250g', price: 0, originalPrice: 0, stockQty: 0 }],
-    isFeatured: false, tags: ''
+    isFeatured: false, tags: '', existingImages: []
   });
   const [selectedFiles, setSelectedFiles] = useState([]);
 
@@ -93,9 +93,14 @@ const ProductsManagement = () => {
     setFormLoading(true);
     const data = new FormData();
     Object.keys(formData).forEach(key => {
-      if (key === 'variants') data.append(key, JSON.stringify(formData[key]));
-      else if (key === 'tags') data.append(key, JSON.stringify(formData[key].split(',').map(t => t.trim())));
-      else data.append(key, formData[key]);
+      if (key === 'variants' || key === 'existingImages') {
+        data.append(key, JSON.stringify(formData[key]));
+      }
+      else if (key === 'tags') {
+        const tagList = formData[key].split(',').map(t => t.trim()).filter(t => t !== '');
+        data.append(key, JSON.stringify(tagList));
+      }
+      else data.append(key, formData[key] || '');
     });
     selectedFiles.forEach(file => data.append('images', file));
 
@@ -134,7 +139,6 @@ const ProductsManagement = () => {
           alert(data.message || 'Delete failed');
         }
       } catch (err) { 
-        // ⚡ UX Fix: If server returns 404 (Not Found), it's already deleted, so just refresh list
         if (err.response?.status === 404) {
           fetchProducts();
         } else {
@@ -145,7 +149,6 @@ const ProductsManagement = () => {
   };
 
   const resetForm = (prefillCategoryId = '') => {
-    // Find the actual _id if slug was used in the filter
     let catId = prefillCategoryId;
     if (prefillCategoryId && !prefillCategoryId.match(/^[0-9a-fA-F]{24}$/)) {
       const cat = categories.find(c => c.slug === prefillCategoryId);
@@ -155,7 +158,7 @@ const ProductsManagement = () => {
     setFormData({
       name: '', slug: '', categoryId: catId || '', description: '', shortDescription: '',
       variants: [{ weight: '250g', price: 0, originalPrice: 0, stockQty: 0 }],
-      isFeatured: false, tags: ''
+      isFeatured: false, tags: '', existingImages: []
     });
     setSelectedFiles([]);
     setEditingProduct(null);
@@ -165,11 +168,19 @@ const ProductsManagement = () => {
     setEditingProduct(p);
     setFormData({
       name: p.name, slug: p.slug, categoryId: p.categoryId?._id || p.categoryId,
-      description: p.description, shortDescription: p.shortDescription,
+      description: p.description || '', shortDescription: p.shortDescription || '',
       variants: p.variants, isFeatured: p.isFeatured, 
-      tags: p.tags?.join(', ') || ''
+      tags: p.tags?.join(', ') || '',
+      existingImages: p.images || []
     });
     setShowModal(true);
+  };
+
+  const removeExistingImage = (idx) => {
+    setFormData(prev => ({
+      ...prev,
+      existingImages: prev.existingImages.filter((_, i) => i !== idx)
+    }));
   };
 
   const filteredProducts = products.filter(p => {
@@ -334,20 +345,20 @@ const ProductsManagement = () => {
                     {formData.variants.map((v, i) => (
                       <div key={i} className="grid grid-cols-2 sm:grid-cols-5 gap-3 bg-white p-3 rounded-xl border border-gray-200 items-end animate-in slide-in-from-top-2">
                         <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase">Weight</label>
-                          <input placeholder="e.g. 250g" value={v.weight} onChange={(e) => handleVariantChange(i, 'weight', e.target.value)} required className="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-lg text-xs outline-none focus:ring-1 focus:ring-primary" />
+                           <label className="text-[10px] font-bold text-gray-400 uppercase">Weight</label>
+                           <input placeholder="e.g. 250g" value={v.weight} onChange={(e) => handleVariantChange(i, 'weight', e.target.value)} required className="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-lg text-xs outline-none focus:ring-1 focus:ring-primary" />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase">MRP (₹)</label>
-                          <input type="number" value={v.originalPrice} onChange={(e) => handleVariantChange(i, 'originalPrice', Number(e.target.value))} required className="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-lg text-xs outline-none focus:ring-1 focus:ring-primary" />
+                           <label className="text-[10px] font-bold text-gray-400 uppercase">MRP (₹)</label>
+                           <input type="number" value={v.originalPrice} onChange={(e) => handleVariantChange(i, 'originalPrice', Number(e.target.value))} required className="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-lg text-xs outline-none focus:ring-1 focus:ring-primary" />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase">Sale Price (₹)</label>
-                          <input type="number" value={v.price} onChange={(e) => handleVariantChange(i, 'price', Number(e.target.value))} required className="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-lg text-xs outline-none focus:ring-1 focus:ring-primary" />
+                           <label className="text-[10px] font-bold text-gray-400 uppercase">Sale Price (₹)</label>
+                           <input type="number" value={v.price} onChange={(e) => handleVariantChange(i, 'price', Number(e.target.value))} required className="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-lg text-xs outline-none focus:ring-1 focus:ring-primary" />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase">Stock Qty</label>
-                          <input type="number" value={v.stockQty} onChange={(e) => handleVariantChange(i, 'stockQty', Number(e.target.value))} required className="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-lg text-xs outline-none focus:ring-1 focus:ring-primary" />
+                           <label className="text-[10px] font-bold text-gray-400 uppercase">Stock Qty</label>
+                           <input type="number" value={v.stockQty} onChange={(e) => handleVariantChange(i, 'stockQty', Number(e.target.value))} required className="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-lg text-xs outline-none focus:ring-1 focus:ring-primary" />
                         </div>
                         <div className="flex justify-end">
                           <button type="button" onClick={() => removeVariant(i)} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
@@ -357,21 +368,44 @@ const ProductsManagement = () => {
                   </div>
                 </div>
 
-                {/* Image Upload */}
-                <div className="space-y-3">
-                  <label className="text-xs font-bold text-gray-500 uppercase flex items-center text-primary"><ImageIcon className="w-4 h-4 mr-2" /> Upload Product Images</label>
+                {/* Image Management (Existing + New) */}
+                <div className="space-y-4">
+                  <label className="text-xs font-bold text-gray-500 uppercase flex items-center text-primary">
+                    <ImageIcon className="w-4 h-4 mr-2" /> Product Gallery
+                  </label>
+                  
+                  {/* Current Images */}
+                  {formData.existingImages.length > 0 && (
+                    <div className="grid grid-cols-5 gap-3 mb-4">
+                      {formData.existingImages.map((img, idx) => (
+                        <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-gray-100 group">
+                          <img src={img.url} alt="" className="w-full h-full object-cover" />
+                          <button 
+                            type="button"
+                            onClick={() => removeExistingImage(idx)}
+                            className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                          {img.isMain && <div className="absolute bottom-0 inset-x-0 bg-primary/80 text-[8px] text-white font-bold py-0.5 text-center">MAIN</div>}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Upload New */}
                   <div className="flex items-center justify-center w-full">
-                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 rounded-3xl cursor-pointer bg-gray-50 hover:bg-gray-100/50 hover:border-primary/50 transition-all">
+                    <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-200 rounded-3xl cursor-pointer bg-gray-50 hover:bg-gray-100/50 hover:border-primary/50 transition-all">
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <Plus className="w-8 h-8 text-gray-400 mb-2" />
-                        <p className="text-xs text-gray-500 font-medium">Click to upload (up to 5 images)</p>
+                        <Plus className="w-6 h-6 text-gray-400 mb-1" />
+                        <p className="text-xs text-gray-500 font-medium">Add more photos (up to 5 total)</p>
                       </div>
                       <input type="file" multiple className="hidden" onChange={handleFileChange} />
                     </label>
                   </div>
                   {selectedFiles.length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-2">
-                      {selectedFiles.map((file, i) => <div key={i} className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-bold rounded-full">{file.name}</div>)}
+                      {selectedFiles.map((file, i) => <div key={i} className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-bold rounded-full flex items-center">{file.name} <X className="w-2 h-2 ml-1 cursor-pointer" onClick={() => setSelectedFiles(prev => prev.filter((_, idx) => idx !== i))} /></div>)}
                     </div>
                   )}
                 </div>

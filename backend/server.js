@@ -6,6 +6,8 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import mongoose from "mongoose";
 import compression from "compression";
+import mongoSanitize from "mongo-sanitize";
+import hpp from "hpp";
 import logger from "./utils/logger.js";
 
 import connectDB from "./config/db.js";
@@ -131,6 +133,13 @@ app.use((req, res, next) => {
 app.use(compression());
 app.use(express.json({ limit: "10kb" })); // Limit JSON payload size
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
+app.use((req, res, next) => {
+  req.body = mongoSanitize(req.body);
+  req.query = mongoSanitize(req.query);
+  req.params = mongoSanitize(req.params);
+  next();
+});
+app.use(hpp()); // Prevent HTTP Parameter Pollution
 if (process.env.NODE_ENV !== "production") app.use(morgan("dev"));
 
 // ─── Caching Strategy ────────────────────────────────────────────────────────
