@@ -152,6 +152,14 @@ if (process.env.NODE_ENV !== "production") app.use(morgan("dev"));
 
 // ─── Caching Strategy ────────────────────────────────────────────────────────
 app.use((req, res, next) => {
+  // Disable cache for Admin requests (Requests with Auth header)
+  if (req.headers.authorization) {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    return next();
+  }
+
   // Cache public product endpoints for 5 minutes
   if (req.method === 'GET' && /^\/api\/(products|categories)/.test(req.path)) {
     res.set('Cache-Control', 'public, max-age=300'); 
