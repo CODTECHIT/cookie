@@ -200,8 +200,8 @@ const Dashboard = () => {
               <AlertTriangle className="w-5 h-5 text-amber-500" />
               <h2 className="font-bold text-gray-900">Low Stock Alert</h2>
             </div>
-            <span className="text-xs font-bold px-2 py-1 bg-amber-50 text-amber-600 rounded-full">
-              {stats?.lowStockProducts?.length || 0} items
+            <span className={`text-xs font-bold px-2 py-1 rounded-full ${stats?.lowStockProducts?.length > 0 ? "bg-red-50 text-red-600" : "bg-emerald-50 text-emerald-600"}`}>
+              {stats?.lowStockProducts?.length || 0} items low
             </span>
           </div>
           <div className="flex-1 space-y-4">
@@ -209,31 +209,31 @@ const Dashboard = () => {
               stats.lowStockProducts.map((product) => (
                 <div
                   key={product._id}
-                  className="flex items-center justify-between p-3 bg-gray-50/50 rounded-xl hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-between p-3 bg-red-50/30 rounded-xl hover:bg-red-50/50 transition-colors border border-red-100/50"
                 >
                   <div className="min-w-0">
-                    <p className="font-medium text-gray-900 text-sm truncate">
+                    <p className="font-bold text-gray-900 text-sm truncate">
                       {product.name}
                     </p>
                     <p className="text-xs text-gray-500">
-                      {product.variants?.[0]?.weight || "N/A"}
+                      Stock: {product.totalStock}
                     </p>
                   </div>
-                  <span className="px-3 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-lg whitespace-nowrap">
-                    {product.totalStock} left
+                  <span className="px-3 py-1 bg-red-600 text-white text-xs font-black rounded-lg whitespace-nowrap shadow-sm">
+                    RESTOCK
                   </span>
                 </div>
               ))
             ) : (
               <div className="h-full flex flex-col items-center justify-center text-center py-8">
-                <div className="p-4 bg-green-50 rounded-full mb-3 text-green-500">
+                <div className="p-4 bg-emerald-50 rounded-full mb-3 text-emerald-500">
                   <Package className="w-8 h-8" />
                 </div>
-                <p className="text-sm font-medium text-gray-600">
-                  All products in stock
+                <p className="text-sm font-bold text-gray-800">
+                  Inventory Healthy
                 </p>
-                <p className="text-xs text-gray-400 mt-1 italic">
-                  Good job! Check back later.
+                <p className="text-xs text-gray-500 mt-1">
+                  All items are well above stock thresholds.
                 </p>
               </div>
             )}
@@ -326,37 +326,37 @@ const Dashboard = () => {
               {
                 label: "Add Product",
                 icon: Package,
-                link: "/admin/products",
+                link: "/cookies/admin@123/products",
                 color: "bg-blue-50 text-blue-600",
               },
               {
                 label: "View All Orders",
                 icon: ShoppingCart,
-                link: "/admin/orders",
+                link: "/cookies/admin@123/orders",
                 color: "bg-indigo-50 text-indigo-600",
               },
               {
                 label: "Create Coupon",
                 icon: Ticket,
-                link: "/admin/coupons",
+                link: "/cookies/admin@123/coupons",
                 color: "bg-orange-50 text-orange-600",
               },
               {
                 label: "Update Stock",
                 icon: Grid,
-                link: "/admin/products",
+                link: "/cookies/admin@123/products",
                 color: "bg-emerald-50 text-emerald-600",
               },
               {
                 label: "Moderate Reviews",
                 icon: Star,
-                link: "/admin/reviews",
+                link: "/cookies/admin@123/reviews",
                 color: "bg-purple-50 text-purple-600",
               },
               {
                 label: "Edit Homepage",
                 icon: Image,
-                link: "/admin/content",
+                link: "/cookies/admin@123/content",
                 color: "bg-pink-50 text-pink-600",
               },
             ].map((action, i) => (

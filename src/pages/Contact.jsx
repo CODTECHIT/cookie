@@ -200,7 +200,8 @@ const Contact = () => {
     );
 };
 
-const ContactCard = ({ icon: Icon, title, value, link }) => {
+const ContactCard = ({ icon, title, value, link }) => {
+    const Icon = icon;
     const content = (
         <div className="bg-white p-5 rounded-2xl border border-primary/5 hover:border-secondary transition-all group flex items-start gap-4 shadow-sm h-full">
             <div className="w-10 h-10 rounded-lg bg-primary/5 text-primary flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-white transition-all">

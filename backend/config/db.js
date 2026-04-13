@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import logger from '../utils/logger.js';
 
 let cached = global.mongoose;
 
@@ -30,13 +31,13 @@ const connectDB = async () => {
        cached.conn = await cached.promise;
        
        // Alert if we lose connection
-       mongoose.connection.on('error', err => console.error('❌ MongoDB secondary error:', err));
-       mongoose.connection.on('disconnected', () => console.warn('⚠️ MongoDB disconnected. Re-connecting...'));
+       mongoose.connection.on('error', err => logger.error('❌ MongoDB secondary error:', err));
+       mongoose.connection.on('disconnected', () => logger.warn('⚠️ MongoDB disconnected. Re-connecting...'));
        
-       console.log(`✅ MongoDB Connected (${mongoose.connection.name})`);
+       logger.info(`✅ MongoDB Connected (${mongoose.connection.name})`);
     } catch (error) {
        cached.promise = null;
-       console.error(`❌ MongoDB Connection Error: ${error.message}`);
+       logger.error(`❌ MongoDB Connection Error: ${error.message}`);
        throw error;
     }
     return cached.conn;

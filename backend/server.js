@@ -5,6 +5,8 @@ import morgan from "morgan";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import mongoose from "mongoose";
+import compression from "compression";
+import logger from "./utils/logger.js";
 
 import connectDB from "./config/db.js";
 
@@ -109,13 +111,9 @@ app.use((req, res, next) => {
   req.id = requestId;
 
   // ⚡ 2024 Cache-Prevention Fix: Force fresh content for all /api requests
-  // but allow site bootstrap to be cached for 60s for performance
   if (req.originalUrl.startsWith("/api/site/bootstrap")) {
     res.setHeader("Cache-Control", "public, s-maxage=60, stale-while-revalidate=120");
-    return next();
-  }
-
-  if (req.originalUrl.startsWith("/api")) {
+  } else if (req.originalUrl.startsWith("/api")) {
     res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");
@@ -126,12 +124,11 @@ app.use((req, res, next) => {
     "accelerometer=*, camera=(), geolocation=(), gyroscope=*, magnetometer=(), microphone=(), payment=*, usb=()",
   );
 
-  if (process.env.NODE_ENV === "development") {
-    console.log(`[${requestId}] ${req.method} ${req.path}`);
-  }
+  logger.debug(`[${requestId}] ${req.method} ${req.path}`);
   next();
 });
 
+app.use(compression());
 app.use(express.json({ limit: "10kb" })); // Limit JSON payload size
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 if (process.env.NODE_ENV !== "production") app.use(morgan("dev"));
@@ -196,13 +193,8 @@ app.use((req, res) => {
 
 // ─── Global Error Handler ─────────────────────────────────────────────────────
 app.use((err, req, res, next) => {
-  if (process.env.NODE_ENV === "development") {
-    console.error("❌ Error Detail:", err.stack);
-  } else {
-    console.error("❌ Error:", err.message);
-  }
+  logger.error(`${err.message}`, { stack: err.stack, requestId: req.id });
 
-  // Handle CORS errors specifically
   if (err.message === "Not allowed by CORS") {
     return res.status(403).json({ success: false, message: "CORS error: Origin not allowed" });
   }
@@ -217,21 +209,21 @@ app.use((err, req, res, next) => {
 
 // ─── Listeners & Graceful Shutdown ─────────────────────────────────────────────
 const server = app.listen(PORT, async () => {
-    console.log(`🚀 Backend Server running on http://localhost:${PORT}`);
-    console.log(`📦 Environment: ${process.env.NODE_ENV || "development"}`);
+    logger.info(`🚀 Backend Server running on http://localhost:${PORT}`);
+    logger.info(`📦 Environment: ${process.env.NODE_ENV || "development"}`);
 });
 
 // Handle graceful shutdown for database connections
 const shutdown = async (signal) => {
-    console.log(`\n🛑 Signal received (${signal}). Closing connections...`);
+    logger.info(`🛑 Signal received (${signal}). Closing connections...`);
     try {
         await mongoose.connection.close(false);
-        console.log('✅ MongoDB connection closed.');
+        logger.info('✅ MongoDB connection closed.');
         server.close(() => {
-            console.log('✅ Server HTTP terminated.');
+            logger.info('✅ Server HTTP terminated.');
             process.exit(0);
         });
-    } catch (err) {
+    } catch {
         process.exit(1);
     }
 };
