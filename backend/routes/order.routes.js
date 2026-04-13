@@ -13,7 +13,9 @@ router.get('/:id', protect, getOrderById);
 router.post('/', [
   protect,
   body('items').isArray({ min: 1 }).withMessage('At least one item is required'),
-  body('shippingAddress').notEmpty().withMessage('Shipping address is required'),
+  body('customerSnapshot.address.street').notEmpty().withMessage('Street address is required'),
+  body('customerSnapshot.address.city').notEmpty().withMessage('City is required'),
+  body('customerSnapshot.address.pincode').notEmpty().withMessage('Pincode is required'),
   body('grandTotal').isFloat({ min: 0 }).withMessage('Valid total is required'),
   validate
 ], createOrder);

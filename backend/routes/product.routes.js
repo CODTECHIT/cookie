@@ -1,5 +1,9 @@
 import express from 'express';
-import { getProducts, getProductById, createProduct, updateProduct, deleteProduct, updateStock, createProductReview, getProductReviews } from '../controllers/product.controller.js';
+import { 
+  getProducts, getProductById, createProduct, updateProduct, 
+  deleteProduct, updateStock, createProductReview, 
+  getProductReviews, syncProducts 
+} from '../controllers/product.controller.js';
 import { protect, adminOnly } from '../middleware/auth.js';
 import { uploadProductImages } from '../middleware/upload.js';
 
@@ -9,6 +13,7 @@ import { validate } from '../middleware/validator.js';
 const router = express.Router();
 
 router.get('/', getProducts);                                                                       // public
+router.post('/sync', syncProducts);                                                                // public
 router.get('/:id', getProductById);                                                                 // public
 router.post('/', [
   protect, 

@@ -397,3 +397,20 @@ export const createProductReview = async (req, res) => {
     errorResponse(res, err.message);
   }
 };
+
+// POST /api/products/sync - Bulk fetch products by ID for cart synchronization
+export const syncProducts = async (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids)) return errorResponse(res, "Invalid product IDs", 400);
+
+    const products = await Product.find({ 
+      _id: { $in: ids },
+      isActive: { $ne: false } // Only return active products
+    }).select("name variants images shortDescription totalStock");
+
+    successResponse(res, products);
+  } catch (err) {
+    errorResponse(res, err.message);
+  }
+};

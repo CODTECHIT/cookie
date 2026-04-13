@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import axios from "axios";
 import { useSite } from "./SiteContext";
 import { getSafeImageUrl } from "../utils/imageUrl";
 
@@ -17,8 +18,41 @@ export const CartProvider = ({ children }) => {
   });
 
   useEffect(() => {
+    const syncCart = async () => {
+      if (cartItems.length === 0) return;
+      try {
+        const API_URL =
+          import.meta.env.VITE_API_URL ||
+          (import.meta.env.PROD ? "/api" : "http://localhost:5000/api");
+        const ids = cartItems.map((item) => item.id);
+        const { data } = await axios.post(`${API_URL}/products/sync`, { ids });
+
+        if (data.success) {
+          const validProducts = data.data;
+          setCartItems((prev) => {
+            return prev
+              .filter((item) => validProducts.some((p) => p._id === item.id))
+              .map((item) => {
+                const p = validProducts.find((prod) => prod._id === item.id);
+                const v = p.variants?.find((variant) => variant.weight === item.weight);
+                if (v) {
+                  return { ...item, price: v.price, oldPrice: v.originalPrice };
+                }
+                return item;
+              });
+          });
+        }
+      } catch (err) {
+        console.error("Cart Sync Failed:", err);
+      }
+    };
+
+    syncCart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
+
+  useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cartItems));
-    // Trigger storage event for other components (like Header) if needed
     window.dispatchEvent(new Event("storage"));
   }, [cartItems]);
 
