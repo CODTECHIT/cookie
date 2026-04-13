@@ -134,9 +134,17 @@ app.use(compression());
 app.use(express.json({ limit: "10kb" })); // Limit JSON payload size
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use((req, res, next) => {
-  req.body = mongoSanitize(req.body);
-  req.query = mongoSanitize(req.query);
-  req.params = mongoSanitize(req.params);
+  if (req.body) req.body = mongoSanitize(req.body);
+  if (req.query) {
+    const sanitizedQuery = mongoSanitize(req.query);
+    Object.keys(req.query).forEach(key => delete req.query[key]);
+    Object.assign(req.query, sanitizedQuery);
+  }
+  if (req.params) {
+    const sanitizedParams = mongoSanitize(req.params);
+    Object.keys(req.params).forEach(key => delete req.params[key]);
+    Object.assign(req.params, sanitizedParams);
+  }
   next();
 });
 app.use(hpp()); // Prevent HTTP Parameter Pollution
