@@ -62,7 +62,7 @@ const ForgotPassword = () => {
         title="Reset Password"
         description="Recover your Daksha Food Artisan account securely using your registered email address."
       />
-      <div className="pt-10 pb-20 px-6 min-h-screen bg-[#FDFBF7] flex items-center justify-center">
+      <div className="pt-0 md:pt-10 pb-20 px-6 min-h-screen bg-[#FDFBF7] flex items-center justify-center">
         <div className="w-full max-w-md">
           <div className="bg-white rounded-[3rem] p-10 md:p-12 shadow-xl shadow-primary/5 border border-stone-100 transition-all duration-500">
             

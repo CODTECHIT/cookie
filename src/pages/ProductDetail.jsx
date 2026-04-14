@@ -113,7 +113,7 @@ const ProductDetail = () => {
       : ["/placeholder-product.png"];
 
   return (
-    <div className="pt-6 lg:pt-28 pb-24 px-4 xl:px-16 max-w-[1700px] mx-auto min-h-screen bg-[#FDFBF7]">
+    <div className="pt-0 lg:pt-28 pb-24 px-4 xl:px-16 max-w-[1700px] mx-auto min-h-screen bg-[#FDFBF7]">
       <SEO
         title={`${product.name} | Buy Online at Daksha Food Artisan`}
         description={product.shortDescription || product.description?.substring(0, 160) || `Buy premium ${product.name} at Daksha Food Artisan. Handcrafted with love using traditional recipes and organic ingredients. Free shipping on orders above ₹999.`}

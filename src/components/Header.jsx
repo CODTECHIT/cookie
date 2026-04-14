@@ -53,7 +53,7 @@ const Header = () => {
     <>
       {/* 🎟️ Top Coupon Banner */}
       {activeCoupon && (
-        <div className="bg-[#331917] text-[#fed255] py-2 px-4 text-center text-[10px] font-black uppercase tracking-[0.3em] z-[60] relative min-h-[32px] flex items-center justify-center">
+        <div className="hidden lg:flex bg-[#331917] text-[#fed255] py-2 px-4 text-center text-[10px] font-black uppercase tracking-[0.3em] z-[60] relative min-h-[32px] items-center justify-center">
           <span className="italic flex items-center justify-center gap-2">
             <span className="material-symbols-outlined text-xs">sell</span>
             Limited Offer: Use code {activeCoupon.code} to get{" "}
