@@ -14,9 +14,18 @@ export const getCategories = async (req, res) => {
 // POST /api/categories
 export const createCategory = async (req, res) => {
   try {
-    const { name, slug, description, isActive, sortOrder } = req.body;
-    const image = req.file?.path || '';
-    const category = await Category.create({ name, slug, description, image, isActive: isActive !== undefined ? isActive === 'true' || isActive === true : true, sortOrder: sortOrder || 0 });
+    const finalSlug = (slug || name)
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)+/g, "");
+    const category = await Category.create({ 
+      name, 
+      slug: finalSlug, 
+      description, 
+      image, 
+      isActive: isActive !== undefined ? isActive === 'true' || isActive === true : true, 
+      sortOrder: sortOrder || 0 
+    });
     successResponse(res, category, 'Category created', 201);
   } catch (err) {
     errorResponse(res, err.message);
@@ -30,6 +39,15 @@ export const updateCategory = async (req, res) => {
     if (req.file) update.image = req.file.path;
     if (update.isActive !== undefined) {
       update.isActive = update.isActive === 'true' || update.isActive === true;
+    }
+    if (update.slug) {
+      update.slug = update.slug
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)+/g, "");
+    } else if (update.name && !update.slug) {
+       // Optional: auto-update slug if name changes and slug is not provided
+       // But usually better to keep slug stable unless explicitly changed
     }
     if (update.sortOrder !== undefined) {
       update.sortOrder = Number(update.sortOrder) || 0;

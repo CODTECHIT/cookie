@@ -21,7 +21,7 @@ const Services = () => {
       />
 
       {/* 🚀 PROFESSIONAL HERO SECTION */}
-      <section className="relative min-h-[60vh] flex items-center justify-center pt-44 pb-20">
+      <section className="relative min-h-[60vh] flex items-center justify-center pt-10 pb-20">
         <div className="absolute inset-0 z-0 overflow-hidden">
           <img 
             src={heroImg} 

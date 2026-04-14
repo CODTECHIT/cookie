@@ -42,14 +42,23 @@ const CategoriesManagement = () => {
     finally { setLoading(false); }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({ 
-      ...prev, 
-      [name]: type === 'checkbox' ? checked : value,
-      // Auto-generate slug if name changes and it's a new category
-      slug: (name === 'name' && !editingCategory) ? value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : (name === 'slug' ? value : prev.slug)
-    }));
+    setFormData(prev => {
+      const newData = { ...prev, [name]: type === 'checkbox' ? checked : value };
+      
+      if (name === 'name' && !editingCategory) {
+        newData.slug = value.toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)+/g, '');
+      }
+      
+      if (name === 'slug') {
+        newData.slug = value.toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^a-z0-9-]/g, '');
+      }
+      
+      return newData;
+    });
   };
 
   const handleFileChange = (e) => setSelectedFile(e.target.files[0]);

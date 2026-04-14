@@ -110,7 +110,7 @@ const MyOrders = () => {
         keywords="my orders, order tracking, shipment status, cookies online, order history, order management"
         url={`${window.location.origin}/my-orders`}
       />
-      <div className="pt-44 pb-20 px-4 md:px-8 max-w-6xl mx-auto min-h-screen">
+      <div className="pt-10 pb-20 px-4 md:px-8 max-w-6xl mx-auto min-h-screen">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">
           <div>
             <Link

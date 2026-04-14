@@ -325,7 +325,7 @@ const Cart = () => {
           keywords="shopping cart, bag, checkout, cookies online, buy cookies India"
           url={`${window.location.origin}/cart`}
         />
-        <div className="pt-44 pb-24 px-4 xl:px-10 max-w-[1700px] mx-auto min-h-screen bg-[#FDFBF7]">
+        <div className="pt-8 pb-24 px-4 xl:px-10 max-w-[1700px] mx-auto min-h-screen bg-[#FDFBF7]">
           <div className="text-center mb-8">
             <h1 className="text-5xl font-serif font-bold text-primary mb-4 italic">
               Shopping Bag
@@ -356,7 +356,7 @@ const Cart = () => {
         keywords="shopping cart, bag, items, checkout, cookies online, buy cookies India"
         url={`${window.location.origin}/cart`}
       />
-      <div className="pt-8 md:pt-44 pb-24 px-4 xl:px-10 max-w-[1700px] mx-auto min-h-screen bg-[#FDFBF7]">
+      <div className="pt-8 md:pt-28 pb-24 px-4 xl:px-10 max-w-[1700px] mx-auto min-h-screen bg-[#FDFBF7]">
         <div className="mb-6 md:mb-8">
           <h1 className="text-3xl md:text-4xl font-serif font-black text-primary italic mb-2">
             Shopping Bag

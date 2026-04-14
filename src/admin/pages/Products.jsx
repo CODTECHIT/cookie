@@ -59,7 +59,25 @@ const ProductsManagement = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+    setFormData(prev => {
+      const newData = { ...prev, [name]: type === 'checkbox' ? checked : value };
+      
+      // Auto-generate slug from name if we're adding a new product and slug hasn't been touched much
+      if (name === 'name' && !editingProduct) {
+        newData.slug = value.toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)+/g, '');
+      }
+      
+      // Sanitize manual slug input
+      if (name === 'slug') {
+        newData.slug = value.toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^a-z0-9-]/g, '');
+      }
+      
+      return newData;
+    });
   };
 
   const handleVariantChange = (index, field, value) => {

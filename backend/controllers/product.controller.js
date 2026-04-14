@@ -165,10 +165,7 @@ export const createProduct = async (req, res) => {
       parsedTags = [];
     }
 
-    // Auto-generate slug if missing
-    const finalSlug =
-      slug ||
-      name
+    const finalSlug = (slug || name)
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/(^-|-$)+/g, "");
@@ -224,7 +221,16 @@ export const updateProduct = async (req, res) => {
       "discount",
     ];
     for (const field of allowedFields) {
-      if (req.body[field] !== undefined) product[field] = req.body[field];
+      if (req.body[field] !== undefined) {
+        if (field === 'slug') {
+          product[field] = req.body[field]
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/(^-|-$)+/g, "");
+        } else {
+          product[field] = req.body[field];
+        }
+      }
     }
 
     if (variants) {
