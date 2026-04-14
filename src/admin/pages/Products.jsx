@@ -330,9 +330,15 @@ const ProductsManagement = () => {
                 </div>
 
                 {/* Description */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-gray-500 uppercase">Description</label>
-                  <textarea name="description" value={formData.description} onChange={handleInputChange} rows="3" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-1 focus:ring-primary text-sm font-medium" />
+                <div className="grid grid-cols-1 gap-6">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-gray-500 uppercase">Short Description (Summary)</label>
+                    <input name="shortDescription" value={formData.shortDescription} onChange={handleInputChange} className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-1 focus:ring-primary text-sm font-medium" placeholder="Brief summary for product cards..." />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-gray-500 uppercase">Main Description (The Story)</label>
+                    <textarea name="description" value={formData.description} onChange={handleInputChange} rows="4" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-1 focus:ring-primary text-sm font-medium" placeholder="Detailed product story and details..." />
+                  </div>
                 </div>
 
                 {/* Variants Management */}

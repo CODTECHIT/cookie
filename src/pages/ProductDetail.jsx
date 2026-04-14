@@ -229,7 +229,7 @@ const ProductDetail = () => {
             )}
           </div>
 
-          <div className="text-sm text-stone-600 font-medium italic leading-relaxed mb-10 border-l-4 border-stone-100 pl-6 font-sans">
+          <div className="text-sm text-stone-600 font-medium italic leading-relaxed mb-10 border-l-4 border-stone-100 pl-6 font-sans whitespace-pre-wrap">
             {product.shortDescription || product.description?.substring(0, 150)}
           </div>
 
@@ -327,7 +327,7 @@ const ProductDetail = () => {
             <h3 className="text-xs font-bold text-primary italic mb-4 uppercase tracking-widest font-sans">
               The Story
             </h3>
-            <p className="text-sm text-stone-500 leading-relaxed font-sans">
+            <p className="text-sm text-stone-500 leading-relaxed font-sans whitespace-pre-wrap">
               {product.description}
             </p>
           </div>

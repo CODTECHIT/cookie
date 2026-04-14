@@ -54,7 +54,7 @@ export const getProducts = async (req, res) => {
       Product.find(filter)
         .populate("categoryId", "name slug")
         .select(
-          "name slug shortDescription images variants isFeatured price totalStock avgRating reviewCount",
+          "name slug description shortDescription images variants isFeatured price totalStock avgRating reviewCount isActive tags metaTitle metaDescription lowStockThreshold",
         )
         .skip(skip)
         .limit(Number(limit))
