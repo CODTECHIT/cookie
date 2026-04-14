@@ -160,9 +160,9 @@ app.use((req, res, next) => {
     return next();
   }
 
-  // Cache public product endpoints for 5 minutes
+  // Cache public product endpoints for 1 minute (Reduced for faster admin reflect)
   if (req.method === 'GET' && /^\/api\/(products|categories)/.test(req.path)) {
-    res.set('Cache-Control', 'public, max-age=300'); 
+    res.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=120'); 
   }
   // Cache static content for 1 hour
   else if (req.method === 'GET' && /^\/api\/(content|banners)/.test(req.path)) {

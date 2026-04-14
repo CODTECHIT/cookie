@@ -27,7 +27,7 @@ const ProductDetail = () => {
     }
     setLoading(true);
     try {
-      const { data } = await axios.get(`${API_URL}/products/${id}`);
+      const { data } = await axios.get(`${API_URL}/products/${id}?t=${Date.now()}`);
       if (data.success && data.data) {
         setProduct(data.data);
         if (data.data.variants?.length > 0) {

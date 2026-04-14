@@ -41,7 +41,7 @@ const ProductsManagement = () => {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const { data } = await axios.get(`${API_URL}/categories`);
+      const { data } = await axios.get(`${API_URL}/categories?t=${Date.now()}`);
       if (data.success) setCategories(data.data);
     } catch { /* ignored */ }
   }, [API_URL]);
