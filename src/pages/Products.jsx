@@ -134,7 +134,6 @@ const Products = () => {
   
   // ⚡ Add pagination state
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
   const sortOptions = [
@@ -185,8 +184,7 @@ const Products = () => {
         },
       });
       if (data.success) {
-        setProducts(page === 1 ? data.data.products : [...products, ...data.data.products]);
-        setTotalPages(data.data.pages || 1);
+        setProducts(prev => page === 1 ? data.data.products : [...prev, ...data.data.products]);
         setHasMore(page < (data.data.pages || 1));
       }
     } catch (err) {
@@ -206,11 +204,6 @@ const Products = () => {
 
     if (result.visibleonCatalog === false) result = result.filter(p => p.visibleonCatalog !== false);
     
-    const minPrice =
-      result[0]?.variants?.reduce(
-        (min, v) => (v.price < min ? v.price : min),
-        Infinity,
-      ) || 0;
     result = result.filter(p => {
       const pMinPrice =
         p.variants?.reduce(

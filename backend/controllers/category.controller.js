@@ -14,6 +14,8 @@ export const getCategories = async (req, res) => {
 // POST /api/categories
 export const createCategory = async (req, res) => {
   try {
+    const { name, slug, description, isActive, sortOrder } = req.body;
+    const image = req.file?.path || '';
     const finalSlug = (slug || name)
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
