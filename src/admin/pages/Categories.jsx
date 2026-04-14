@@ -39,9 +39,10 @@ const CategoriesManagement = () => {
       });
       if (data.success) setCategories(data.data);
     } catch (err) { console.error(err); }
-    finally { setLoading(false); }
   };
-
+  
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
     setFormData(prev => {
       const newData = { ...prev, [name]: type === 'checkbox' ? checked : value };
       
