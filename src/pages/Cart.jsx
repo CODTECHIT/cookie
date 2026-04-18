@@ -7,6 +7,35 @@ import SEO from "../components/SEO";
 import { Truck, MapPin, CheckCircle, ShieldCheck } from "lucide-react";
 import { getSafeImageUrl } from "../utils/imageUrl";
 
+const RAZORPAY_SCRIPT_SRC = "https://checkout.razorpay.com/v1/checkout.js";
+
+const loadRazorpayScript = () => {
+  if (window.Razorpay) return Promise.resolve(true);
+
+  return new Promise((resolve) => {
+    const existingScript = document.querySelector(
+      `script[src="${RAZORPAY_SCRIPT_SRC}"]`,
+    );
+
+    if (existingScript) {
+      existingScript.addEventListener("load", () => resolve(true), {
+        once: true,
+      });
+      existingScript.addEventListener("error", () => resolve(false), {
+        once: true,
+      });
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = RAZORPAY_SCRIPT_SRC;
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
 const Cart = () => {
   const {
     cartItems,
@@ -108,6 +137,13 @@ const Cart = () => {
 
     setLoading(true);
     try {
+      const razorpayLoaded = await loadRazorpayScript();
+      if (!razorpayLoaded) {
+        throw new Error(
+          "Razorpay SDK failed to load. Please check your internet connection.",
+        );
+      }
+
       const API_URL =
         import.meta.env.VITE_API_URL ||
         (import.meta.env.PROD

@@ -14,14 +14,38 @@
     <!-- Google Site Verification -->
     <meta name="google-site-verification" content="EvIfPebR-glXZYbPjkPGbB5o2nOGYvP9JMIcR8OKIoY" />
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4T6FBRJPKR"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+      (() => {
+        const gaId = "G-4T6FBRJPKR";
+        const bootstrapAnalytics = () => {
+          if (window.__dakshaAnalyticsLoaded) return;
+          window.__dakshaAnalyticsLoaded = true;
 
-      gtag('config', 'G-4T6FBRJPKR');
+          const script = document.createElement("script");
+          script.async = true;
+          script.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
+          script.onload = () => {
+            window.dataLayer = window.dataLayer || [];
+            window.gtag = function gtag() {
+              window.dataLayer.push(arguments);
+            };
+            window.gtag("js", new Date());
+            window.gtag("config", gaId);
+          };
+
+          document.head.appendChild(script);
+        };
+
+        if ("requestIdleCallback" in window) {
+          window.requestIdleCallback(bootstrapAnalytics, { timeout: 3000 });
+        } else {
+          window.addEventListener(
+            "load",
+            () => window.setTimeout(bootstrapAnalytics, 1500),
+            { once: true },
+          );
+        }
+      })();
     </script>
 
     <meta charset="UTF-8" />
@@ -111,9 +135,6 @@
       href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block"
       rel="stylesheet"
     />
-
-    <!-- Payment Gateway -->
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <!-- JSON-LD Structured Data for Local Business -->
     <script type="application/ld+json">

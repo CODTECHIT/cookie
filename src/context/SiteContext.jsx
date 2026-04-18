@@ -20,7 +20,7 @@ export const SiteProvider = ({ children }) => {
   const fetchSiteData = useCallback(async () => {
     try {
       // ⚡ Optimized Boot: ONE request for ALL critical storefront data
-      const { data } = await axios.get(`${API_URL}/site/bootstrap?t=${Date.now()}`);
+      const { data } = await axios.get(`${API_URL}/site/bootstrap`);
       
       if (data.success) {
         const { settings, categories, coupons, banners, featuredProducts, bestSellers } = data.data;

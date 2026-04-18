@@ -21,8 +21,15 @@ export const getSiteBootstrap = async (req, res) => {
       }).lean(),
       Banner.find({ isActive: true }).sort({ sortOrder: 1 }).lean(),
       // ⚡ HOME PAGE BOOST: Fetch featured and latest products for instant display
-      Product.find({ isFeatured: true, isActive: true }).limit(10).lean(),
-      Product.find({ isActive: true }).sort({ createdAt: -1 }).limit(12).lean()
+      Product.find({ isFeatured: true, isActive: true })
+        .select("name slug images variants avgRating reviewCount isFeatured")
+        .limit(10)
+        .lean(),
+      Product.find({ isActive: true })
+        .select("name slug images variants avgRating reviewCount")
+        .sort({ createdAt: -1 })
+        .limit(12)
+        .lean()
     ]);
 
     successResponse(res, {

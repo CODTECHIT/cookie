@@ -64,20 +64,15 @@ const Home = () => {
     return () => clearInterval(timer);
   }, [activeSlides.length, isLoading]);
 
-  useEffect(() => {
-    if (isLoading || activeSlides.length === 0) return;
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % activeSlides.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [activeSlides.length, isLoading]);
-
   const prevSlide = () =>
     setCurrentSlide(
       (prev) => (prev - 1 + activeSlides.length) % activeSlides.length,
     );
   const nextSlide = () =>
     setCurrentSlide((prev) => (prev + 1) % activeSlides.length);
+  
+  const nextSlideIndex =
+    activeSlides.length > 0 ? (currentSlide + 1) % activeSlides.length : 0;
 
   const handleBuyNow = (prod, variant) => {
     addToCart(prod, variant, 1);
@@ -110,13 +105,16 @@ const Home = () => {
         <div className="px-4">
           <div className="aspect-[16/9] w-full bg-primary rounded-3xl overflow-hidden relative shadow-2xl">
             {activeSlides.map((slide, i) => (
+              (i === currentSlide || i === nextSlideIndex) &&
               <img
                 key={i}
                 className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === currentSlide ? "opacity-60" : "opacity-0"}`}
                 src={slide.imageUrl || slide.src || "/placeholder-banner.png"}
                 onError={(e) => (e.target.src = "/placeholder-banner.png")}
+                loading={i === currentSlide ? "eager" : "lazy"}
+                fetchPriority={i === currentSlide ? "high" : "low"}
                 decoding="async"
-                alt=""
+                alt={slide.title || "Daksha hero banner"}
               />
             ))}
             <div className="absolute inset-0 p-5 flex flex-col justify-center z-10 text-white">
@@ -182,14 +180,15 @@ const Home = () => {
         <section className="relative overflow-hidden h-[65vh] xl:h-[75vh] flex items-center group pt-20">
           <div className="absolute inset-0 z-0">
             {activeSlides.map((slide, i) => (
+              (i === currentSlide || i === nextSlideIndex) &&
               <img
                 key={i}
                 src={slide.imageUrl || slide.src || "/placeholder-banner.png"}
                 onError={(e) => (e.target.src = "/placeholder-banner.png")}
                 className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === currentSlide ? "opacity-100" : "opacity-0"}`}
                 alt={slide.title || "Banner Image"}
-                loading="eager"
-                fetchPriority={i === 0 ? "high" : "auto"}
+                loading={i === currentSlide ? "eager" : "lazy"}
+                fetchPriority={i === currentSlide ? "high" : "low"}
                 decoding="async"
               />
             ))}
@@ -286,7 +285,9 @@ const Home = () => {
                     src={b.imageUrl || "/placeholder-banner.png"}
                     onError={(e) => (e.target.src = "/placeholder-banner.png")}
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2000ms]"
-                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    alt={b.title || "Daksha banner"}
                   />
                   <div className="absolute inset-0 bg-black/30 flex flex-col justify-end p-8 text-white">
                     <h3 className="text-2xl font-serif font-black italic mb-1">
@@ -405,7 +406,9 @@ const Home = () => {
                     src={b.imageUrl || "/placeholder-banner.png"}
                     onError={(e) => (e.target.src = "/placeholder-banner.png")}
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2000ms]"
-                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    alt={b.title || "Daksha service banner"}
                   />
                   <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-8 text-white">
                     <h3 className="text-xl font-serif font-black italic mb-1">
@@ -482,6 +485,8 @@ const DesktopCategory = ({ label, src, to }) => (
         src={src || "/placeholder-category.png"}
         onError={(e) => (e.target.src = "/placeholder-category.png")}
         className="w-full h-full object-cover rounded-full group-hover:scale-105 transition-transform"
+        loading="lazy"
+        decoding="async"
         alt={label}
       />
     </div>
@@ -585,6 +590,8 @@ const RoundProductCard = ({ p, onBuy }) => (
             src={getSafeImageUrl(p.images?.[0]?.url)}
             onError={(e) => (e.target.src = "/placeholder-product.png")}
             className="w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
             alt={p.name}
           />
         </div>
