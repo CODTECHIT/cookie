@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAdmin } from '../context/AdminContext';
 import { Navigate, Link } from 'react-router-dom';
 import { Lock, Mail, Loader2 } from 'lucide-react';
+import { CONFIG } from '../../utils/config';
 
 const AdminLogin = () => {
   const [email, setEmail] = useState('');
@@ -10,7 +11,7 @@ const AdminLogin = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login, admin } = useAdmin();
 
-  if (admin) return <Navigate to="/cookies/admin@123/dashboard" replace />;
+  if (admin) return <Navigate to={`${CONFIG.ADMIN_PATH_PREFIX}/dashboard`} replace />;
 
   const handleSubmit = async (e) => {
     e.preventDefault();

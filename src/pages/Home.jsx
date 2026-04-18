@@ -187,7 +187,10 @@ const Home = () => {
                 src={slide.imageUrl || slide.src || "/placeholder-banner.png"}
                 onError={(e) => (e.target.src = "/placeholder-banner.png")}
                 className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === currentSlide ? "opacity-100" : "opacity-0"}`}
-                alt=""
+                alt={slide.title || "Banner Image"}
+                loading="eager"
+                fetchPriority={i === 0 ? "high" : "auto"}
+                decoding="async"
               />
             ))}
             <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/10 to-transparent"></div>
@@ -215,12 +218,14 @@ const Home = () => {
           </div>
           <button
             onClick={prevSlide}
+            aria-label="Previous Slide"
             className="absolute left-6 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-white/40"
           >
             <span className="material-symbols-outlined">chevron_left</span>
           </button>
           <button
             onClick={nextSlide}
+            aria-label="Next Slide"
             className="absolute right-6 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-white/40"
           >
             <span className="material-symbols-outlined">chevron_right</span>

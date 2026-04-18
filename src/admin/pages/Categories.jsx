@@ -37,8 +37,14 @@ const CategoriesManagement = () => {
       const { data } = await axios.get(`${API_URL}/categories?t=${Date.now()}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (data.success) setCategories(data.data);
-    } catch (err) { console.error(err); }
+      if (data.success) {
+        setCategories(data.data);
+      }
+    } catch (err) { 
+      console.error(err); 
+    } finally {
+      setLoading(false);
+    }
   };
   
   const handleInputChange = (e) => {
@@ -150,18 +156,19 @@ const CategoriesManagement = () => {
         </button>
       </div>
 
+      {/* Search Bar - Improved placement for all screen sizes */}
+      <div className="w-full relative mb-8">
+         <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+         <input 
+           type="text" 
+           placeholder="Search through all product collections..." 
+           className="w-full pl-14 pr-6 py-5 bg-white border border-gray-100 rounded-[32px] shadow-sm focus:ring-4 focus:ring-primary/5 focus:shadow-xl outline-none text-sm font-bold transition-all"
+           value={searchTerm}
+           onChange={(e) => setSearchTerm(e.target.value)}
+         />
+      </div>
+
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Search Bar - Fixed missing UI usage */}
-        <div className="w-full relative lg:hidden mb-4">
-           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-           <input 
-             type="text" 
-             placeholder="Search collections..." 
-             className="w-full pl-12 pr-4 py-4 bg-white border border-gray-100 rounded-2xl focus:ring-4 focus:ring-primary/5 outline-none text-sm transition-all"
-             value={searchTerm}
-             onChange={(e) => setSearchTerm(e.target.value)}
-           />
-        </div>
 
         {/* Analytics Summary */}
         <div className="w-full lg:w-[320px] space-y-4 shrink-0">

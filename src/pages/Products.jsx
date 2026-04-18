@@ -404,12 +404,14 @@ const Products = () => {
                   id: p._id,
                   slug: p.slug,
                   title: p.name,
-                  price: p.variants?.[0]?.price,
-                  oldPrice: p.variants?.[0]?.originalPrice,
+                  price: p.variants?.[0]?.price || 0,
+                  oldPrice: p.variants?.[0]?.originalPrice || 0,
                   img: getSafeImageUrl(
                     p.images?.find((i) => i.isMain)?.url || p.images?.[0]?.url,
                   ),
                   tagline: p.shortDescription || "Artisanal",
+                  rating: p.avgRating,
+                  reviews: p.reviewCount,
                 }}
               />
             ))}

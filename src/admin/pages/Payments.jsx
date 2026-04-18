@@ -34,12 +34,7 @@ const PaymentsManagement = () => {
   // Dashboard Metrics
   const [summary, setSummary] = useState({ online: 0, pending: 0, failed: 0 });
 
-  useEffect(() => {
-    fetchPayments();
-    fetchPaymentReport();
-  }, [API_URL, token, statusFilter, historyMode]);
-
-  const fetchPayments = async () => {
+  const fetchPayments = useCallback(async () => {
     setLoading(true);
     try {
       const { data } = await axios.get(`${API_URL}/payments`, {
@@ -66,9 +61,9 @@ const PaymentsManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_URL, token, statusFilter, searchTerm]);
 
-  const fetchPaymentReport = async () => {
+  const fetchPaymentReport = useCallback(async () => {
     try {
       const fromDate = new Date();
       if (historyMode === "6m") {
@@ -88,7 +83,12 @@ const PaymentsManagement = () => {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [API_URL, token, historyMode]);
+
+  useEffect(() => {
+    fetchPayments();
+    fetchPaymentReport();
+  }, [fetchPayments, fetchPaymentReport]);
 
   const handleExportReport = async () => {
     try {

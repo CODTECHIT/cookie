@@ -7,9 +7,20 @@ const FlipkartCard = ({ p }) => {
   const navigate = useNavigate();
   const discount = p.oldPrice && p.price ? Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100) : 0;
 
-  // Stable rating and review count based on ID
-  const rating = p.rating || (4.5 + (p.id % 5) * 0.1).toFixed(1);
-  const reviews = p.reviews || ((p.id * 73) % 250) + 50;
+  // Stable rating and review count based on ID (handles string IDs by hashing)
+  const getStableNumber = (str) => {
+    if (!str) return 0;
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = (hash << 5) - hash + str.charCodeAt(i);
+      hash |= 0;
+    }
+    return Math.abs(hash);
+  };
+
+  const idHash = typeof p.id === 'string' ? getStableNumber(p.id) : (p.id || 0);
+  const rating = p.rating || (4.5 + (idHash % 5) * 0.1).toFixed(1);
+  const reviews = p.reviews || ((idHash * 73) % 250) + 50;
 
   return (
     <div className="group flex flex-col animate-zoom-in">

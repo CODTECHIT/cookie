@@ -79,6 +79,8 @@ const Header = () => {
                   src="/logo.png"
                   alt="Daksha Logo"
                   className="w-full h-full object-contain"
+                  loading="eager"
+                  fetchPriority="high"
                 />
               </div>
               <div className="flex flex-col leading-none">
@@ -162,12 +164,16 @@ const Header = () => {
                 />
               </form>
               <div className="flex items-center gap-2">
-                <button className="w-10 h-10 flex items-center justify-center hover:bg-primary/5 rounded-full text-stone-600 hover:text-primary transition-all active:scale-90">
+                <button 
+                  className="w-10 h-10 flex items-center justify-center hover:bg-primary/5 rounded-full text-stone-600 hover:text-primary transition-all active:scale-90"
+                  aria-label="Add to Favorites"
+                >
                   <span className="material-symbols-outlined">favorite</span>
                 </button>
                 <Link
                   to="/cart"
                   className="w-10 h-10 flex items-center justify-center hover:bg-primary/5 rounded-full text-stone-600 hover:text-primary transition-all relative active:scale-90"
+                  aria-label={`View Cart with ${cartCount} items`}
                 >
                   <span className="material-symbols-outlined">
                     shopping_cart
@@ -248,6 +254,7 @@ const Header = () => {
               <button
                 onClick={() => setIsMenuOpen(true)}
                 className="material-symbols-outlined text-xl"
+                aria-label="Open Mobile Menu"
               >
                 menu
               </button>
@@ -319,6 +326,7 @@ const Header = () => {
                       src="/logo.png"
                       alt="Daksha Logo"
                       className="w-full h-full object-contain"
+                      loading="eager"
                     />
                   </div>
                   <span className="text-lg font-serif font-black text-primary italic">
@@ -328,6 +336,7 @@ const Header = () => {
                 <button
                   onClick={() => setIsMenuOpen(false)}
                   className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center text-primary"
+                  aria-label="Close Menu"
                 >
                   <span className="material-symbols-outlined">close</span>
                 </button>

@@ -4,14 +4,21 @@ export const getSafeImageUrl = (url, fallback = "/placeholder-product.png") => {
   // Old seeded/broken localhost image entries should not be requested in browser.
   if (/^https?:\/\/localhost:\d+\//i.test(url)) return fallback;
 
+  let optimizedUrl = url;
+
+  // ☁️ Cloudinary Auto-Optimization (if detected)
+  if (optimizedUrl.includes("res.cloudinary.com") && !optimizedUrl.includes("upload/f_auto")) {
+    optimizedUrl = optimizedUrl.replace("/upload/", "/upload/f_auto,q_auto,w_800/");
+  }
+
   // ⚡ Mixed-content hardening: Upgrade http to https automatically on production
   if (
     typeof window !== "undefined" &&
     window.location.protocol === "https:" &&
-    url.startsWith("http://")
+    optimizedUrl.startsWith("http://")
   ) {
-    return url.replace("http://", "https://");
+    optimizedUrl = optimizedUrl.replace("http://", "https://");
   }
 
-  return url;
+  return optimizedUrl;
 };

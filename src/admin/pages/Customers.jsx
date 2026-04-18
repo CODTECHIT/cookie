@@ -33,11 +33,7 @@ const CustomersManagement = () => {
   const [detailLoading, setDetailLoading] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
-  useEffect(() => {
-    fetchCustomers();
-  }, [API_URL, token, repeatFilter]);
-
-  const fetchCustomers = async () => {
+  const fetchCustomers = useCallback(async () => {
     setLoading(true);
     try {
       const { data } = await axios.get(`${API_URL}/customers`, {
@@ -50,7 +46,11 @@ const CustomersManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_URL, token, repeatFilter, searchTerm]);
+
+  useEffect(() => {
+    fetchCustomers();
+  }, [fetchCustomers]);
 
   const fetchCustomerDetails = async (id) => {
     setDetailLoading(true);

@@ -18,6 +18,7 @@ import {
   X,
   Bell,
 } from "lucide-react";
+import { CONFIG } from "../../utils/config";
 
 const AdminLayout = () => {
   const { admin, logout } = useAdmin();
@@ -25,16 +26,16 @@ const AdminLayout = () => {
   const location = useLocation();
 
   const menuItems = [
-    { title: "Dashboard", path: "/cookies/admin@123/dashboard", icon: LayoutDashboard },
-    { title: "Products", path: "/cookies/admin@123/products", icon: ShoppingBag },
-    { title: "Orders", path: "/cookies/admin@123/orders", icon: ShoppingCart },
-    { title: "Customers", path: "/cookies/admin@123/customers", icon: Users },
-    { title: "Payments", path: "/cookies/admin@123/payments", icon: CreditCard },
-    { title: "Reports", path: "/cookies/admin@123/reports", icon: BarChart3 },
-    { title: "Coupons", path: "/cookies/admin@123/coupons", icon: Ticket },
-    { title: "Categories", path: "/cookies/admin@123/categories", icon: Grid },
-    { title: "Reviews", path: "/cookies/admin@123/reviews", icon: Star },
-    { title: "Content", path: "/cookies/admin@123/content", icon: Image },
+    { title: "Dashboard", path: `${CONFIG.ADMIN_PATH_PREFIX}/dashboard`, icon: LayoutDashboard },
+    { title: "Products", path: `${CONFIG.ADMIN_PATH_PREFIX}/products`, icon: ShoppingBag },
+    { title: "Orders", path: `${CONFIG.ADMIN_PATH_PREFIX}/orders`, icon: ShoppingCart },
+    { title: "Customers", path: `${CONFIG.ADMIN_PATH_PREFIX}/customers`, icon: Users },
+    { title: "Payments", path: `${CONFIG.ADMIN_PATH_PREFIX}/payments`, icon: CreditCard },
+    { title: "Reports", path: `${CONFIG.ADMIN_PATH_PREFIX}/reports`, icon: BarChart3 },
+    { title: "Coupons", path: `${CONFIG.ADMIN_PATH_PREFIX}/coupons`, icon: Ticket },
+    { title: "Categories", path: `${CONFIG.ADMIN_PATH_PREFIX}/categories`, icon: Grid },
+    { title: "Reviews", path: `${CONFIG.ADMIN_PATH_PREFIX}/reviews`, icon: Star },
+    { title: "Content", path: `${CONFIG.ADMIN_PATH_PREFIX}/content`, icon: Image },
   ];
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
@@ -57,7 +58,7 @@ const AdminLayout = () => {
       `}
       >
         <div className="h-20 flex items-center px-6 border-b border-gray-100 mb-6 bg-primary text-white">
-          <Link to="/cookies/admin@123/dashboard" className="flex items-center space-x-2">
+          <Link to={`${CONFIG.ADMIN_PATH_PREFIX}/dashboard`} className="flex items-center space-x-2">
             <LayoutDashboard className="w-8 h-8" />
             <span className="text-xl font-bold tracking-tight">
               Admin Console
@@ -104,6 +105,7 @@ const AdminLayout = () => {
           <button
             className="lg:hidden p-2 text-gray-500 hover:bg-gray-50 rounded-lg"
             onClick={toggleSidebar}
+            aria-label="Toggle Navigation Sidebar"
           >
             {sidebarOpen ? (
               <X className="w-6 h-6" />
@@ -117,7 +119,10 @@ const AdminLayout = () => {
           </div>
 
           <div className="flex items-center space-x-4">
-            <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-full transition-all relative">
+            <button 
+              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-full transition-all relative"
+              aria-label="View Notifications"
+            >
               <Bell className="w-5 h-5" />
               <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 border-2 border-white rounded-full"></span>
             </button>

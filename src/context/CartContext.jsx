@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { useSite } from "./SiteContext";
+import { useToast } from "./ToastContext";
 import { getSafeImageUrl } from "../utils/imageUrl";
 
 const CartContext = createContext();
@@ -12,6 +13,7 @@ export function useCart() {
 
 export const CartProvider = ({ children }) => {
   const { settings } = useSite();
+  const { addToast } = useToast();
   const [cartItems, setCartItems] = useState(() => {
     const savedCart = localStorage.getItem("cart");
     return savedCart ? JSON.parse(savedCart) : [];
@@ -86,6 +88,7 @@ export const CartProvider = ({ children }) => {
         },
       ];
     });
+    addToast(`${product.name} added to cart!`, 'cart');
   };
 
   const removeFromCart = (id, variantId) => {

@@ -10,27 +10,29 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
 import WhatsAppButton from "./components/WhatsAppButton";
-import Home from "./pages/Home";
-import Products from "./pages/Products";
-import ProductDetail from "./pages/ProductDetail";
-import Cart from "./pages/Cart";
-import About from "./pages/About";
-import Services from "./pages/Services";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import MyOrders from "./pages/MyOrders";
-import Contact from "./pages/Contact";
 import BottomNav from "./components/BottomNav";
+
+// --- Lazy loaded Customer Pages ---
+const Home = lazy(() => import("./pages/Home"));
+const Products = lazy(() => import("./pages/Products"));
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
+const Cart = lazy(() => import("./pages/Cart"));
+const About = lazy(() => import("./pages/About"));
+const Services = lazy(() => import("./pages/Services"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const MyOrders = lazy(() => import("./pages/MyOrders"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 
 // Contexts
 import { SiteProvider } from "./context/SiteContext";
 import { CartProvider } from "./context/CartContext";
 import { UserProvider } from "./context/UserContext";
 import { AdminProvider, useAdmin } from "./admin/context/AdminContext";
-
-// Customer Auth
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import ForgotPassword from "./pages/ForgotPassword";
+import { ToastProvider } from "./context/ToastContext";
+import { CONFIG } from "./utils/config";
 
 // --- Lazy loaded Admin Components ---
 const AdminLayout = lazy(() => import("./admin/components/AdminLayout"));
@@ -62,7 +64,7 @@ const ProtectedRoute = ({ children }) => {
         Initializing Secure Layer...
       </div>
     );
-  if (!admin) return <Navigate to="/cookies/admin@123/login" replace />;
+  if (!admin) return <Navigate to={`${CONFIG.ADMIN_PATH_PREFIX}/login`} replace />;
   return children;
 };
 
@@ -80,169 +82,184 @@ const CustomerLayout = ({ children }) => (
 function App() {
   return (
     <HelmetProvider>
-      <SiteProvider>
-        <CartProvider>
-          <UserProvider>
-            <AdminProvider>
-              <Router>
-                <ScrollToTop />
-                <Suspense fallback={<PageLoader />}>
-                  <Routes>
-                    {/* CUSTOMER ROUTES */}
-                    <Route
-                      path="/"
-                      element={
-                        <CustomerLayout>
-                          <Home />
-                        </CustomerLayout>
-                      }
-                    />
-                    <Route
-                      path="/login"
-                      element={
-                        <CustomerLayout>
-                          <Login />
-                        </CustomerLayout>
-                      }
-                    />
-                    <Route
-                      path="/forgot-password"
-                      element={
-                        <CustomerLayout>
-                          <ForgotPassword />
-                        </CustomerLayout>
-                      }
-                    />
-                    <Route
-                      path="/register"
-                      element={
-                        <CustomerLayout>
-                          <Register />
-                        </CustomerLayout>
-                      }
-                    />
-                    <Route
-                      path="/products"
-                      element={
-                        <CustomerLayout>
-                          <Products />
-                        </CustomerLayout>
-                      }
-                    />
-                    <Route
-                      path="/category/:categorySlug"
-                      element={
-                        <CustomerLayout>
-                          <Products />
-                        </CustomerLayout>
-                      }
-                    />
-                    <Route
-                      path="/millets"
-                      element={
-                        <CustomerLayout>
-                          <Products />
-                        </CustomerLayout>
-                      }
-                    />
-                    <Route
-                      path="/product/:id"
-                      element={
-                        <CustomerLayout>
-                          <ProductDetail />
-                        </CustomerLayout>
-                      }
-                    />
-                    <Route
-                      path="/cart"
-                      element={
-                        <CustomerLayout>
-                          <Cart />
-                        </CustomerLayout>
-                      }
-                    />
-                    <Route
-                      path="/about"
-                      element={
-                        <CustomerLayout>
-                          <About />
-                        </CustomerLayout>
-                      }
-                    />
-                    <Route
-                      path="/services"
-                      element={
-                        <CustomerLayout>
-                          <Services />
-                        </CustomerLayout>
-                      }
-                    />
-                    <Route
-                      path="/contact"
-                      element={
-                        <CustomerLayout>
-                          <Contact />
-                        </CustomerLayout>
-                      }
-                    />
-                    <Route
-                      path="/privacy-policy"
-                      element={
-                        <CustomerLayout>
-                          <PrivacyPolicy />
-                        </CustomerLayout>
-                      }
-                    />
-                    <Route
-                      path="/my-orders"
-                      element={
-                        <CustomerLayout>
-                          <MyOrders />
-                        </CustomerLayout>
-                      }
-                    />
+      <ToastProvider>
+        <SiteProvider>
+          <CartProvider>
+            <UserProvider>
+              <AdminProvider>
+                <Router>
+                  <ScrollToTop />
+                  <Suspense fallback={<PageLoader />}>
+                    <Routes>
+                      <Route
+                        path="/"
+                        element={
+                          <CustomerLayout>
+                            <Home />
+                          </CustomerLayout>
+                        }
+                      />
+                      <Route
+                        path="/login"
+                        element={
+                          <CustomerLayout>
+                            <Login />
+                          </CustomerLayout>
+                        }
+                      />
+                      <Route
+                        path="/forgot-password"
+                        element={
+                          <CustomerLayout>
+                            <ForgotPassword />
+                          </CustomerLayout>
+                        }
+                      />
+                      <Route
+                        path="/register"
+                        element={
+                          <CustomerLayout>
+                            <Register />
+                          </CustomerLayout>
+                        }
+                      />
+                      <Route
+                        path="/products"
+                        element={
+                          <CustomerLayout>
+                            <Products />
+                          </CustomerLayout>
+                        }
+                      />
+                      <Route
+                        path="/category/:categorySlug"
+                        element={
+                          <CustomerLayout>
+                            <Products />
+                          </CustomerLayout>
+                        }
+                      />
+                      <Route
+                        path="/millets"
+                        element={
+                          <CustomerLayout>
+                            <Products />
+                          </CustomerLayout>
+                        }
+                      />
+                      <Route
+                        path="/product/:id"
+                        element={
+                          <CustomerLayout>
+                            <ProductDetail />
+                          </CustomerLayout>
+                        }
+                      />
+                      <Route
+                        path="/cart"
+                        element={
+                          <CustomerLayout>
+                            <Cart />
+                          </CustomerLayout>
+                        }
+                      />
+                      <Route
+                        path="/about"
+                        element={
+                          <CustomerLayout>
+                            <About />
+                          </CustomerLayout>
+                        }
+                      />
+                      <Route
+                        path="/services"
+                        element={
+                          <CustomerLayout>
+                            <Services />
+                          </CustomerLayout>
+                        }
+                      />
+                      <Route
+                        path="/contact"
+                        element={
+                          <CustomerLayout>
+                            <Contact />
+                          </CustomerLayout>
+                        }
+                      />
+                      <Route
+                        path="/privacy-policy"
+                        element={
+                          <CustomerLayout>
+                            <PrivacyPolicy />
+                          </CustomerLayout>
+                        }
+                      />
+                      <Route
+                        path="/my-orders"
+                        element={
+                          <CustomerLayout>
+                            <MyOrders />
+                          </CustomerLayout>
+                        }
+                      />
 
-                    {/* ADMIN ROUTES */}
-                    <Route path="/cookies/admin@123/login" element={<AdminLogin />} />
-                    <Route
-                      path="/cookies/admin@123"
-                      element={
-                        <ProtectedRoute>
-                          <AdminLayout />
-                        </ProtectedRoute>
-                      }
-                    >
+                      {/* ADMIN ROUTES */}
                       <Route
-                        index
-                        element={<Navigate to="/cookies/admin@123/dashboard" replace />}
+                        path={`${CONFIG.ADMIN_PATH_PREFIX}/login`}
+                        element={<AdminLogin />}
                       />
-                      <Route path="dashboard" element={<AdminDashboard />} />
-                      <Route path="products" element={<ProductsManagement />} />
-                      <Route path="orders" element={<OrdersManagement />} />
                       <Route
-                        path="customers"
-                        element={<CustomersManagement />}
-                      />
-                      <Route path="payments" element={<PaymentsManagement />} />
-                      <Route path="reports" element={<ReportsManagement />} />
-                      <Route path="coupons" element={<CouponsManagement />} />
-                      <Route
-                        path="categories"
-                        element={<CategoriesManagement />}
-                      />
-                      <Route path="reviews" element={<ReviewsManagement />} />
-                      <Route path="content" element={<ContentCMS />} />
-                    </Route>
+                        path={CONFIG.ADMIN_PATH_PREFIX}
+                        element={
+                          <ProtectedRoute>
+                            <AdminLayout />
+                          </ProtectedRoute>
+                        }
+                      >
+                        <Route
+                          index
+                          element={
+                            <Navigate
+                              to={`${CONFIG.ADMIN_PATH_PREFIX}/dashboard`}
+                              replace
+                            />
+                          }
+                        />
+                        <Route path="dashboard" element={<AdminDashboard />} />
+                        <Route
+                          path="products"
+                          element={<ProductsManagement />}
+                        />
+                        <Route path="orders" element={<OrdersManagement />} />
+                        <Route
+                          path="customers"
+                          element={<CustomersManagement />}
+                        />
+                        <Route
+                          path="payments"
+                          element={<PaymentsManagement />}
+                        />
+                        <Route path="reports" element={<ReportsManagement />} />
+                        <Route path="coupons" element={<CouponsManagement />} />
+                        <Route
+                          path="categories"
+                          element={<CategoriesManagement />}
+                        />
+                        <Route path="reviews" element={<ReviewsManagement />} />
+                        <Route path="content" element={<ContentCMS />} />
+                      </Route>
 
-                    {/* Fallback */}
-                    <Route path="*" element={<Navigate to="/" replace />} />
-                  </Routes>
-                </Suspense>
-              </Router>
-            </AdminProvider>
-          </UserProvider>
-        </CartProvider>
-      </SiteProvider>
+                      {/* Fallback */}
+                      <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
+                  </Suspense>
+                </Router>
+              </AdminProvider>
+            </UserProvider>
+          </CartProvider>
+        </SiteProvider>
+      </ToastProvider>
     </HelmetProvider>
   );
 }

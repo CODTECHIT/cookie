@@ -16,6 +16,7 @@ import {
   Star,
   Image,
 } from "lucide-react";
+import { CONFIG } from "../../utils/config";
 import {
   AreaChart,
   Area,
@@ -73,31 +74,31 @@ const Dashboard = () => {
   const activeChartData = stats?.chartData || [];
   const periodLabel = isMonthly ? "Selected Month" : "Selected Day";
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const { data } = await axios.get(`${API_URL}/admin/dashboard`, {
-          headers: { Authorization: `Bearer ${token}` },
-          params: {
-            view: timeView,
-            date: selectedDate,
-            month: selectedMonth,
-          },
-        });
-        if (data.success) {
-          setStats(data.data);
-        }
-      } catch (err) {
-        console.error("Error fetching dashboard stats:", err);
-      } finally {
-        setLoading(false);
+  const fetchStats = React.useCallback(async () => {
+    try {
+      const { data } = await axios.get(`${API_URL}/admin/dashboard`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: {
+          view: timeView,
+          date: selectedDate,
+          month: selectedMonth,
+        },
+      });
+      if (data.success) {
+        setStats(data.data);
       }
-    };
+    } catch (err) {
+      console.error("Error fetching dashboard stats:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [API_URL, token, timeView, selectedDate, selectedMonth]);
 
+  useEffect(() => {
     fetchStats();
     const interval = setInterval(fetchStats, 30000); // Refresh every 30s
     return () => clearInterval(interval);
-  }, [API_URL, token, timeView, selectedDate, selectedMonth]);
+  }, [fetchStats]);
 
   if (loading)
     return (
@@ -326,37 +327,37 @@ const Dashboard = () => {
               {
                 label: "Add Product",
                 icon: Package,
-                link: "/cookies/admin@123/products",
+                link: `${CONFIG.ADMIN_PATH_PREFIX}/products`,
                 color: "bg-blue-50 text-blue-600",
               },
               {
                 label: "View All Orders",
                 icon: ShoppingCart,
-                link: "/cookies/admin@123/orders",
+                link: `${CONFIG.ADMIN_PATH_PREFIX}/orders`,
                 color: "bg-indigo-50 text-indigo-600",
               },
               {
                 label: "Create Coupon",
                 icon: Ticket,
-                link: "/cookies/admin@123/coupons",
+                link: `${CONFIG.ADMIN_PATH_PREFIX}/coupons`,
                 color: "bg-orange-50 text-orange-600",
               },
               {
                 label: "Update Stock",
                 icon: Grid,
-                link: "/cookies/admin@123/products",
+                link: `${CONFIG.ADMIN_PATH_PREFIX}/products`,
                 color: "bg-emerald-50 text-emerald-600",
               },
               {
                 label: "Moderate Reviews",
                 icon: Star,
-                link: "/cookies/admin@123/reviews",
+                link: `${CONFIG.ADMIN_PATH_PREFIX}/reviews`,
                 color: "bg-purple-50 text-purple-600",
               },
               {
                 label: "Edit Homepage",
                 icon: Image,
-                link: "/cookies/admin@123/content",
+                link: `${CONFIG.ADMIN_PATH_PREFIX}/content`,
                 color: "bg-pink-50 text-pink-600",
               },
             ].map((action, i) => (
