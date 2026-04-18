@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
 import { X, CheckCircle2, AlertCircle, Info, ShoppingCart } from 'lucide-react';
 
 const ToastContext = createContext();
@@ -26,11 +25,9 @@ export const ToastProvider = ({ children }) => {
     <ToastContext.Provider value={{ addToast }}>
       {children}
       <div className="fixed top-24 right-4 z-[9999] flex flex-col gap-3 pointer-events-none">
-        <AnimatePresence>
-          {toasts.map((toast) => (
-            <ToastItem key={toast.id} toast={toast} onClose={() => removeToast(toast.id)} />
-          ))}
-        </AnimatePresence>
+        {toasts.map((toast) => (
+          <ToastItem key={toast.id} toast={toast} onClose={() => removeToast(toast.id)} />
+        ))}
       </div>
     </ToastContext.Provider>
   );
@@ -52,11 +49,8 @@ const ToastItem = ({ toast, onClose }) => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: 50, scale: 0.9 }}
-      animate={{ opacity: 1, x: 0, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-      className={`pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-2xl border shadow-lg min-w-[300px] max-w-md ${bgColors[toast.type]}`}
+    <div
+      className={`pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-2xl border shadow-lg min-w-[300px] max-w-md ${bgColors[toast.type]} animate-[fade-in-right_180ms_ease-out]`}
     >
       <div className="shrink-0">{icons[toast.type]}</div>
       <div className="flex-1">
@@ -68,6 +62,6 @@ const ToastItem = ({ toast, onClose }) => {
       >
         <X className="w-4 h-4" />
       </button>
-    </motion.div>
+    </div>
   );
 };
