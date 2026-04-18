@@ -131,7 +131,7 @@ const Products = () => {
     categorySlug || categoryId ? [categorySlug || categoryId] : [],
   );
   const [selectedWeight, setSelectedWeight] = useState("");
-  
+
   // ⚡ Add pagination state
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -183,7 +183,9 @@ const Products = () => {
         },
       });
       if (data.success) {
-        setProducts(prev => page === 1 ? data.data.products : [...prev, ...data.data.products]);
+        setProducts((prev) =>
+          page === 1 ? data.data.products : [...prev, ...data.data.products],
+        );
         setHasMore(page < (data.data.pages || 1));
       }
     } catch (err) {
@@ -201,9 +203,10 @@ const Products = () => {
   const filteredProducts = useMemo(() => {
     let result = [...products];
 
-    if (result.visibleonCatalog === false) result = result.filter(p => p.visibleonCatalog !== false);
-    
-    result = result.filter(p => {
+    if (result.visibleonCatalog === false)
+      result = result.filter((p) => p.visibleonCatalog !== false);
+
+    result = result.filter((p) => {
       const pMinPrice =
         p.variants?.reduce(
           (min, v) => (v.price < min ? v.price : min),
@@ -243,11 +246,11 @@ const Products = () => {
 
   return (
     <div className="pt-0 lg:pt-24 pb-16 px-4 xl:px-10 max-w-[1700px] mx-auto min-h-screen bg-[#FDFBF7]">
-      <SEO 
-        title={seoTitle} 
-        description={seoDesc} 
-        keywords={`${activeCategory?.metaKeywords || ''}, cookies online, millet snacks, healthy food, artisanal products, Daksha cookies, buy cookies India, premium cookies, organic millets`}
-        noIndex={showNoIndex} 
+      <SEO
+        title={seoTitle}
+        description={seoDesc}
+        keywords={`${activeCategory?.metaKeywords || ""}, cookies online, millet snacks, healthy food, artisanal products, Daksha cookies, buy cookies India, premium cookies, organic millets`}
+        noIndex={showNoIndex}
       />
 
       {/* Mobile Sticky Bar */}

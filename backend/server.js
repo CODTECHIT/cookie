@@ -37,6 +37,7 @@ await seedCategories();
 const app = express();
 app.set("trust proxy", 1); // Trust first proxy (Vercel/CDN) to fix rate-limit IP discovery
 const PORT = process.env.PORT || 5000;
+const API_BODY_LIMIT = process.env.API_BODY_LIMIT || "1mb";
 
 // ─── Security Global Middleware ───────────────────────────────────────────────
 
@@ -46,12 +47,20 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "https://checkout.razorpay.com"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://checkout.razorpay.com",
+        ],
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         imgSrc: ["'self'", "data:", "https://res.cloudinary.com"],
         connectSrc: ["'self'", "https://api.razorpay.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        frameSrc: ["'self'", "https://api.razorpay.com", "https://checkout.razorpay.com"],
+        frameSrc: [
+          "'self'",
+          "https://api.razorpay.com",
+          "https://checkout.razorpay.com",
+        ],
       },
     },
     crossOriginEmbedderPolicy: false, // Required for cross-origin images (Cloudinary)
@@ -95,7 +104,11 @@ app.use(
   cors({
     origin: (origin, callback) => {
       // Allow requests with no origin (like mobile apps or curl) or allow matching origins
-      if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === "development") {
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        process.env.NODE_ENV === "development"
+      ) {
         callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS"));
@@ -114,9 +127,15 @@ app.use((req, res, next) => {
 
   // ⚡ 2024 Cache-Prevention Fix: Force fresh content for all /api requests
   if (req.originalUrl.startsWith("/api/site/bootstrap")) {
-    res.setHeader("Cache-Control", "public, s-maxage=60, stale-while-revalidate=120");
+    res.setHeader(
+      "Cache-Control",
+      "public, s-maxage=60, stale-while-revalidate=120",
+    );
   } else if (req.originalUrl.startsWith("/api")) {
-    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.setHeader(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate",
+    );
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");
   }
@@ -131,18 +150,18 @@ app.use((req, res, next) => {
 });
 
 app.use(compression());
-app.use(express.json({ limit: "10kb" })); // Limit JSON payload size
-app.use(express.urlencoded({ extended: true, limit: "10kb" }));
+app.use(express.json({ limit: API_BODY_LIMIT }));
+app.use(express.urlencoded({ extended: true, limit: API_BODY_LIMIT }));
 app.use((req, res, next) => {
   if (req.body) req.body = mongoSanitize(req.body);
   if (req.query) {
     const sanitizedQuery = mongoSanitize(req.query);
-    Object.keys(req.query).forEach(key => delete req.query[key]);
+    Object.keys(req.query).forEach((key) => delete req.query[key]);
     Object.assign(req.query, sanitizedQuery);
   }
   if (req.params) {
     const sanitizedParams = mongoSanitize(req.params);
-    Object.keys(req.params).forEach(key => delete req.params[key]);
+    Object.keys(req.params).forEach((key) => delete req.params[key]);
     Object.assign(req.params, sanitizedParams);
   }
   next();
@@ -154,23 +173,29 @@ if (process.env.NODE_ENV !== "production") app.use(morgan("dev"));
 app.use((req, res, next) => {
   // Disable cache for Admin requests (Requests with Auth header)
   if (req.headers.authorization) {
-    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    res.set('Pragma', 'no-cache');
-    res.set('Expires', '0');
+    res.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate",
+    );
+    res.set("Pragma", "no-cache");
+    res.set("Expires", "0");
     return next();
   }
 
   // Cache public product endpoints for 1 minute (Reduced for faster admin reflect)
-  if (req.method === 'GET' && /^\/api\/(products|categories)/.test(req.path)) {
-    res.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=120'); 
+  if (req.method === "GET" && /^\/api\/(products|categories)/.test(req.path)) {
+    res.set("Cache-Control", "public, max-age=60, stale-while-revalidate=120");
   }
   // Cache static content for 1 hour
-  else if (req.method === 'GET' && /^\/api\/(content|banners)/.test(req.path)) {
-    res.set('Cache-Control', 'public, max-age=3600');
+  else if (req.method === "GET" && /^\/api\/(content|banners)/.test(req.path)) {
+    res.set("Cache-Control", "public, max-age=3600");
   }
   // No cache for user-specific or admin endpoints
   else if (/^\/api\/(admin|customers|orders|auth)/.test(req.path)) {
-    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate",
+    );
   }
   next();
 });
@@ -220,37 +245,54 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
   logger.error(`${err.message}`, { stack: err.stack, requestId: req.id });
 
+  if (err.code === "LIMIT_FILE_SIZE") {
+    return res.status(413).json({
+      success: false,
+      message: "Uploaded file is too large. Please upload a smaller file.",
+    });
+  }
+
+  if (err.type === "entity.too.large") {
+    return res.status(413).json({
+      success: false,
+      message: `Request payload is too large. Reduce payload size or increase API_BODY_LIMIT (current: ${API_BODY_LIMIT}).`,
+    });
+  }
+
   if (err.message === "Not allowed by CORS") {
-    return res.status(403).json({ success: false, message: "CORS error: Origin not allowed" });
+    return res
+      .status(403)
+      .json({ success: false, message: "CORS error: Origin not allowed" });
   }
 
   res.status(err.statusCode || 500).json({
     success: false,
-    message: process.env.NODE_ENV === "production" 
-      ? "Internal Server Error" 
-      : err.message || "Internal Server Error",
+    message:
+      process.env.NODE_ENV === "production"
+        ? "Internal Server Error"
+        : err.message || "Internal Server Error",
   });
 });
 
 // ─── Listeners & Graceful Shutdown ─────────────────────────────────────────────
 const server = app.listen(PORT, async () => {
-    logger.info(`🚀 Backend Server running on http://localhost:${PORT}`);
-    logger.info(`📦 Environment: ${process.env.NODE_ENV || "development"}`);
+  logger.info(`🚀 Backend Server running on http://localhost:${PORT}`);
+  logger.info(`📦 Environment: ${process.env.NODE_ENV || "development"}`);
 });
 
 // Handle graceful shutdown for database connections
 const shutdown = async (signal) => {
-    logger.info(`🛑 Signal received (${signal}). Closing connections...`);
-    try {
-        await mongoose.connection.close(false);
-        logger.info('✅ MongoDB connection closed.');
-        server.close(() => {
-            logger.info('✅ Server HTTP terminated.');
-            process.exit(0);
-        });
-    } catch {
-        process.exit(1);
-    }
+  logger.info(`🛑 Signal received (${signal}). Closing connections...`);
+  try {
+    await mongoose.connection.close(false);
+    logger.info("✅ MongoDB connection closed.");
+    server.close(() => {
+      logger.info("✅ Server HTTP terminated.");
+      process.exit(0);
+    });
+  } catch {
+    process.exit(1);
+  }
 };
 
 process.on("SIGINT", () => shutdown("SIGINT"));

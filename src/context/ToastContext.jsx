@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { X, CheckCircle2, AlertCircle, Info, ShoppingCart } from 'lucide-react';
+import React, { createContext, useContext, useState, useCallback } from "react";
+import { X, CheckCircle2, AlertCircle, Info, ShoppingCart } from "lucide-react";
 
 const ToastContext = createContext();
 
@@ -8,7 +8,7 @@ export const useToast = () => useContext(ToastContext);
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
 
-  const addToast = useCallback((message, type = 'success', duration = 3000) => {
+  const addToast = useCallback((message, type = "success", duration = 3000) => {
     const id = Math.random().toString(36).substring(2, 9);
     setToasts((prev) => [...prev, { id, message, type }]);
 
@@ -26,7 +26,11 @@ export const ToastProvider = ({ children }) => {
       {children}
       <div className="fixed top-24 right-4 z-[9999] flex flex-col gap-3 pointer-events-none">
         {toasts.map((toast) => (
-          <ToastItem key={toast.id} toast={toast} onClose={() => removeToast(toast.id)} />
+          <ToastItem
+            key={toast.id}
+            toast={toast}
+            onClose={() => removeToast(toast.id)}
+          />
         ))}
       </div>
     </ToastContext.Provider>
@@ -42,10 +46,10 @@ const ToastItem = ({ toast, onClose }) => {
   };
 
   const bgColors = {
-    success: 'bg-emerald-50 border-emerald-100',
-    error: 'bg-red-50 border-red-100',
-    info: 'bg-blue-50 border-blue-100',
-    cart: 'bg-white border-primary/20 shadow-xl',
+    success: "bg-emerald-50 border-emerald-100",
+    error: "bg-red-50 border-red-100",
+    info: "bg-blue-50 border-blue-100",
+    cart: "bg-white border-primary/20 shadow-xl",
   };
 
   return (
@@ -54,7 +58,9 @@ const ToastItem = ({ toast, onClose }) => {
     >
       <div className="shrink-0">{icons[toast.type]}</div>
       <div className="flex-1">
-        <p className="text-sm font-bold text-gray-800 leading-tight">{toast.message}</p>
+        <p className="text-sm font-bold text-gray-800 leading-tight">
+          {toast.message}
+        </p>
       </div>
       <button
         onClick={onClose}

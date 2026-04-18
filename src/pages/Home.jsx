@@ -7,10 +7,13 @@ import SEO from "../components/SEO";
 import { getSafeImageUrl } from "../utils/imageUrl";
 
 const Home = () => {
-  const { 
-    categories, settings, 
-    banners: siteBanners, loading: siteLoading,
-    bestSellers, featuredProducts
+  const {
+    categories,
+    settings,
+    banners: siteBanners,
+    loading: siteLoading,
+    bestSellers,
+    featuredProducts,
   } = useSite();
   const { addToCart } = useCart();
   const navigate = useNavigate();
@@ -18,8 +21,12 @@ const Home = () => {
 
   // Derive banners from site data
   const heroBanners = (siteBanners || []).filter((b) => b.position === "hero");
-  const middleBanners = (siteBanners || []).filter((b) => b.position === "middle");
-  const bottomBanners = (siteBanners || []).filter((b) => b.position === "bottom");
+  const middleBanners = (siteBanners || []).filter(
+    (b) => b.position === "middle",
+  );
+  const bottomBanners = (siteBanners || []).filter(
+    (b) => b.position === "bottom",
+  );
 
   const defaultSlides = [
     {
@@ -70,7 +77,7 @@ const Home = () => {
     );
   const nextSlide = () =>
     setCurrentSlide((prev) => (prev + 1) % activeSlides.length);
-  
+
   const nextSlideIndex =
     activeSlides.length > 0 ? (currentSlide + 1) % activeSlides.length : 0;
 
@@ -91,365 +98,405 @@ const Home = () => {
         <HomeLoadingState />
       ) : (
         <>
-      <section className="lg:hidden pt-6 pb-10 space-y-8">
-        <div className="grid grid-cols-4 gap-x-2 gap-y-4 px-4 pb-2 pt-2 sm:flex sm:gap-5 sm:overflow-x-auto sm:hide-scrollbar sm:pb-4">
-          {categories.map((cat) => (
-            <MobileCategory
-              key={cat._id}
-              label={cat.name}
-              to={`/category/${cat.slug || cat._id}`}
-              src={getSafeImageUrl(cat.image, "/placeholder-category.png")}
-            />
-          ))}
-        </div>
-        <div className="px-4">
-          <div className="aspect-[16/9] w-full bg-primary rounded-3xl overflow-hidden relative shadow-2xl">
-            {activeSlides.map((slide, i) => (
-              (i === currentSlide || i === nextSlideIndex) &&
-              <img
-                key={i}
-                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === currentSlide ? "opacity-60" : "opacity-0"}`}
-                src={slide.imageUrl || slide.src || "/placeholder-banner.png"}
-                onError={(e) => (e.target.src = "/placeholder-banner.png")}
-                loading={i === currentSlide ? "eager" : "lazy"}
-                fetchPriority={i === currentSlide ? "high" : "low"}
-                decoding="async"
-                alt={slide.title || "Daksha hero banner"}
-              />
-            ))}
-            <div className="absolute inset-0 p-5 flex flex-col justify-center z-10 text-white">
-              <div className="bg-black/30 backdrop-blur-xl rounded-2xl p-5 border border-white/10 shadow-2xl max-w-[85%]">
-                <p className="text-yellow-300 text-[10px] uppercase font-black tracking-widest mb-2">
-                  {activeSlides[currentSlide]?.subtitle || "Freshly Baked"}
-                </p>
-                <h2 className="text-2xl font-serif font-black italic leading-tight mb-4">
-                  {activeSlides[currentSlide]?.title || "Pure. Natural."}
-                </h2>
-                <Link
-                  to="/products"
-                  className="bg-yellow-300 text-primary w-fit px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest inline-block shadow-lg"
-                >
-                  Explore All
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-        {featuredProducts.length > 0 && (
-          <section className="py-4 bg-white relative overflow-hidden">
-            <div className="flex flex-col items-center text-center mb-6 px-4">
-              <span className="text-secondary font-black uppercase tracking-[0.3em] text-[8px] mb-1 block">
-                Special Selection
-              </span>
-              <h2 className="text-xl font-serif font-black text-primary italic leading-tight">
-                Featured Treasures
-              </h2>
-            </div>
-            <MarqueeCarousel duration={35} gap="gap-4 px-4" className="pb-2">
-              <div className="flex gap-4 px-4">
-                {[...featuredProducts, ...featuredProducts].map((prod, i) => (
-                  <div key={`${prod._id}-${i}`} className="min-w-[120px] shrink-0">
-                    <RoundProductCard
-                      p={prod}
-                      onBuy={() => handleBuyNow(prod, prod.variants?.[0])}
-                    />
-                  </div>
-                ))}
-              </div>
-            </MarqueeCarousel>
-          </section>
-        )}
-        <section className="px-4 space-y-4">
-          <h3 className="text-primary font-black uppercase text-xs tracking-widest">
-            Best Sellers
-          </h3>
-          <div className="grid grid-cols-2 gap-4">
-            {bestSellers.map((prod) => (
-              <MobileProductCard
-                key={prod._id}
-                p={prod}
-                onAdd={() => addToCart(prod, prod.variants?.[0])}
-                onBuy={() => handleBuyNow(prod, prod.variants?.[0])}
-              />
-            ))}
-          </div>
-        </section>
-      </section>
-
-      <main className="hidden lg:block">
-        <section className="relative overflow-hidden h-[65vh] xl:h-[75vh] flex items-center group pt-20">
-          <div className="absolute inset-0 z-0">
-            {activeSlides.map((slide, i) => (
-              (i === currentSlide || i === nextSlideIndex) &&
-              <img
-                key={i}
-                src={slide.imageUrl || slide.src || "/placeholder-banner.png"}
-                onError={(e) => (e.target.src = "/placeholder-banner.png")}
-                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === currentSlide ? "opacity-100" : "opacity-0"}`}
-                alt={slide.title || "Banner Image"}
-                loading={i === currentSlide ? "eager" : "lazy"}
-                fetchPriority={i === currentSlide ? "high" : "low"}
-                decoding="async"
-              />
-            ))}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/10 to-transparent"></div>
-          </div>
-          <div className="max-w-[1700px] mx-auto px-10 w-full relative z-10 text-white">
-            <div className="max-w-xl bg-black/30 backdrop-blur-xl rounded-2xl p-10 border border-white/10 shadow-2xl">
-              <span className="text-yellow-300 font-black uppercase tracking-widest text-[9px] mb-3 block">
-                {activeSlides[currentSlide]?.subtitle ||
-                  "DAKSHA • Artisanal Excellence"}
-              </span>
-              <h1 className="text-4xl xl:text-5xl font-serif font-black italic mb-4 leading-tight">
-                {activeSlides[currentSlide]?.title ||
-                  "Pure. Natural. Delicious."}
-              </h1>
-              <Link
-                to="/products"
-                className="bg-yellow-300 text-primary px-8 py-3 rounded-xl font-black text-xs shadow-xl uppercase tracking-widest inline-flex items-center gap-2 hover:scale-105 transition-all"
-              >
-                Shop Collection{" "}
-                <span className="material-symbols-outlined text-sm">
-                  arrow_right_alt
-                </span>
-              </Link>
-            </div>
-          </div>
-          <button
-            onClick={prevSlide}
-            aria-label="Previous Slide"
-            className="absolute left-6 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-white/40"
-          >
-            <span className="material-symbols-outlined">chevron_left</span>
-          </button>
-          <button
-            onClick={nextSlide}
-            aria-label="Next Slide"
-            className="absolute right-6 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-white/40"
-          >
-            <span className="material-symbols-outlined">chevron_right</span>
-          </button>
-        </section>
-
-        <section className="py-4 bg-white border-b border-primary/5">
-          <div className="max-w-[1700px] mx-auto px-10 flex items-center justify-center gap-8">
-            {categories.map((cat) => (
-              <DesktopCategory
-                key={cat._id}
-                label={cat.name}
-                to={`/category/${cat.slug || cat._id}`}
-                src={getSafeImageUrl(cat.image, "/placeholder-category.png")}
-              />
-            ))}
-          </div>
-        </section>
-
-        {featuredProducts.length > 0 && (
-          <section className="py-12 bg-surface-container-lowest relative overflow-hidden">
-            <div className="max-w-[1700px] mx-auto px-10">
-              <div className="text-center mb-8">
-                <span className="text-secondary font-black uppercase tracking-[0.5rem] text-[9px] mb-3 block">
-                  Master's Selection
-                </span>
-                <h2 className="text-3xl font-serif font-black text-primary italic mb-2 tracking-tight">
-                  Featured Treasures
-                </h2>
-                <div className="w-12 h-0.5 bg-tertiary/20 mx-auto"></div>
-              </div>
-              <MarqueeCarousel duration={50} gap="gap-8 px-4">
-                <div className="flex gap-8 px-4">
-                  {[...featuredProducts, ...featuredProducts].map((prod, i) => (
-                    <div key={`${prod._id}-${i}`} className="min-w-[180px]">
-                      <RoundProductCard
-                        p={prod}
-                        onBuy={() => handleBuyNow(prod, prod.variants?.[0])}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </MarqueeCarousel>
-            </div>
-          </section>
-        )}
-
-        {middleBanners.length > 0 && (
-          <section className="py-6 px-10">
-            <div className="max-w-[1700px] mx-auto grid grid-cols-2 gap-6">
-              {middleBanners.map((b) => (
-                <Link
-                  to={b.linkUrl || "/products"}
-                  key={b._id}
-                  className="relative aspect-[25/9] rounded-3xl overflow-hidden shadow-xl group"
-                >
-                  <img
-                    src={b.imageUrl || "/placeholder-banner.png"}
-                    onError={(e) => (e.target.src = "/placeholder-banner.png")}
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2000ms]"
-                    loading="lazy"
-                    decoding="async"
-                    alt={b.title || "Daksha banner"}
-                  />
-                  <div className="absolute inset-0 bg-black/30 flex flex-col justify-end p-8 text-white">
-                    <h3 className="text-2xl font-serif font-black italic mb-1">
-                      {b.title}
-                    </h3>
-                    <p className="text-[9px] uppercase font-bold tracking-[0.3em]">
-                      {b.subtitle}
-                    </p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
-
-        <section className="py-12 bg-stone-50 border-t border-primary/5">
-          <div className="max-w-[1700px] mx-auto px-10">
-            <div className="flex justify-between items-end mb-10">
-              <div>
-                <span className="text-secondary font-black uppercase tracking-widest text-[11px] mb-3 block">
-                  Shop Our Artisan Picks
-                </span>
-                <h2 className="text-3xl font-serif font-black text-primary italic">
-                  The Best Sellers
-                </h2>
-              </div>
-              <Link
-                to="/products"
-                className="text-tertiary font-black uppercase text-xs border-b border-tertiary/20 pb-0.5 hover:text-primary hover:border-primary transition-all flex items-center gap-1.5"
-              >
-                View All{" "}
-                <span className="material-symbols-outlined text-sm">
-                  arrow_forward
-                </span>
-              </Link>
-            </div>
-            <div className="grid grid-cols-5 gap-6">
-              {bestSellers.map((prod) => (
-                <DesktopProductCard
-                  key={prod._id}
-                  p={prod}
-                  onAdd={() => addToCart(prod, prod.variants?.[0])}
-                  onBuy={() => handleBuyNow(prod, prod.variants?.[0])}
+          <section className="lg:hidden pt-6 pb-10 space-y-8">
+            <div className="grid grid-cols-4 gap-x-2 gap-y-4 px-4 pb-2 pt-2 sm:flex sm:gap-5 sm:overflow-x-auto sm:hide-scrollbar sm:pb-4">
+              {categories.map((cat) => (
+                <MobileCategory
+                  key={cat._id}
+                  label={cat.name}
+                  to={`/category/${cat.slug || cat._id}`}
+                  src={getSafeImageUrl(cat.image, "/placeholder-category.png")}
                 />
               ))}
             </div>
-          </div>
-        </section>
-
-        {(!settings || settings?.shippingBanner?.enabled !== false) && (
-          <section className="px-10 py-10">
-            <div className="max-w-[1700px] mx-auto bg-primary rounded-[2rem] p-10 flex items-center justify-between shadow-xl relative overflow-hidden text-white">
-              <div className="flex items-center gap-8 z-10">
-                <div className="w-14 h-14 bg-white/10 rounded-full flex items-center justify-center shrink-0">
-                  <span className="material-symbols-outlined text-3xl">
-                    local_shipping
-                  </span>
-                </div>
-                <div>
-                  <h2 className="text-2xl font-serif font-black italic mb-1">
-                    {settings?.shippingBanner?.title || "Free Global Shipping."}
-                  </h2>
-                  <p className="text-sm text-white/60 font-sans uppercase tracking-[0.2em]">
-                    {settings?.shippingBanner?.subtitle ||
-                      "Orders above ₹999 enjoy complimentary delivery"}
-                  </p>
+            <div className="px-4">
+              <div className="aspect-[16/9] w-full bg-primary rounded-3xl overflow-hidden relative shadow-2xl">
+                {activeSlides.map(
+                  (slide, i) =>
+                    (i === currentSlide || i === nextSlideIndex) && (
+                      <img
+                        key={i}
+                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === currentSlide ? "opacity-60" : "opacity-0"}`}
+                        src={
+                          slide.imageUrl ||
+                          slide.src ||
+                          "/placeholder-banner.png"
+                        }
+                        onError={(e) =>
+                          (e.target.src = "/placeholder-banner.png")
+                        }
+                        loading={i === currentSlide ? "eager" : "lazy"}
+                        fetchPriority={i === currentSlide ? "high" : "low"}
+                        decoding="async"
+                        alt={slide.title || "Daksha hero banner"}
+                      />
+                    ),
+                )}
+                <div className="absolute inset-0 p-5 flex flex-col justify-center z-10 text-white">
+                  <div className="bg-black/30 backdrop-blur-xl rounded-2xl p-5 border border-white/10 shadow-2xl max-w-[85%]">
+                    <p className="text-yellow-300 text-[10px] uppercase font-black tracking-widest mb-2">
+                      {activeSlides[currentSlide]?.subtitle || "Freshly Baked"}
+                    </p>
+                    <h2 className="text-2xl font-serif font-black italic leading-tight mb-4">
+                      {activeSlides[currentSlide]?.title || "Pure. Natural."}
+                    </h2>
+                    <Link
+                      to="/products"
+                      className="bg-yellow-300 text-primary w-fit px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest inline-block shadow-lg"
+                    >
+                      Explore All
+                    </Link>
+                  </div>
                 </div>
               </div>
-              <Link
-                to="/products"
-                className="bg-white text-primary px-10 py-4 rounded-xl font-black text-sm uppercase tracking-widest shadow-lg hover:translate-y-[-2px] transition-all z-10"
-              >
-                Shop Now
-              </Link>
-              <div className="absolute right-[-10%] top-[-50%] w-[500px] h-[500px] bg-tertiary opacity-10 rounded-full blur-[100px]"></div>
             </div>
-          </section>
-        )}
-
-        <section className="py-12 bg-surface-container-low overflow-hidden relative">
-          <div className="max-w-[1700px] mx-auto px-10">
-            <div className="text-center mb-10">
-              <span className="text-secondary font-black uppercase tracking-[0.4em] text-[10px] mb-4 block">
-                Our Expertise
-              </span>
-              <h2 className="text-3xl font-serif font-black text-primary italic mb-4">
-                Services We Provide
-              </h2>
-            </div>
-            <div className="grid grid-cols-3 gap-6 px-10 mb-12">
-              <ServiceCard
-                icon="cookie"
-                title="Artisan Cookies"
-                desc="Crafted with premium ingredients for a rich, traditional taste."
-              />
-              <ServiceCard
-                icon="eco"
-                title="Healthy Millets"
-                desc="Finely processed, hygienic millet powders for natural living."
-              />
-              <ServiceCard
-                icon="inventory_2"
-                title="Bulk Supply"
-                desc="Reliable large-scale supply with customized packaging assurance."
-              />
-            </div>
-
-            <div className="grid grid-cols-3 gap-6 px-10">
-              {bottomBanners.map((b) => (
-                <Link
-                  to={b.linkUrl || "/products"}
-                  key={b._id}
-                  className="relative aspect-square rounded-[2rem] overflow-hidden group shadow-xl border border-white/10"
+            {featuredProducts.length > 0 && (
+              <section className="py-4 bg-white relative overflow-hidden">
+                <div className="flex flex-col items-center text-center mb-6 px-4">
+                  <span className="text-secondary font-black uppercase tracking-[0.3em] text-[8px] mb-1 block">
+                    Special Selection
+                  </span>
+                  <h2 className="text-xl font-serif font-black text-primary italic leading-tight">
+                    Featured Treasures
+                  </h2>
+                </div>
+                <MarqueeCarousel
+                  duration={35}
+                  gap="gap-4 px-4"
+                  className="pb-2"
                 >
-                  <img
-                    src={b.imageUrl || "/placeholder-banner.png"}
-                    onError={(e) => (e.target.src = "/placeholder-banner.png")}
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2000ms]"
-                    loading="lazy"
-                    decoding="async"
-                    alt={b.title || "Daksha service banner"}
-                  />
-                  <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-8 text-white">
-                    <h3 className="text-xl font-serif font-black italic mb-1">
-                      {b.title}
-                    </h3>
-                    <p className="text-[9px] uppercase font-bold tracking-[0.2em]">
-                      {b.subtitle}
-                    </p>
+                  <div className="flex gap-4 px-4">
+                    {[...featuredProducts, ...featuredProducts].map(
+                      (prod, i) => (
+                        <div
+                          key={`${prod._id}-${i}`}
+                          className="min-w-[120px] shrink-0"
+                        >
+                          <RoundProductCard
+                            p={prod}
+                            onBuy={() => handleBuyNow(prod, prod.variants?.[0])}
+                          />
+                        </div>
+                      ),
+                    )}
                   </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
+                </MarqueeCarousel>
+              </section>
+            )}
+            <section className="px-4 space-y-4">
+              <h3 className="text-primary font-black uppercase text-xs tracking-widest">
+                Best Sellers
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                {bestSellers.map((prod) => (
+                  <MobileProductCard
+                    key={prod._id}
+                    p={prod}
+                    onAdd={() => addToCart(prod, prod.variants?.[0])}
+                    onBuy={() => handleBuyNow(prod, prod.variants?.[0])}
+                  />
+                ))}
+              </div>
+            </section>
+          </section>
 
-        <section className="py-16 bg-surface relative overflow-hidden">
-          <div className="max-w-[1700px] mx-auto px-10">
-            <h2 className="text-center text-3xl font-serif font-black text-primary mb-12 italic">
-              Patron Stories
-            </h2>
-            <div className="grid grid-cols-3 gap-8">
-              <TestimonialCard
-                name="Arjun Reddy"
-                quote="The Cashew Cookies are divine. You can tell they use real butter."
-                loc="Hyderabad"
-              />
-              <TestimonialCard
-                name="Lakshmi Prasanna"
-                quote="Daksha's Ragi Malt was the best health decision. Exceptional taste."
-                loc="Vizag"
-                dark
-              />
-              <TestimonialCard
-                name="Karthik S."
-                quote="The Gift Bundles are my go-to for Diwali. Premium packaging."
-                loc="Bangalore"
-              />
-            </div>
-          </div>
-        </section>
-      </main>
+          <main className="hidden lg:block">
+            <section className="relative overflow-hidden h-[65vh] xl:h-[75vh] flex items-center group pt-20">
+              <div className="absolute inset-0 z-0">
+                {activeSlides.map(
+                  (slide, i) =>
+                    (i === currentSlide || i === nextSlideIndex) && (
+                      <img
+                        key={i}
+                        src={
+                          slide.imageUrl ||
+                          slide.src ||
+                          "/placeholder-banner.png"
+                        }
+                        onError={(e) =>
+                          (e.target.src = "/placeholder-banner.png")
+                        }
+                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i === currentSlide ? "opacity-100" : "opacity-0"}`}
+                        alt={slide.title || "Banner Image"}
+                        loading={i === currentSlide ? "eager" : "lazy"}
+                        fetchPriority={i === currentSlide ? "high" : "low"}
+                        decoding="async"
+                      />
+                    ),
+                )}
+                <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/10 to-transparent"></div>
+              </div>
+              <div className="max-w-[1700px] mx-auto px-10 w-full relative z-10 text-white">
+                <div className="max-w-xl bg-black/30 backdrop-blur-xl rounded-2xl p-10 border border-white/10 shadow-2xl">
+                  <span className="text-yellow-300 font-black uppercase tracking-widest text-[9px] mb-3 block">
+                    {activeSlides[currentSlide]?.subtitle ||
+                      "DAKSHA • Artisanal Excellence"}
+                  </span>
+                  <h1 className="text-4xl xl:text-5xl font-serif font-black italic mb-4 leading-tight">
+                    {activeSlides[currentSlide]?.title ||
+                      "Pure. Natural. Delicious."}
+                  </h1>
+                  <Link
+                    to="/products"
+                    className="bg-yellow-300 text-primary px-8 py-3 rounded-xl font-black text-xs shadow-xl uppercase tracking-widest inline-flex items-center gap-2 hover:scale-105 transition-all"
+                  >
+                    Shop Collection{" "}
+                    <span className="material-symbols-outlined text-sm">
+                      arrow_right_alt
+                    </span>
+                  </Link>
+                </div>
+              </div>
+              <button
+                onClick={prevSlide}
+                aria-label="Previous Slide"
+                className="absolute left-6 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-white/40"
+              >
+                <span className="material-symbols-outlined">chevron_left</span>
+              </button>
+              <button
+                onClick={nextSlide}
+                aria-label="Next Slide"
+                className="absolute right-6 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-white/40"
+              >
+                <span className="material-symbols-outlined">chevron_right</span>
+              </button>
+            </section>
+
+            <section className="py-4 bg-white border-b border-primary/5">
+              <div className="max-w-[1700px] mx-auto px-10 flex items-center justify-center gap-8">
+                {categories.map((cat) => (
+                  <DesktopCategory
+                    key={cat._id}
+                    label={cat.name}
+                    to={`/category/${cat.slug || cat._id}`}
+                    src={getSafeImageUrl(
+                      cat.image,
+                      "/placeholder-category.png",
+                    )}
+                  />
+                ))}
+              </div>
+            </section>
+
+            {featuredProducts.length > 0 && (
+              <section className="py-12 bg-surface-container-lowest relative overflow-hidden">
+                <div className="max-w-[1700px] mx-auto px-10">
+                  <div className="text-center mb-8">
+                    <span className="text-secondary font-black uppercase tracking-[0.5rem] text-[9px] mb-3 block">
+                      Master's Selection
+                    </span>
+                    <h2 className="text-3xl font-serif font-black text-primary italic mb-2 tracking-tight">
+                      Featured Treasures
+                    </h2>
+                    <div className="w-12 h-0.5 bg-tertiary/20 mx-auto"></div>
+                  </div>
+                  <MarqueeCarousel duration={50} gap="gap-8 px-4">
+                    <div className="flex gap-8 px-4">
+                      {[...featuredProducts, ...featuredProducts].map(
+                        (prod, i) => (
+                          <div
+                            key={`${prod._id}-${i}`}
+                            className="min-w-[180px]"
+                          >
+                            <RoundProductCard
+                              p={prod}
+                              onBuy={() =>
+                                handleBuyNow(prod, prod.variants?.[0])
+                              }
+                            />
+                          </div>
+                        ),
+                      )}
+                    </div>
+                  </MarqueeCarousel>
+                </div>
+              </section>
+            )}
+
+            {middleBanners.length > 0 && (
+              <section className="py-6 px-10">
+                <div className="max-w-[1700px] mx-auto grid grid-cols-2 gap-6">
+                  {middleBanners.map((b) => (
+                    <Link
+                      to={b.linkUrl || "/products"}
+                      key={b._id}
+                      className="relative aspect-[25/9] rounded-3xl overflow-hidden shadow-xl group"
+                    >
+                      <img
+                        src={b.imageUrl || "/placeholder-banner.png"}
+                        onError={(e) =>
+                          (e.target.src = "/placeholder-banner.png")
+                        }
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2000ms]"
+                        loading="lazy"
+                        decoding="async"
+                        alt={b.title || "Daksha banner"}
+                      />
+                      <div className="absolute inset-0 bg-black/30 flex flex-col justify-end p-8 text-white">
+                        <h3 className="text-2xl font-serif font-black italic mb-1">
+                          {b.title}
+                        </h3>
+                        <p className="text-[9px] uppercase font-bold tracking-[0.3em]">
+                          {b.subtitle}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            <section className="py-12 bg-stone-50 border-t border-primary/5">
+              <div className="max-w-[1700px] mx-auto px-10">
+                <div className="flex justify-between items-end mb-10">
+                  <div>
+                    <span className="text-secondary font-black uppercase tracking-widest text-[11px] mb-3 block">
+                      Shop Our Artisan Picks
+                    </span>
+                    <h2 className="text-3xl font-serif font-black text-primary italic">
+                      The Best Sellers
+                    </h2>
+                  </div>
+                  <Link
+                    to="/products"
+                    className="text-tertiary font-black uppercase text-xs border-b border-tertiary/20 pb-0.5 hover:text-primary hover:border-primary transition-all flex items-center gap-1.5"
+                  >
+                    View All{" "}
+                    <span className="material-symbols-outlined text-sm">
+                      arrow_forward
+                    </span>
+                  </Link>
+                </div>
+                <div className="grid grid-cols-5 gap-6">
+                  {bestSellers.map((prod) => (
+                    <DesktopProductCard
+                      key={prod._id}
+                      p={prod}
+                      onAdd={() => addToCart(prod, prod.variants?.[0])}
+                      onBuy={() => handleBuyNow(prod, prod.variants?.[0])}
+                    />
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {(!settings || settings?.shippingBanner?.enabled !== false) && (
+              <section className="px-10 py-10">
+                <div className="max-w-[1700px] mx-auto bg-primary rounded-[2rem] p-10 flex items-center justify-between shadow-xl relative overflow-hidden text-white">
+                  <div className="flex items-center gap-8 z-10">
+                    <div className="w-14 h-14 bg-white/10 rounded-full flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-3xl">
+                        local_shipping
+                      </span>
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-serif font-black italic mb-1">
+                        {settings?.shippingBanner?.title ||
+                          "Free Global Shipping."}
+                      </h2>
+                      <p className="text-sm text-white/60 font-sans uppercase tracking-[0.2em]">
+                        {settings?.shippingBanner?.subtitle ||
+                          "Orders above ₹999 enjoy complimentary delivery"}
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    to="/products"
+                    className="bg-white text-primary px-10 py-4 rounded-xl font-black text-sm uppercase tracking-widest shadow-lg hover:translate-y-[-2px] transition-all z-10"
+                  >
+                    Shop Now
+                  </Link>
+                  <div className="absolute right-[-10%] top-[-50%] w-[500px] h-[500px] bg-tertiary opacity-10 rounded-full blur-[100px]"></div>
+                </div>
+              </section>
+            )}
+
+            <section className="py-12 bg-surface-container-low overflow-hidden relative">
+              <div className="max-w-[1700px] mx-auto px-10">
+                <div className="text-center mb-10">
+                  <span className="text-secondary font-black uppercase tracking-[0.4em] text-[10px] mb-4 block">
+                    Our Expertise
+                  </span>
+                  <h2 className="text-3xl font-serif font-black text-primary italic mb-4">
+                    Services We Provide
+                  </h2>
+                </div>
+                <div className="grid grid-cols-3 gap-6 px-10 mb-12">
+                  <ServiceCard
+                    icon="cookie"
+                    title="Artisan Cookies"
+                    desc="Crafted with premium ingredients for a rich, traditional taste."
+                  />
+                  <ServiceCard
+                    icon="eco"
+                    title="Healthy Millets"
+                    desc="Finely processed, hygienic millet powders for natural living."
+                  />
+                  <ServiceCard
+                    icon="inventory_2"
+                    title="Bulk Supply"
+                    desc="Reliable large-scale supply with customized packaging assurance."
+                  />
+                </div>
+
+                <div className="grid grid-cols-3 gap-6 px-10">
+                  {bottomBanners.map((b) => (
+                    <Link
+                      to={b.linkUrl || "/products"}
+                      key={b._id}
+                      className="relative aspect-square rounded-[2rem] overflow-hidden group shadow-xl border border-white/10"
+                    >
+                      <img
+                        src={b.imageUrl || "/placeholder-banner.png"}
+                        onError={(e) =>
+                          (e.target.src = "/placeholder-banner.png")
+                        }
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2000ms]"
+                        loading="lazy"
+                        decoding="async"
+                        alt={b.title || "Daksha service banner"}
+                      />
+                      <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-8 text-white">
+                        <h3 className="text-xl font-serif font-black italic mb-1">
+                          {b.title}
+                        </h3>
+                        <p className="text-[9px] uppercase font-bold tracking-[0.2em]">
+                          {b.subtitle}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            <section className="py-16 bg-surface relative overflow-hidden">
+              <div className="max-w-[1700px] mx-auto px-10">
+                <h2 className="text-center text-3xl font-serif font-black text-primary mb-12 italic">
+                  Patron Stories
+                </h2>
+                <div className="grid grid-cols-3 gap-8">
+                  <TestimonialCard
+                    name="Arjun Reddy"
+                    quote="The Cashew Cookies are divine. You can tell they use real butter."
+                    loc="Hyderabad"
+                  />
+                  <TestimonialCard
+                    name="Lakshmi Prasanna"
+                    quote="Daksha's Ragi Malt was the best health decision. Exceptional taste."
+                    loc="Vizag"
+                    dark
+                  />
+                  <TestimonialCard
+                    name="Karthik S."
+                    quote="The Gift Bundles are my go-to for Diwali. Premium packaging."
+                    loc="Bangalore"
+                  />
+                </div>
+              </div>
+            </section>
+          </main>
         </>
       )}
     </div>
@@ -669,7 +716,10 @@ const HomeLoadingState = () => (
     <div className="lg:hidden px-4 space-y-6">
       <div className="flex gap-3 overflow-hidden">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="flex flex-col items-center gap-2 shrink-0 w-[72px]">
+          <div
+            key={i}
+            className="flex flex-col items-center gap-2 shrink-0 w-[72px]"
+          >
             <div className="w-14 h-14 rounded-full bg-stone-200" />
             <div className="h-2 w-12 rounded-full bg-stone-200" />
           </div>
@@ -683,7 +733,10 @@ const HomeLoadingState = () => (
         <div className="h-5 w-40 bg-stone-200 rounded-full mx-auto" />
         <div className="mt-4 flex gap-4 overflow-hidden">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="min-w-[120px] h-32 rounded-2xl bg-stone-100" />
+            <div
+              key={i}
+              className="min-w-[120px] h-32 rounded-2xl bg-stone-100"
+            />
           ))}
         </div>
       </div>
