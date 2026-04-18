@@ -28,7 +28,9 @@ export const SiteProvider = ({ children }) => {
   const fetchSiteData = useCallback(async () => {
     try {
       // ⚡ Optimized Boot: ONE request for ALL critical storefront data
-      const { data } = await axios.get(`${API_URL}/site/bootstrap`);
+      const { data } = await axios.get(`${API_URL}/site/bootstrap`, {
+        params: { t: Date.now() },
+      });
 
       if (data.success) {
         const {

@@ -180,6 +180,7 @@ const Products = () => {
           search: searchTerm,
           page,
           limit: 12, // Load 12 products per page
+          t: Date.now(),
         },
       });
       if (data.success) {

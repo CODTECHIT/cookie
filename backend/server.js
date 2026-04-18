@@ -125,12 +125,14 @@ app.use((req, res, next) => {
   res.setHeader("request-id", requestId);
   req.id = requestId;
 
-  // ⚡ 2024 Cache-Prevention Fix: Force fresh content for all /api requests
+  // Dynamic storefront payloads should always reflect latest product/catalog state.
   if (req.originalUrl.startsWith("/api/site/bootstrap")) {
     res.setHeader(
       "Cache-Control",
-      "public, s-maxage=60, stale-while-revalidate=120",
+      "no-store, no-cache, must-revalidate, proxy-revalidate",
     );
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
   } else if (req.originalUrl.startsWith("/api")) {
     res.setHeader(
       "Cache-Control",
@@ -182,9 +184,18 @@ app.use((req, res, next) => {
     return next();
   }
 
-  // Cache public product endpoints for 1 minute (Reduced for faster admin reflect)
-  if (req.method === "GET" && /^\/api\/(products|categories)/.test(req.path)) {
-    res.set("Cache-Control", "public, max-age=60, stale-while-revalidate=120");
+  // Products are highly dynamic for inventory/admin operations; keep responses fresh.
+  if (req.method === "GET" && /^\/api\/products/.test(req.path)) {
+    res.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate",
+    );
+    res.set("Pragma", "no-cache");
+    res.set("Expires", "0");
+  }
+  // Categories change less often, can be cached.
+  else if (req.method === "GET" && /^\/api\/categories/.test(req.path)) {
+    res.set("Cache-Control", "public, max-age=300, stale-while-revalidate=600");
   }
   // Cache static content for 1 hour
   else if (req.method === "GET" && /^\/api\/(content|banners)/.test(req.path)) {
