@@ -1,10 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
-import { 
-  History, Heart, Users, ShieldCheck, 
-  MapPin, Quote, Sparkles, Award, ArrowRight,
-  Target, Zap, Leaf, Star
+import {
+    History, Heart, Users, ShieldCheck,
+    MapPin, Quote, Sparkles, Award, ArrowRight,
+    Target, Zap, Leaf, Star
 } from 'lucide-react';
 
 const About = () => {
@@ -13,7 +13,7 @@ const About = () => {
 
     return (
         <div className="bg-background min-h-screen font-sans text-on-surface antialiased overflow-x-hidden">
-            <SEO 
+            <SEO
                 title="Our Story | The Daksha Heritage - Artisan Cookies & Millets"
                 description="Discover the legacy of Daksha Cookies & Millets. Where traditional wisdom meets modern wellness innovation. Learn about our journey from Andhra Pradesh to becoming India's premier artisanal cookie brand."
                 keywords="Daksha story, heritage cookies, artisan bakery Andhra Pradesh, traditional recipes, millet health benefits, our journey, family recipes, handmade cookies, premium cookies India, bulk orders"
@@ -22,9 +22,9 @@ const About = () => {
             {/* 🏺 REFINED HERO SECTION */}
             <section className="relative min-h-[60vh] flex items-center justify-center pt-40 pb-20">
                 <div className="absolute inset-0 z-0">
-                    <img 
-                        src={heritageImg} 
-                        alt="Heritage" 
+                    <img
+                        src={heritageImg}
+                        alt="Heritage"
                         className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-primary/30 backdrop-blur-[0.5px]"></div>
