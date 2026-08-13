@@ -215,7 +215,7 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => {
   res.send(`
     <div style="font-family: sans-serif; text-align: center; padding: 50px;">
-      <h1>🍪 Daksha Food Artisan API</h1>
+      <h1>🍪 dakshacookiesmillets API</h1>
       <p>Server is running. Documentation: <a href="/api/health">/api/health</a></p>
     </div>
   `);
@@ -240,7 +240,7 @@ app.use("/api/site", siteRoutes);
 app.get("/api/health", (req, res) => {
   res.json({
     status: "OK",
-    message: "Daksha Food Artisan API is healthy 🍪",
+    message: "dakshacookiesmillets API is healthy 🍪",
     timestamp: new Date(),
   });
 });

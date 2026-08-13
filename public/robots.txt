@@ -1,4 +1,4 @@
-# Daksha Food Artisan - SEO Robots Configuration
+# dakshacookiesmillets - SEO Robots Configuration
 # This file instructs search engine crawlers how to interact with our site
 
 # Allow all bots to crawl the site

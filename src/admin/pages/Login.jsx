@@ -1,21 +1,22 @@
-import React, { useState } from 'react';
-import { useAdmin } from '../context/AdminContext';
-import { Navigate, Link } from 'react-router-dom';
-import { Lock, Mail, Loader2 } from 'lucide-react';
-import { CONFIG } from '../../utils/config';
+import React, { useState } from "react";
+import { useAdmin } from "../context/AdminContext";
+import { Navigate, Link } from "react-router-dom";
+import { Lock, Mail, Loader2 } from "lucide-react";
+import { CONFIG } from "../../utils/config";
 
 const AdminLogin = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login, admin } = useAdmin();
 
-  if (admin) return <Navigate to={`${CONFIG.ADMIN_PATH_PREFIX}/dashboard`} replace />;
+  if (admin)
+    return <Navigate to={`${CONFIG.ADMIN_PATH_PREFIX}/dashboard`} replace />;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsSubmitting(true);
     const result = await login(email, password);
     if (!result.success) {
@@ -32,13 +33,15 @@ const AdminLogin = () => {
             <Lock className="w-8 h-8" />
           </div>
           <h1 className="text-2xl font-bold">Admin Panel</h1>
-          <p className="text-white/80">Daksha Food Artisan</p>
+          <p className="text-white/80">dakshacookiesmillets</p>
         </div>
-        
+
         <div className="p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email Address
+              </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
                   <Mail className="w-5 h-5" />
@@ -55,7 +58,9 @@ const AdminLogin = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Password
+              </label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
                   <Lock className="w-5 h-5" />
@@ -71,7 +76,11 @@ const AdminLogin = () => {
               </div>
             </div>
 
-            {error && <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm">{error}</div>}
+            {error && (
+              <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm">
+                {error}
+              </div>
+            )}
 
             <button
               type="submit"
@@ -86,7 +95,11 @@ const AdminLogin = () => {
             </button>
 
             <div className="mt-4 text-center">
-              <Link to="/forgot-password" size={14} className="text-xs font-bold text-gray-400 hover:text-primary transition-colors">
+              <Link
+                to="/forgot-password"
+                size={14}
+                className="text-xs font-bold text-gray-400 hover:text-primary transition-colors"
+              >
                 Forgot Password?
               </Link>
             </div>

@@ -211,7 +211,7 @@ const Cart = () => {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: rzpOrder.amount,
         currency: rzpOrder.currency,
-        name: "Daksha Food Artisan",
+        name: "dakshacookiesmillets",
         description: isRazorpayTestMode
           ? `Order #${localOrder.orderNumber} (TEST MODE: use test card)`
           : "Order #" + localOrder.orderNumber,
@@ -352,7 +352,7 @@ const Cart = () => {
     return (
       <>
         <SEO
-          title="Shopping Cart | Daksha Food Artisan"
+          title="Shopping Cart | dakshacookiesmillets"
           description="Your shopping cart is empty. Browse our collection of handcrafted cookies and millet products. Free shipping on orders above ₹999. Shop premium artisanal cookies online."
           keywords="shopping cart, bag, checkout, cookies online, buy cookies India"
           url={`${window.location.origin}/cart`}
@@ -383,7 +383,7 @@ const Cart = () => {
   return (
     <>
       <SEO
-        title="Shopping Cart | Daksha Food Artisan"
+        title="Shopping Cart | dakshacookiesmillets"
         description="Review and manage your shopping cart. Add, remove, or update quantities of our handcrafted cookies and millet products before checkout. Free shipping above ₹999."
         keywords="shopping cart, bag, items, checkout, cookies online, buy cookies India"
         url={`${window.location.origin}/cart`}

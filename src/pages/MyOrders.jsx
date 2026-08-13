@@ -28,7 +28,9 @@ const MyOrders = () => {
   );
   const [token] = useState(localStorage.getItem("token")); // Assuming token storage
 
-  const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:5000/api');
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    (import.meta.env.PROD ? "/api" : "http://localhost:5000/api");
 
   useEffect(() => {
     if (token) {
@@ -68,8 +70,8 @@ const MyOrders = () => {
     return (
       <>
         <SEO
-          title="My Orders | Daksha Food Artisan"
-          description="View and track your orders from Daksha Food Artisan. Monitor shipment status and manage your purchases of handcrafted cookies and millet products."
+          title="My Orders | dakshacookiesmillets"
+          description="View and track your orders from dakshacookiesmillets. Monitor shipment status and manage your purchases of handcrafted cookies and millet products."
           keywords="my orders, order tracking, shipment status, cookies online, order history"
           url={`${window.location.origin}/my-orders`}
         />
@@ -105,8 +107,8 @@ const MyOrders = () => {
   return (
     <>
       <SEO
-        title="My Orders | Daksha Food Artisan - Track Your Orders"
-        description="View and track your orders from Daksha Food Artisan. Monitor shipment status, order history, and manage your purchases of artisanal cookies and millet products."
+        title="My Orders | dakshacookiesmillets - Track Your Orders"
+        description="View and track your orders from dakshacookiesmillets. Monitor shipment status, order history, and manage your purchases of artisanal cookies and millet products."
         keywords="my orders, order tracking, shipment status, cookies online, order history, order management"
         url={`${window.location.origin}/my-orders`}
       />

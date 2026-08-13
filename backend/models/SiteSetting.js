@@ -1,8 +1,8 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const siteSettingSchema = new mongoose.Schema(
   {
-    brandName: { type: String, default: 'Daksha Food Artisan' },
+    brandName: { type: String, default: "dakshacookiesmillets" },
     tagline: String,
     logoUrl: String,
     faviconUrl: String,
@@ -22,15 +22,15 @@ const siteSettingSchema = new mongoose.Schema(
     },
 
     invoice: {
-      prefix: { type: String, default: 'DFA' },
-      footerText: { type: String, default: 'Thank you for shopping with us!' },
+      prefix: { type: String, default: "DFA" },
+      footerText: { type: String, default: "Thank you for shopping with us!" },
       gstNumber: String,
       showGst: { type: Boolean, default: false },
       termsAndConditions: String,
     },
 
-    currency: { type: String, default: 'INR' },
-    currencySymbol: { type: String, default: '₹' },
+    currency: { type: String, default: "INR" },
+    currencySymbol: { type: String, default: "₹" },
 
     notifications: {
       emailEnabled: { type: Boolean, default: false },
@@ -47,14 +47,17 @@ const siteSettingSchema = new mongoose.Schema(
     privacyPolicy: String,
 
     shippingBanner: {
-      title: { type: String, default: '🚚 Free Global Shipping.' },
-      subtitle: { type: String, default: 'Orders above ₹999 enjoy complimentary delivery' },
+      title: { type: String, default: "🚚 Free Global Shipping." },
+      subtitle: {
+        type: String,
+        default: "Orders above ₹999 enjoy complimentary delivery",
+      },
       threshold: { type: Number, default: 999 },
-      enabled: { type: Boolean, default: true }
-    }
+      enabled: { type: Boolean, default: true },
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-const SiteSetting = mongoose.model('SiteSetting', siteSettingSchema);
+const SiteSetting = mongoose.model("SiteSetting", siteSettingSchema);
 export default SiteSetting;

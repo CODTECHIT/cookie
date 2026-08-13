@@ -48,8 +48,8 @@ const Register = () => {
   return (
     <>
       <SEO
-        title="Create Account | Register at Daksha Food Artisan"
-        description="Register for a Daksha Food Artisan account to shop handcrafted cookies, millet products, and enjoy personalized recommendations and order tracking. Join thousands of happy customers."
+        title="Create Account | Register at dakshacookiesmillets"
+        description="Register for a dakshacookiesmillets account to shop handcrafted cookies, millet products, and enjoy personalized recommendations and order tracking. Join thousands of happy customers."
         keywords="register, sign up, create account, Daksha cookies, cookies online, buy cookies India, account registration"
         url={`${window.location.origin}/register`}
       />

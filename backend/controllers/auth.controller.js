@@ -187,11 +187,16 @@ export const forgotPassword = async (req, res) => {
     if (!email) return errorResponse(res, "Email is required", 400);
 
     const user = await User.findOne({ email });
-    if (!user) return errorResponse(res, "If an account exists with this email, you will receive an OTP", 200);
+    if (!user)
+      return errorResponse(
+        res,
+        "If an account exists with this email, you will receive an OTP",
+        200,
+      );
 
     // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    
+
     // Save OTP to user (valid for 10 minutes)
     user.resetPasswordOTP = otp;
     user.resetPasswordExpires = Date.now() + 10 * 60 * 1000;
@@ -201,8 +206,8 @@ export const forgotPassword = async (req, res) => {
     try {
       await sendEmail({
         email: user.email,
-        subject: "[Daksha Food Artisan] Secure Password Reset Request",
-        otp
+        subject: "[dakshacookiesmillets] Secure Password Reset Request",
+        otp,
       });
     } catch (emailErr) {
       console.error("❌ Email Error:", emailErr.message);
@@ -210,7 +215,11 @@ export const forgotPassword = async (req, res) => {
       console.log(`🔐 BACKUP OTP for ${email}: ${otp}`);
     }
 
-    successResponse(res, null, "OTP sent to your email address (valid for 10 mins)");
+    successResponse(
+      res,
+      null,
+      "OTP sent to your email address (valid for 10 mins)",
+    );
   } catch (err) {
     errorResponse(res, err.message);
   }
@@ -222,13 +231,17 @@ export const resetPassword = async (req, res) => {
     const { email: rawEmail, otp, password: newPassword } = req.body;
     const email = rawEmail?.trim().toLowerCase();
 
-    if (!email || !otp || !newPassword) 
-      return errorResponse(res, "Email, OTP and New Password are required", 400);
+    if (!email || !otp || !newPassword)
+      return errorResponse(
+        res,
+        "Email, OTP and New Password are required",
+        400,
+      );
 
-    const user = await User.findOne({ 
-      email, 
+    const user = await User.findOne({
+      email,
       resetPasswordOTP: otp,
-      resetPasswordExpires: { $gt: Date.now() }
+      resetPasswordExpires: { $gt: Date.now() },
     }).select("+resetPasswordOTP +resetPasswordExpires");
 
     if (!user) return errorResponse(res, "Invalid or expired OTP", 400);
