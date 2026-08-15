@@ -33,6 +33,7 @@ const AdminLayout = () => {
     { title: "Payments", path: `${CONFIG.ADMIN_PATH_PREFIX}/payments`, icon: CreditCard },
     { title: "Reports", path: `${CONFIG.ADMIN_PATH_PREFIX}/reports`, icon: BarChart3 },
     { title: "Coupons", path: `${CONFIG.ADMIN_PATH_PREFIX}/coupons`, icon: Ticket },
+    { title: "Shipping", path: `${CONFIG.ADMIN_PATH_PREFIX}/shipping`, icon: Truck },
     { title: "Categories", path: `${CONFIG.ADMIN_PATH_PREFIX}/categories`, icon: Grid },
     { title: "Reviews", path: `${CONFIG.ADMIN_PATH_PREFIX}/reviews`, icon: Star },
     { title: "Content", path: `${CONFIG.ADMIN_PATH_PREFIX}/content`, icon: Image },

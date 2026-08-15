@@ -47,6 +47,7 @@ const CouponsManagement = lazy(() => import("./admin/pages/Coupons"));
 const CategoriesManagement = lazy(() => import("./admin/pages/Categories"));
 const ContentCMS = lazy(() => import("./admin/pages/ContentCMS"));
 const ReviewsManagement = lazy(() => import("./admin/pages/Reviews"));
+const ShippingManagement = lazy(() => import("./admin/pages/Shipping"));
 
 // Loading Component for Suspense
 const PageLoader = () => (
@@ -248,6 +249,7 @@ function App() {
                         />
                         <Route path="reviews" element={<ReviewsManagement />} />
                         <Route path="content" element={<ContentCMS />} />
+                        <Route path="shipping" element={<ShippingManagement />} />
                       </Route>
 
                       {/* Fallback */}
