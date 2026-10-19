@@ -96,6 +96,8 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
   "https://daksha-food.vercel.app",
+  "https://dakshafoods.in",
+  "https://www.dakshafoods.in",
   "https://dakshacookiesmillets.com",
   "https://www.dakshacookiesmillets.com",
 ].filter(Boolean);
@@ -215,7 +217,7 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => {
   res.send(`
     <div style="font-family: sans-serif; text-align: center; padding: 50px;">
-      <h1>🍪 dakshacookiesmillets API</h1>
+      <h1>🍪 Daksha Foods API</h1>
       <p>Server is running. Documentation: <a href="/api/health">/api/health</a></p>
     </div>
   `);
@@ -240,7 +242,7 @@ app.use("/api/site", siteRoutes);
 app.get("/api/health", (req, res) => {
   res.json({
     status: "OK",
-    message: "dakshacookiesmillets API is healthy 🍪",
+    message: "Daksha Foods API is healthy 🍪",
     timestamp: new Date(),
   });
 });

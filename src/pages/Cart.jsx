@@ -211,7 +211,7 @@ const Cart = () => {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: rzpOrder.amount,
         currency: rzpOrder.currency,
-        name: "dakshacookiesmillets",
+        name: "Daksha Foods",
         description: isRazorpayTestMode
           ? `Order #${localOrder.orderNumber} (TEST MODE: use test card)`
           : "Order #" + localOrder.orderNumber,
@@ -352,10 +352,10 @@ const Cart = () => {
     return (
       <>
         <SEO
-          title="Shopping Cart | dakshacookiesmillets"
-          description="Your shopping cart is empty. Browse our collection of handcrafted cookies and millet products. Free shipping on orders above ₹999. Shop premium artisanal cookies online."
-          keywords="shopping cart, bag, checkout, cookies online, buy cookies India"
-          url={`${window.location.origin}/cart`}
+          title="Shopping Cart"
+          description="Your shopping cart is empty. Browse Daksha Foods (dakshafoods.in) collection of handcrafted cookies and millet products. Free shipping on orders above ₹999."
+          keywords="shopping cart, bag, checkout, Daksha Foods, dakshafoods.in, cookies online, buy cookies India"
+          url="https://www.dakshafoods.in/cart"
         />
         <div className="pt-0 pb-24 px-4 xl:px-10 max-w-[1700px] mx-auto min-h-screen bg-[#FDFBF7]">
           <div className="text-center mb-8">
@@ -383,10 +383,10 @@ const Cart = () => {
   return (
     <>
       <SEO
-        title="Shopping Cart | dakshacookiesmillets"
-        description="Review and manage your shopping cart. Add, remove, or update quantities of our handcrafted cookies and millet products before checkout. Free shipping above ₹999."
-        keywords="shopping cart, bag, items, checkout, cookies online, buy cookies India"
-        url={`${window.location.origin}/cart`}
+        title="Shopping Cart"
+        description="Review and manage your shopping cart at Daksha Foods (dakshafoods.in). Add, remove, or update quantities of our handcrafted cookies and millet products before checkout. Free shipping above ₹999."
+        keywords="shopping cart, bag, items, checkout, Daksha Foods, dakshafoods.in, cookies online, buy cookies India"
+        url="https://www.dakshafoods.in/cart"
       />
       <div className="pt-0 md:pt-28 pb-24 px-4 xl:px-10 max-w-[1700px] mx-auto min-h-screen bg-[#FDFBF7]">
         <div className="mb-6 md:mb-8">

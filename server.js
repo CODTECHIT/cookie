@@ -43,7 +43,7 @@ app.get("/api/products", (req, res) => {
 });
 
 app.get("/api/health", (req, res) => {
-  res.json({ status: "OK", message: "dakshacookiesmillets API is healthy" });
+  res.json({ status: "OK", message: "Daksha Foods API is healthy" });
 });
 
 app.listen(PORT, () => {

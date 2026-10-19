@@ -23,9 +23,10 @@ const Services = () => {
   return (
     <div className="bg-background min-h-screen font-sans text-on-surface antialiased overflow-x-hidden">
       <SEO
-        title="Our Services | Premium Cookie Manufacturing & Millet Processing"
-        description="dakshacookiesmillets offers high-quality cookie manufacturing, millet processing, bulk orders, and wholesale solutions. Order custom gift packaging for weddings, corporate events, and special occasions. Free shipping above ₹999."
-        keywords="cookie manufacturing, millet processing, bulk orders, wholesale cookies, corporate gifting, wedding cookies, custom packaging, artisanal bakery, bulk supply India"
+        title="Our Services | Cookie Manufacturing & Millet Processing"
+        description="Daksha Foods (dakshafoods.in) offers high-quality cookie manufacturing, millet processing, bulk orders, and wholesale solutions. Order custom gift packaging for weddings, corporate events, and special occasions. Free shipping above ₹999."
+        keywords="Daksha Foods, dakshafoods.in, cookie manufacturing, millet processing, bulk orders, wholesale cookies, corporate gifting, wedding cookies, custom packaging, artisanal bakery, bulk supply India"
+        url="https://www.dakshafoods.in/services"
       />
 
       {/* 🚀 PROFESSIONAL HERO SECTION */}

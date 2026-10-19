@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const siteSettingSchema = new mongoose.Schema(
   {
-    brandName: { type: String, default: "dakshacookiesmillets" },
+    brandName: { type: String, default: "Daksha Foods" },
     tagline: String,
     logoUrl: String,
     faviconUrl: String,

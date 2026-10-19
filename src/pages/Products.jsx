@@ -161,7 +161,7 @@ const Products = () => {
   }, [categories, selectedCategories]);
 
   const seoTitle = searchTerm
-    ? `Search results for "${searchTerm}" | dakshacookiesmillets`
+    ? `Search results for "${searchTerm}" | Daksha Foods`
     : activeCategory?.metaTitle ||
       activeCategory?.name ||
       "Premium Cookies & Healthy Millets Collection";

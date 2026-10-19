@@ -1,38 +1,38 @@
-# dakshacookiesmillets - SEO Robots Configuration
-# This file instructs search engine crawlers how to interact with our site
+# Daksha Foods (dakshafoods.in) - SEO & AEO Robots Configuration
+# This file instructs search engine and AI crawlers how to interact with our site
 
-# Allow all bots to crawl the site
+# General Web Crawlers
 User-agent: *
 Allow: /
-
-# Disallow specific paths that should not be indexed
 Disallow: /cookies/admin@123/
 Disallow: /admin/
 Disallow: /api/
 Disallow: /private/
 Disallow: /temp/
 Disallow: /*.json$
-Disallow: /*.xml$
-Disallow: /search
 Disallow: /cart
 Disallow: /checkout
 Disallow: /order-confirmation
+Disallow: /my-orders
 
-# Allow search engines to index key pages
+# Allow search engines and answer engines to index key content
 Allow: /products
-Allow: /category
-Allow: /product
+Allow: /category/
+Allow: /product/
 Allow: /about
 Allow: /services
+Allow: /contact
 Allow: /privacy-policy
+Allow: /llms.txt
+Allow: /llms-full.txt
 
-# Crawl delay (in seconds) - be respectful to server resources
+# Crawl delay (in seconds)
 Crawl-delay: 1
 
 # Sitemap location
-Sitemap: https://dakshacookiesmillets.com/sitemap.xml
+Sitemap: https://www.dakshafoods.in/sitemap.xml
 
-# Mobile-friendly declarations
+# Googlebot specific rules
 User-agent: Googlebot
 Allow: /
 
@@ -43,7 +43,29 @@ Allow: /*.jpg$
 Allow: /*.jpeg$
 Allow: /*.webp$
 
-# Block bad bots
+# AEO: Artificial Intelligence & Answer Engine Crawlers
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Cohere-ai
+Allow: /
+
+# Block aggressive scrapers
 User-agent: MJ12bot
 Disallow: /
 
@@ -52,3 +74,4 @@ Disallow: /
 
 User-agent: SemrushBot
 Disallow: /
+

@@ -23,9 +23,10 @@ const Contact = () => {
     return (
         <div className="bg-background min-h-screen font-sans text-on-surface antialiased overflow-x-hidden">
             <SEO 
-                title="Contact Us | Daksha Cookies & Millets"
-                description="Get in touch with Daksha Cookies & Millets. We're here to help with your orders, inquiries, and feedback. Visit us in Eluru, Andhra Pradesh."
-                keywords="contact daksha, cookie inquiries, millet products contact, daksha cookies address, customer support, bulk orders, Eluru bakery"
+                title="Contact Us"
+                description="Get in touch with Daksha Foods (dakshafoods.in). We're here to help with your orders, inquiries, corporate gifting, and feedback. Visit us in Eluru, Andhra Pradesh."
+                keywords="contact daksha, Daksha Foods, dakshafoods.in, cookie inquiries, millet products contact, daksha cookies address, customer support, bulk orders, Eluru bakery"
+                url="https://www.dakshafoods.in/contact"
             />
 
             {/* 🏺 REFINED HERO SECTION */}

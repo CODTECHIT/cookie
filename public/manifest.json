@@ -1,6 +1,6 @@
 {
-  "short_name": "Daksha",
-  "name": "dakshacookiesmillets",
+  "short_name": "Daksha Foods",
+  "name": "Daksha Foods - Artisanal Cookies & Millets",
   "icons": [
     {
       "src": "/logo.png",
@@ -18,7 +18,7 @@
       "sizes": "512x512"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
   "theme_color": "#331917",
   "background_color": "#FDFBF7"

@@ -206,7 +206,7 @@ export const forgotPassword = async (req, res) => {
     try {
       await sendEmail({
         email: user.email,
-        subject: "[dakshacookiesmillets] Secure Password Reset Request",
+        subject: "[Daksha Foods] Secure Password Reset Request",
         otp,
       });
     } catch (emailErr) {

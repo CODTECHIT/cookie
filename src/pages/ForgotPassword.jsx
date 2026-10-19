@@ -75,7 +75,7 @@ const ForgotPassword = () => {
     <>
       <SEO
         title="Reset Password"
-        description="Recover your dakshacookiesmillets account securely using your registered email address."
+        description="Recover your Daksha Foods (dakshafoods.in) account securely using your registered email address."
       />
       <div className="pt-0 md:pt-10 pb-20 px-6 min-h-screen bg-[#FDFBF7] flex items-center justify-center">
         <div className="w-full max-w-md">

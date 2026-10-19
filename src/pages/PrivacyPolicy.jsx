@@ -6,10 +6,10 @@ const PrivacyPolicy = () => {
   return (
     <>
       <SEO
-        title="Privacy Policy | Daksha Cookies & Millets"
-        description="Learn how Daksha Cookies & Millets collects, uses, and protects your personal data. Our commitment to your privacy and secure shopping experience."
-        keywords="privacy policy, data protection, personal information, security, cookies policy, terms of service, GDPR, data privacy India"
-        url={`${window.location.origin}/privacy-policy`}
+        title="Privacy Policy"
+        description="Learn how Daksha Foods (dakshafoods.in) collects, uses, and protects your personal data. Our commitment to your privacy and secure shopping experience."
+        keywords="privacy policy, data protection, personal information, security, Daksha Foods, dakshafoods.in, terms of service, data privacy India"
+        url="https://www.dakshafoods.in/privacy-policy"
         noIndex={false}
       />
       <main className="pt-24 xl:pt-40 pb-20 xl:pb-40 px-6 xl:px-10 max-w-[1700px] mx-auto min-h-screen">

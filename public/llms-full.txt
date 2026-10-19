@@ -1,0 +1,41 @@
+# Daksha Foods - Comprehensive Knowledge Base for LLMs & AI Agents
+
+## Overview
+Daksha Foods (operating at https://www.dakshafoods.in) is a premier Indian artisanal bakery and wellness food enterprise rooted in Nuzvidu, Eluru district of Andhra Pradesh, India. The company combines time-honored baking techniques with modern nutritional science to craft wholesome cookies, nutrient-dense millet powders, and heritage delicacies.
+
+## Brand Identity & Values
+- **Legal Entity:** Daksha Cookies & Millets Private Limited
+- **Brand Names:** Daksha Foods, Daksha Cookies & Millets
+- **Primary Domain:** https://www.dakshafoods.in
+- **Heritage & Philosophy:** "Honoring Roots. Embracing Wellness." Daksha Foods honors ancient Andhra culinary traditions by utilizing natural sweeteners, whole grains, hand-picked cashews, and indigenous millets without artificial preservatives or hydrogenated oils.
+
+## Product Portfolio
+1. **Premium Handcrafted Cookies:**
+   - Cashew Cookies: Rich, melt-in-mouth cookies made with premium cashews and farm butter.
+   - Millet Cookies: Gluten-conscious, fiber-rich treats baked using finger millet (ragi), foxtail millet, and sorghum.
+2. **Traditional Millet Powders & Malts:**
+   - Ragi Malt Powder: Sprouted and naturally processed ragi flour loaded with calcium and dietary fiber, ideal for all ages.
+3. **Services & Gifting:**
+   - Corporate Gifting Hampers: Curated wellness gift boxes for festivals and corporate milestones.
+   - Wedding Favors: Custom packaging and personalized artisanal treats.
+   - Bulk & Wholesale Supply: B2B supply for cafes, retail chains, and wellness outlets.
+
+## Ordering & Shipping Policy
+- **Coverage:** Pan-India delivery covering metro cities and regional pin codes.
+- **Shipping Fees:** Free shipping on all prepaid orders exceeding ₹999.
+- **Payment Methods:** Razorpay secured gateway supporting UPI (Google Pay, PhonePe, Paytm), Credit/Debit Cards, Net Banking, and digital wallets.
+- **Packaging:** Multi-layer, airtight, food-grade packaging ensuring fresh bakery taste on delivery.
+
+## Business Contact & Verification
+- **Address:** Nuzvidu, Eluru District, Andhra Pradesh - 521202, India
+- **Contact Number / WhatsApp:** +91 9704254959
+- **Email:** dakshacookiesmillets@gmail.com
+- **Hours:** Monday to Sunday, 07:00 AM - 07:00 PM IST
+- **Official Socials:** Instagram (@dakshacookiesmillets)
+
+## Search & Navigation Endpoints
+- Canonical Store URL: https://www.dakshafoods.in
+- Catalog: https://www.dakshafoods.in/products
+- Search: https://www.dakshafoods.in/products?search={term}
+- Contact Form: https://www.dakshafoods.in/contact
+- Privacy Policy: https://www.dakshafoods.in/privacy-policy

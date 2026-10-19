@@ -31,10 +31,10 @@ const Login = () => {
   return (
     <>
       <SEO
-        title="Sign In | Login to dakshacookiesmillets"
-        description="Log in to your dakshacookiesmillets account to track orders and manage your preferences for handcrafted cookies and millet products. Shop premium artisanal cookies online."
-        keywords="login, sign in, Daksha account, order tracking, cookies online, buy cookies India, account login"
-        url={`${window.location.origin}/login`}
+        title="Sign In"
+        description="Log in to your Daksha Foods (dakshafoods.in) account to track orders and manage your preferences for handcrafted cookies and millet products."
+        keywords="login, sign in, Daksha Foods, dakshafoods.in, order tracking, cookies online, buy cookies India, account login"
+        url="https://www.dakshafoods.in/login"
       />
       <div className="pt-0 md:pt-10 pb-20 px-6 min-h-screen bg-[#FDFBF7] flex items-center justify-center">
         <div className="w-full max-w-md">

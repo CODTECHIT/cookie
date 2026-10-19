@@ -70,10 +70,10 @@ const MyOrders = () => {
     return (
       <>
         <SEO
-          title="My Orders | dakshacookiesmillets"
-          description="View and track your orders from dakshacookiesmillets. Monitor shipment status and manage your purchases of handcrafted cookies and millet products."
-          keywords="my orders, order tracking, shipment status, cookies online, order history"
-          url={`${window.location.origin}/my-orders`}
+          title="My Orders"
+          description="View and track your orders from Daksha Foods (dakshafoods.in). Monitor shipment status and manage your purchases of handcrafted cookies and millet products."
+          keywords="my orders, order tracking, shipment status, Daksha Foods, dakshafoods.in, cookies online, order history"
+          url="https://www.dakshafoods.in/my-orders"
         />
         <div className="min-h-screen flex items-center justify-center px-4 md:px-8 py-20">
           <div className="bg-stone-50 rounded-[3rem] p-12 border border-stone-100 w-full max-w-md text-center">
@@ -107,10 +107,10 @@ const MyOrders = () => {
   return (
     <>
       <SEO
-        title="My Orders | dakshacookiesmillets - Track Your Orders"
-        description="View and track your orders from dakshacookiesmillets. Monitor shipment status, order history, and manage your purchases of artisanal cookies and millet products."
-        keywords="my orders, order tracking, shipment status, cookies online, order history, order management"
-        url={`${window.location.origin}/my-orders`}
+        title="My Orders - Track Your Orders"
+        description="View and track your orders from Daksha Foods (dakshafoods.in). Monitor shipment status, order history, and manage your purchases of artisanal cookies and millet products."
+        keywords="my orders, order tracking, shipment status, Daksha Foods, dakshafoods.in, cookies online, order history, order management"
+        url="https://www.dakshafoods.in/my-orders"
       />
       <div className="pt-0 md:pt-10 pb-20 px-4 md:px-8 max-w-6xl mx-auto min-h-screen">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">

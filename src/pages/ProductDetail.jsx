@@ -117,13 +117,13 @@ const ProductDetail = () => {
   return (
     <div className="pt-0 lg:pt-28 pb-24 px-4 xl:px-16 max-w-[1700px] mx-auto min-h-screen bg-[#FDFBF7]">
       <SEO
-        title={`${product.name} | Buy Online at dakshacookiesmillets`}
+        title={`${product.name} | Buy Online`}
         description={
           product.shortDescription ||
           product.description?.substring(0, 160) ||
-          `Buy premium ${product.name} at dakshacookiesmillets. Handcrafted with love using traditional recipes and organic ingredients. Free shipping on orders above ₹999.`
+          `Buy premium ${product.name} online at Daksha Foods (dakshafoods.in). Handcrafted with love using traditional recipes and organic ingredients. Free shipping on orders above ₹999.`
         }
-        keywords={`${product.name}, buy ${product.name} online, artisanal cookies, Daksha cookies, premium cookies, handcrafted cookies, healthy millet cookies, organic cookies India`}
+        keywords={`${product.name}, buy ${product.name} online, Daksha Foods, dakshafoods.in, artisanal cookies, Daksha cookies, premium cookies, handcrafted cookies, healthy millet cookies, organic cookies India`}
         image={images[0]}
         type="product"
         schema={{
@@ -134,7 +134,8 @@ const ProductDetail = () => {
           image: images,
           brand: {
             "@type": "Brand",
-            name: "dakshacookiesmillets",
+            name: "Daksha Foods",
+            url: "https://www.dakshafoods.in",
           },
           offers: {
             "@type": "Offer",
@@ -144,9 +145,11 @@ const ProductDetail = () => {
               .toISOString()
               .split("T")[0],
             availability: "https://schema.org/InStock",
+            url: `https://www.dakshafoods.in/product/${product.slug || product._id}`,
             seller: {
               "@type": "Organization",
-              name: "dakshacookiesmillets",
+              name: "Daksha Foods",
+              url: "https://www.dakshafoods.in",
             },
           },
           aggregateRating: {

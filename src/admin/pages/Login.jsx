@@ -33,7 +33,7 @@ const AdminLogin = () => {
             <Lock className="w-8 h-8" />
           </div>
           <h1 className="text-2xl font-bold">Admin Panel</h1>
-          <p className="text-white/80">dakshacookiesmillets</p>
+          <p className="text-white/80">Daksha Foods Management</p>
         </div>
 
         <div className="p-8">

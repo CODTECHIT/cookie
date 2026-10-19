@@ -24,18 +24,25 @@ const SEO = ({
   schema = null,
   noIndex = false,
 }) => {
-  const siteTitle = "Daksha Cookies & Millets";
-  const siteTagline = "Premium Artisanal Hearth & Heritage";
+  const siteTitle = "Daksha Foods";
+  const siteTagline = "Handcrafted Artisanal Cookies & Millets";
   const fullTitle = title
     ? `${title} | ${siteTitle}`
     : `${siteTitle} | ${siteTagline}`;
   const defaultDesc =
-    "Authentic, health-conscious artisanal treats including millet-based cookies and traditional snacks from the heart of Andhra Pradesh. Handcrafted with soul.";
-  const siteUrl = window.location.origin;
-  const canonicalUrl =
-    url || (typeof window !== "undefined" ? window.location.href : siteUrl);
+    "Authentic, health-conscious artisanal treats from Daksha Foods (dakshafoods.in) including handcrafted cashew cookies, nutrient-rich millets, ragi malt, and traditional Andhra Pradesh snacks.";
+  const defaultSiteUrl = "https://www.dakshafoods.in";
+  const siteUrl =
+    typeof window !== "undefined" && window.location.origin.includes("dakshafoods.in")
+      ? window.location.origin
+      : defaultSiteUrl;
   
-  const defaultKeywords = "handcrafted cookies, millet snacks, healthy millets, organic cookies, Andhra Pradesh traditional snacks, artisanal food, buy cookies online, healthy millet powders, Daksha cookies, nutritious snacks, gluten-free cookies India, cashew cookies, ragi malt powder, homemade cookies, premium cookies, gift cookies, bulk cookies, traditional snacks India, millet health drinks, organic millets";
+  const currentPath = typeof window !== "undefined" ? window.location.pathname : "/";
+  const canonicalUrl = url
+    ? (url.startsWith("http") ? url : `${defaultSiteUrl}${url.startsWith("/") ? url : `/${url}`}`)
+    : `${defaultSiteUrl}${currentPath === "/" ? "/" : currentPath}`;
+  
+  const defaultKeywords = "Daksha Foods, dakshafoods.in, handcrafted cookies, millet snacks, healthy millets, organic cookies, Andhra Pradesh traditional snacks, artisanal food, buy cookies online, healthy millet powders, Daksha cookies, nutritious snacks, gluten-free cookies India, cashew cookies, ragi malt powder, homemade cookies, premium cookies, gift cookies, bulk cookies, traditional snacks India, millet health drinks, organic millets";
   const finalKeywords = keywords ? `${keywords}, ${defaultKeywords}` : defaultKeywords;
 
   // Organization Schema
@@ -43,18 +50,19 @@ const SEO = ({
     "@context": "https://schema.org",
     "@type": "Organization",
     name: siteTitle,
+    legalName: "Daksha Cookies & Millets Private Limited",
+    alternateName: ["Daksha Cookies & Millets", "dakshafoods.in"],
     description: defaultDesc,
-    url: siteUrl,
-    logo: `${siteUrl}/logo.png`,
+    url: defaultSiteUrl,
+    logo: `${defaultSiteUrl}/logo.png`,
     sameAs: [
-      "https://www.instagram.com/daksha",
-      "https://www.facebook.com/daksha",
+      "https://www.instagram.com/dakshacookiesmillets?igsh=MXJocjk5Ym5tdm9paQ==",
     ],
     address: {
       "@type": "PostalAddress",
       streetAddress: "Nuzvidu, Eluru",
       addressLocality: "Andhra Pradesh",
-      postalCode: "517590",
+      postalCode: "521202",
       addressCountry: "IN",
     },
     contactPoint: {
@@ -68,21 +76,25 @@ const SEO = ({
   // Local Business Schema
   const localBusinessSchema = {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
+    "@type": "Bakery",
     name: siteTitle,
-    image: `${siteUrl}/logo.png`,
+    alternateName: "Daksha Cookies & Millets",
+    image: `${defaultSiteUrl}/assets/home-hero-cinematic.png`,
+    logo: `${defaultSiteUrl}/logo.png`,
+    url: defaultSiteUrl,
     description: defaultDesc,
     address: {
       "@type": "PostalAddress",
       streetAddress: "Nuzvidu, Eluru",
       addressLocality: "Andhra Pradesh",
+      postalCode: "521202",
       addressCountry: "IN",
     },
     telephone: "+919704254959",
     priceRange: "₹99 - ₹999",
   };
 
-  // Breadcrumb Schema (if needed)
+  // Breadcrumb Schema
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -91,7 +103,7 @@ const SEO = ({
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: siteUrl,
+        item: defaultSiteUrl,
       },
     ],
   };
@@ -101,10 +113,10 @@ const SEO = ({
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: siteTitle,
-    url: siteUrl,
+    url: defaultSiteUrl,
     potentialAction: {
       "@type": "SearchAction",
-      target: `${siteUrl}/products?search={search_term_string}`,
+      target: `${defaultSiteUrl}/products?search={search_term_string}`,
       "query-input": "required name=search_term_string",
     },
   };
@@ -155,8 +167,8 @@ const SEO = ({
       ) : (
         <meta name="twitter:image" content={`${siteUrl}/assets/og-image.png`} />
       )}
-      <meta name="twitter:site" content="@daksha" />
-      <meta name="twitter:creator" content="@daksha" />
+      <meta name="twitter:site" content="@dakshafoods" />
+      <meta name="twitter:creator" content="@dakshafoods" />
 
       {/* Additional Meta Tags */}
       <meta name="theme-color" content="#331917" />

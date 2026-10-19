@@ -14,9 +14,10 @@ const About = () => {
     return (
         <div className="bg-background min-h-screen font-sans text-on-surface antialiased overflow-x-hidden">
             <SEO
-                title="Our Story | The Daksha Heritage - Artisan Cookies & Millets"
-                description="Discover the legacy of Daksha Cookies & Millets. Where traditional wisdom meets modern wellness innovation. Learn about our journey from Andhra Pradesh to becoming India's premier artisanal cookie brand."
-                keywords="Daksha story, heritage cookies, artisan bakery Andhra Pradesh, traditional recipes, millet health benefits, our journey, family recipes, handmade cookies, premium cookies India, bulk orders"
+                title="Our Story | The Daksha Heritage"
+                description="Discover the legacy of Daksha Foods (dakshafoods.in). Where traditional wisdom meets modern wellness innovation. Learn about our journey from Andhra Pradesh to becoming India's premier artisanal cookie brand."
+                keywords="Daksha story, Daksha Foods, dakshafoods.in, heritage cookies, artisan bakery Andhra Pradesh, traditional recipes, millet health benefits, our journey, family recipes, handmade cookies, premium cookies India, bulk orders"
+                url="https://www.dakshafoods.in/about"
             />
 
             {/* 🏺 REFINED HERO SECTION */}
