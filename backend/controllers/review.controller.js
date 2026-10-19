@@ -23,9 +23,35 @@ export const getAllReviews = async (req, res) => {
 // POST /api/reviews  (customer submits review)
 export const createReview = async (req, res) => {
   try {
-    const { productId, customerId, orderId, rating, title, comment } = req.body;
-    const review = await Review.create({ productId, customerId, orderId, rating, title, comment, isVerifiedPurchase: !!orderId });
-    successResponse(res, review, 'Review submitted', 201);
+    const { productId, orderId, rating, title, comment } = req.body;
+    // 🔒 Security: Enforce authenticated customer identity
+    const customerId = req.user._id;
+
+    // 🔒 Security: Authenticate verified purchase against database
+    let isVerifiedPurchase = false;
+    if (orderId) {
+      const Order = (await import("../models/Order.js")).default;
+      const validOrder = await Order.findOne({
+        _id: orderId,
+        customerId: req.user._id,
+        paymentStatus: "Paid",
+        "items.productId": productId,
+      });
+      if (validOrder) {
+        isVerifiedPurchase = true;
+      }
+    }
+
+    const review = await Review.create({
+      productId,
+      customerId,
+      orderId: isVerifiedPurchase ? orderId : undefined,
+      rating,
+      title,
+      comment,
+      isVerifiedPurchase,
+    });
+    successResponse(res, review, "Review submitted", 201);
   } catch (err) {
     errorResponse(res, err.message);
   }

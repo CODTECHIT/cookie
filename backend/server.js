@@ -90,6 +90,17 @@ app.use("/api/auth/login", authLimiter);
 app.use("/api/auth/customer-login", authLimiter);
 app.use("/api/auth/register", authLimiter);
 
+// Password Reset & Recovery Rate Limiter (Prevent OTP Brute-Force)
+const recoveryLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Max 10 attempts per 15 minutes per IP
+  message: "Too many password recovery attempts, please try again after 15 minutes",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use("/api/auth/forgot-password", recoveryLimiter);
+app.use("/api/auth/reset-password", recoveryLimiter);
+
 // 4. Stricter CORS
 const allowedOrigins = [
   process.env.CLIENT_URL,

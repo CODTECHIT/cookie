@@ -25,7 +25,11 @@ export const getSiteBootstrap = async (req, res) => {
         isActive: true,
         validUntil: { $gte: new Date() },
         validFrom: { $lte: new Date() },
-      }).lean(),
+      })
+        .select("code discountType discountValue description minOrderAmount validUntil validFrom")
+        .sort({ createdAt: -1 })
+        .limit(3)
+        .lean(),
       Banner.find({ isActive: true }).sort({ sortOrder: 1 }).lean(),
       // ⚡ HOME PAGE BOOST: Fetch featured and latest products for instant display
       Product.find({ isFeatured: true, isActive: true })

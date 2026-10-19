@@ -45,7 +45,7 @@ const logoStorage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder: "daksha_food/settings",
-    allowed_formats: ["jpg", "jpeg", "png", "webp", "svg"],
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
   },
 });
 

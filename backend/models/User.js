@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema(
     addresses: [addressSchema],
     resetPasswordOTP: { type: String, select: false },
     resetPasswordExpires: { type: Date, select: false },
+    resetPasswordAttempts: { type: Number, default: 0, select: false },
 
     // Customer metrics (denormalized for fast dashboard)
     totalOrders: { type: Number, default: 0 },

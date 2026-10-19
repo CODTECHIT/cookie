@@ -9,10 +9,11 @@ export const getCustomers = async (req, res) => {
     const filter = { role: "customer" };
     if (repeat === "true") filter.isRepeatCustomer = true;
     if (search) {
+      const safeSearch = String(search).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       filter.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { phone: { $regex: search, $options: "i" } },
-        { email: { $regex: search, $options: "i" } },
+        { name: { $regex: safeSearch, $options: "i" } },
+        { phone: { $regex: safeSearch, $options: "i" } },
+        { email: { $regex: safeSearch, $options: "i" } },
       ];
     }
     const skip = (page - 1) * limit;

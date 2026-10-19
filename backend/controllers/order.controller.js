@@ -25,7 +25,10 @@ export const getAllOrders = async (req, res) => {
       filter.paymentStatus = { $in: ["Paid", "Failed"] };
     }
 
-    if (search) filter.orderNumber = { $regex: search, $options: "i" };
+    if (search) {
+      const safeSearch = String(search).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      filter.orderNumber = { $regex: safeSearch, $options: "i" };
+    }
 
     const skip = (page - 1) * limit;
     const [orders, total] = await Promise.all([
@@ -47,13 +50,26 @@ export const getAllOrders = async (req, res) => {
   }
 };
 
-// GET /api/orders/:id  (admin)
+// GET /api/orders/:id  (admin or order owner)
 export const getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id).populate(
       "customerId paymentId",
     );
     if (!order) return errorResponse(res, "Order not found", 404);
+
+    // IDOR / BOLA Prevention: Verify user is admin or the customer who placed the order
+    const isOwner =
+      order.customerId &&
+      ((order.customerId._id &&
+        order.customerId._id.toString() === req.user._id.toString()) ||
+        order.customerId.toString() === req.user._id.toString());
+    const isAdmin = req.user && req.user.role === "admin";
+
+    if (!isOwner && !isAdmin) {
+      return errorResponse(res, "Access denied: Unauthorized to view this order", 403);
+    }
+
     successResponse(res, order);
   } catch (err) {
     errorResponse(res, err.message);

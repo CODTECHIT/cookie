@@ -5,21 +5,24 @@ import PDFDocument from "pdfkit";
 import { successResponse, errorResponse } from "../utils/apiResponse.js";
 
 // Helper: Convert data to CSV
+// Helper: Convert data to CSV with formula injection protection
 const convertToCSV = (data, headers) => {
   const csv = [headers.join(",")];
   data.forEach((row) => {
     csv.push(
       headers
         .map((header) => {
-          const value = row[header];
-          // Escape quotes and wrap in quotes if contains comma or newline
-          if (
-            typeof value === "string" &&
-            (value.includes(",") || value.includes("\n") || value.includes('"'))
-          ) {
-            return `"${value.replace(/"/g, '""')}"`;
+          let value = row[header];
+          let str = String(value ?? "");
+          // Disarm CSV Formula Injection (=, +, -, @, \t, \r)
+          if (/^[=+\-@\t\r]/.test(str)) {
+            str = `'${str}`;
           }
-          return value;
+          // Escape quotes and wrap in quotes if contains comma or newline
+          if (str.includes(",") || str.includes("\n") || str.includes('"')) {
+            return `"${str.replace(/"/g, '""')}"`;
+          }
+          return str;
         })
         .join(","),
     );

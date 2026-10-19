@@ -12,8 +12,12 @@ const Contact = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const text = `*New Message from DAKSHA Website*%0A%0A*Name:* ${formData.name}%0A*Email:* ${formData.email}%0A*Subject:* ${formData.subject}%0A*Message:* ${formData.message}`;
-        window.open(`https://wa.me/919704254959?text=${text}`, '_blank');
+        const safeName = encodeURIComponent(formData.name.trim());
+        const safeEmail = encodeURIComponent(formData.email.trim());
+        const safeSubject = encodeURIComponent(formData.subject.trim());
+        const safeMessage = encodeURIComponent(formData.message.trim());
+        const text = `*New Message from DAKSHA Website*%0A%0A*Name:* ${safeName}%0A*Email:* ${safeEmail}%0A*Subject:* ${safeSubject}%0A*Message:* ${safeMessage}`;
+        window.open(`https://wa.me/919704254959?text=${text}`, '_blank', 'noopener,noreferrer');
     };
 
     const handleChange = (e) => {

@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import { successResponse, errorResponse } from "../utils/apiResponse.js";
 import { sendEmail } from "../utils/email.js";
 
@@ -194,15 +195,17 @@ export const forgotPassword = async (req, res) => {
         200,
       );
 
-    // Generate 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    // 🔒 Cryptographically secure 6-digit OTP
+    const otp = crypto.randomInt(100000, 1000000).toString();
 
-    // Save OTP to user (valid for 10 minutes)
-    user.resetPasswordOTP = otp;
+    // 🔒 Store SHA-256 hash in database with 10-minute expiry and attempt counter reset
+    const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
+    user.resetPasswordOTP = hashedOtp;
     user.resetPasswordExpires = Date.now() + 10 * 60 * 1000;
+    user.resetPasswordAttempts = 0;
     await user.save({ validateBeforeSave: false });
 
-    // ⚡ REAL EMAIL SENDER ACTIVATED!
+    // Send email with OTP
     try {
       await sendEmail({
         email: user.email,
@@ -210,9 +213,10 @@ export const forgotPassword = async (req, res) => {
         otp,
       });
     } catch (emailErr) {
-      console.error("❌ Email Error:", emailErr.message);
-      // Fallback for developers if EMAIL_USER/PASS are not set yet
-      console.log(`🔐 BACKUP OTP for ${email}: ${otp}`);
+      console.error("❌ Email Delivery Error:", emailErr.message);
+      if (process.env.NODE_ENV !== "production") {
+        console.log(`🔐 [DEV ONLY] OTP for ${email}: ${otp}`);
+      }
     }
 
     successResponse(
@@ -240,16 +244,47 @@ export const resetPassword = async (req, res) => {
 
     const user = await User.findOne({
       email,
-      resetPasswordOTP: otp,
       resetPasswordExpires: { $gt: Date.now() },
-    }).select("+resetPasswordOTP +resetPasswordExpires");
+    }).select("+resetPasswordOTP +resetPasswordExpires +resetPasswordAttempts");
 
     if (!user) return errorResponse(res, "Invalid or expired OTP", 400);
 
-    // Update password and clear OTP
+    // 🔒 Rate-limit attempts: max 5 tries per generated OTP
+    if ((user.resetPasswordAttempts || 0) >= 5) {
+      user.resetPasswordOTP = undefined;
+      user.resetPasswordExpires = undefined;
+      user.resetPasswordAttempts = 0;
+      await user.save({ validateBeforeSave: false });
+      return errorResponse(
+        res,
+        "Too many incorrect attempts. Please request a new recovery OTP.",
+        429,
+      );
+    }
+
+    // Compare with hashed OTP or legacy plaintext OTP
+    const cleanOtp = String(otp).trim();
+    const hashedInput = crypto.createHash("sha256").update(cleanOtp).digest("hex");
+    const isMatch =
+      user.resetPasswordOTP === hashedInput ||
+      user.resetPasswordOTP === cleanOtp;
+
+    if (!isMatch) {
+      user.resetPasswordAttempts = (user.resetPasswordAttempts || 0) + 1;
+      await user.save({ validateBeforeSave: false });
+      const remaining = 5 - user.resetPasswordAttempts;
+      return errorResponse(
+        res,
+        `Invalid recovery OTP. ${remaining} attempt(s) remaining.`,
+        400,
+      );
+    }
+
+    // Update password, clear recovery state
     user.passwordHash = newPassword;
     user.resetPasswordOTP = undefined;
     user.resetPasswordExpires = undefined;
+    user.resetPasswordAttempts = 0;
     await user.save();
 
     successResponse(res, null, "Password reset successful! You can now login.");

@@ -42,10 +42,11 @@ export const getProducts = async (req, res) => {
     if (featured === "true") filter.isFeatured = true;
     if (lowStock === "true") filter.totalStock = { $lte: 10 }; // Assuming low stock is total sum or similar
     if (search) {
+      const safeSearch = String(search).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       filter.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
-        { shortDescription: { $regex: search, $options: "i" } },
+        { name: { $regex: safeSearch, $options: "i" } },
+        { description: { $regex: safeSearch, $options: "i" } },
+        { shortDescription: { $regex: safeSearch, $options: "i" } },
       ];
     }
 

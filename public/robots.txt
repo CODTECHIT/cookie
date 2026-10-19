@@ -4,7 +4,6 @@
 # General Web Crawlers
 User-agent: *
 Allow: /
-Disallow: /cookies/admin@123/
 Disallow: /admin/
 Disallow: /api/
 Disallow: /private/

@@ -82,9 +82,10 @@ export const getAllPayments = async (req, res) => {
     if (status) filter.status = status;
     if (method) filter.method = method;
     if (search) {
+      const safe = String(search).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       filter.$or = [
-        { gatewayPaymentId: { $regex: search, $options: "i" } },
-        { gatewayOrderId: { $regex: search, $options: "i" } },
+        { gatewayPaymentId: { $regex: safe, $options: "i" } },
+        { gatewayOrderId: { $regex: safe, $options: "i" } },
       ];
     }
 
@@ -141,7 +142,11 @@ export const exportPaymentsCSV = async (req, res) => {
     ];
 
     const escape = (value) => {
-      const str = String(value ?? "");
+      let str = String(value ?? "");
+      // Disarm CSV Formula Injection (=, +, -, @)
+      if (/^[=+\-@\t\r]/.test(str)) {
+        str = `'${str}`;
+      }
       if (str.includes(",") || str.includes('"') || str.includes("\n")) {
         return `"${str.replace(/"/g, '""')}"`;
       }
@@ -181,11 +186,36 @@ export const createRazorpayOrder = async (req, res) => {
   try {
     const { amount, currency = "INR", receipt, notes } = req.body;
 
+    let finalAmountPaise;
+
+    // 🔒 Security: If local order ID is passed in notes, enforce amount from database
+    const localOrderId = notes?.order_id;
+    if (localOrderId) {
+      const targetOrder = await Order.findById(localOrderId);
+      if (!targetOrder) {
+        return errorResponse(res, "Referenced order not found", 404);
+      }
+      const isOwner =
+        req.user &&
+        (req.user.role === "admin" ||
+          targetOrder.customerId.toString() === req.user._id.toString());
+      if (!isOwner) {
+        return errorResponse(res, "Unauthorized order access", 403);
+      }
+      finalAmountPaise = Math.round(targetOrder.grandTotal * 100);
+    } else {
+      finalAmountPaise = Math.round(Number(amount) * 100);
+    }
+
+    if (!finalAmountPaise || finalAmountPaise <= 0) {
+      return errorResponse(res, "Invalid payment amount", 400);
+    }
+
     const options = {
-      amount: Math.round(amount * 100), // convert to paise
+      amount: finalAmountPaise,
       currency,
       receipt,
-      notes: notes || {}, // Include local order ID if provided
+      notes: notes || {},
     };
 
     const order = await razorpay.orders.create(options);
@@ -196,7 +226,6 @@ export const createRazorpayOrder = async (req, res) => {
 };
 
 // POST /api/payments/verify — Verify Razorpay Payment
-// IMPROVED: Better error handling and validation
 export const verifyPayment = async (req, res) => {
   try {
     const {
@@ -217,20 +246,54 @@ export const verifyPayment = async (req, res) => {
       return errorResponse(res, "Missing required payment fields", 400);
     }
 
-    console.log(
-      `🔍 Verifying payment: Order=${orderId}, PaymentId=${razorpay_payment_id}`,
-    );
+    // 🔒 Security: Verify order ownership
+    const targetOrder = await Order.findById(orderId);
+    if (!targetOrder) return errorResponse(res, "Order not found", 404);
 
-    // Verify signature
+    const isOwner =
+      req.user &&
+      (req.user.role === "admin" ||
+        targetOrder.customerId.toString() === req.user._id.toString());
+    if (!isOwner) {
+      return errorResponse(res, "Access denied: Unauthorized order payment verification", 403);
+    }
+
+    // 🔒 Security: Verify signature with timing-safe comparison
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET || "")
       .update(body.toString())
       .digest("hex");
 
-    if (expectedSignature !== razorpay_signature) {
+    const expectedBuf = Buffer.from(expectedSignature, "utf8");
+    const receivedBuf = Buffer.from(String(razorpay_signature), "utf8");
+
+    if (
+      expectedBuf.length !== receivedBuf.length ||
+      !crypto.timingSafeEqual(expectedBuf, receivedBuf)
+    ) {
       console.warn(`⚠️ Signature mismatch for payment ${razorpay_payment_id}`);
       return errorResponse(res, "Payment signature verification failed", 401);
+    }
+
+    // 🔒 Security: Check replay attack across payments
+    const existingPayment = await Payment.findOne({
+      gatewayPaymentId: razorpay_payment_id,
+    });
+    if (existingPayment) {
+      if (existingPayment.orderId.toString() === targetOrder._id.toString()) {
+        return successResponse(
+          res,
+          { order: targetOrder, payment: existingPayment },
+          "Order already processed",
+        );
+      } else {
+        return errorResponse(
+          res,
+          "Payment transaction ID has already been redeemed for another order",
+          400,
+        );
+      }
     }
 
     console.log(`✅ Signature verified for payment ${razorpay_payment_id}`);
@@ -313,12 +376,22 @@ export const razorpayWebhook = async (req, res) => {
     const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
     const signature = req.headers["x-razorpay-signature"];
 
-    // Verify webhook signature
+    if (!secret || !signature) {
+      return res.status(400).send("Missing webhook secret or signature");
+    }
+
+    // Verify webhook signature with timing-safe comparison
     const shasum = crypto.createHmac("sha256", secret);
     shasum.update(JSON.stringify(req.body));
     const digest = shasum.digest("hex");
 
-    if (digest !== signature) {
+    const digestBuf = Buffer.from(digest, "utf8");
+    const sigBuf = Buffer.from(String(signature), "utf8");
+
+    if (
+      digestBuf.length !== sigBuf.length ||
+      !crypto.timingSafeEqual(digestBuf, sigBuf)
+    ) {
       console.warn("⚠️ Webhook blocked: Invalid signature");
       return res.status(400).send("Invalid signature");
     }
